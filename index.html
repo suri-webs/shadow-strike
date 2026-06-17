@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game</title>
+</head>
+
+<body>
+
+    <div id="game-loader" style="
+        position: fixed; inset: 0; z-index: 99999;
+        background: #000;
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        font-family: 'Orbitron', 'Segoe UI', sans-serif;
+        transition: opacity 0.6s ease;">
+        <div style="position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 50% 60%, rgba(0,240,255,0.06) 0%, transparent 70%);
+            animation: loaderPulse 2.5s ease-in-out infinite;"></div>
+
+        <!-- Logo / Title -->
+        <div style="position:relative; text-align:center; margin-bottom: 48px;">
+            <div style="
+                font-size: 11px; letter-spacing: 8px; color: #00e5ff;
+                text-transform: uppercase; margin-bottom: 12px;
+                opacity: 0.7;
+            ">— INITIALIZING —</div>
+            <div style="
+                font-size: 42px; font-weight: 900; letter-spacing: 6px;
+                color: #fff;
+                text-shadow: 0 0 30px rgba(0,229,255,0.6), 0 0 60px rgba(0,229,255,0.25);
+                text-transform: uppercase;
+            ">SHADOW STRIKE</div>
+            <div style="
+                width: 80px; height: 2px; margin: 14px auto 0;
+                background: linear-gradient(90deg, transparent, #00e5ff, transparent);
+            "></div>
+        </div>
+
+        <!-- Progress bar -->
+        <div style="position:relative; width: 340px;">
+            <div style="
+                display: flex; justify-content: space-between;
+                font-size: 10px; letter-spacing: 3px; color: rgba(0,229,255,0.5);
+                margin-bottom: 10px; text-transform: uppercase;
+            ">
+                <span>Loading Assets</span>
+                <span id="loader-pct">0%</span>
+            </div>
+            <div style="
+                width: 100%; height: 4px; border-radius: 2px;
+                background: rgba(255,255,255,0.08);
+                overflow: hidden;
+            ">
+                <div id="loader-bar" style="
+                    height: 100%; width: 0%;
+                    background: linear-gradient(90deg, #00b4d8, #00e5ff);
+                    border-radius: 2px;
+                    box-shadow: 0 0 12px rgba(0,229,255,0.8);
+                    transition: width 0.2s ease;
+                "></div>
+            </div>
+
+            <!-- Scanning line -->
+            <div id="loader-scan" style="
+                position: absolute; top: 0; left: -100%;
+                width: 60%; height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(0,229,255,0.15), transparent);
+                animation: scanLine 1.8s linear infinite;
+            "></div>
+        </div>
+
+        <!-- Tip text -->
+        <div style="
+            margin-top: 36px;
+            font-size: 11px; letter-spacing: 2px;
+            color: rgba(255,255,255,0.25);
+            text-transform: uppercase;
+        ">Please wait while the world loads...</div>
+    </div>
+
+    <style>
+        @keyframes loaderPulse {
+
+            0%,
+            100% {
+                opacity: 0.4;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
+        @keyframes scanLine {
+            0% {
+                left: -60%;
+            }
+
+            100% {
+                left: 110%;
+            }
+        }
+    </style>
+
+    <script>
+        (function () {
+            const loader = document.getElementById('game-loader');
+            const bar = document.getElementById('loader-bar');
+            const pctLabel = document.getElementById('loader-pct');
+
+            function setProgress(p) {
+                const v = Math.round(p * 100);
+                bar.style.width = v + '%';
+                pctLabel.textContent = v + '%';
+            }
+
+            function hideLoader() {
+                setProgress(1);
+                setTimeout(function () {
+                    loader.style.opacity = '0';
+                    setTimeout(function () { loader.style.display = 'none'; }, 650);
+                }, 300);
+            }
+
+            // Track image loading progress in real-time
+            document.addEventListener('DOMContentLoaded', function () {
+                const imgs = Array.from(document.querySelectorAll('img'));
+                let loaded = 0;
+                const total = imgs.length;
+                if (total === 0) { hideLoader(); return; }
+
+                function onLoad() {
+                    loaded++;
+                    setProgress(loaded / total);
+                    if (loaded >= total) hideLoader();
+                }
+
+                imgs.forEach(function (img) {
+                    if (img.complete && img.naturalWidth > 0) {
+                        onLoad();
+                    } else {
+                        img.addEventListener('load', onLoad);
+                        img.addEventListener('error', onLoad); // count failures too
+                    }
+                });
+            });
+
+            // Fallback: hide on window load regardless
+            window.addEventListener('load', function () {
+                hideLoader();
+            });
+        })();
+    </script>
+    <!-- ========================================= -->
+
+    <canvas id="canvas1"></canvas>
+
+    <img id="player" src="/asset/players/player1.png" alt="">
+    <img id="player2_jotem" src="/asset/players/player2-Jotem/Jotem spritesheet.png" alt="">
+    <img id="player4_archdemon_idle" src="/asset/players/player-4DuskBorne-ArchDemon/ArchDemonIdle001-Sheet.png" alt="">
+    <img id="player4_archdemon_atk" src="/asset/players/player-4DuskBorne-ArchDemon/ArchDemonBasicAtk001-Sheet.png"
+        alt="">
+    <img id="player4_archdemon_hurt" src="/asset/players/player-4DuskBorne-ArchDemon/ArchDemonHurt001-Sheet.png" alt="">
+    <img id="player4_archdemon_death" src="/asset/players/player-4DuskBorne-ArchDemon/ArchDemonDeath001-Sheet.png"
+        alt="">
+    <img id="layer1" src="/asset/layer-1.png" alt="">
+    <img id="layer2" src="/asset/layer-2.png" alt="">
+    <img id="layer3" src="/asset/layer-3.png" alt="">
+    <img id="layer4" src="/asset/layer-4.png" alt="">
+    <img id="layer5" src="/asset/layer-5.png" alt="">
+
+    <img id="windProjectile" src="/asset/Wind Projectile_white.png" alt="">
+    <img id="windBreath" src="/asset/Wind Breath_white.png" alt="">
+    <img id="windHitEffect" src="/asset/Wind Hit Effectc_white.png" alt="">
+
+    <img id="enemyIdle" src="/asset/flying-enemy/IDLE.png" alt="">
+    <img id="enemyFlying" src="/asset/flying-enemy/FLYING.png" alt="">
+    <img id="enemyAttack" src="/asset/flying-enemy/ATTACK.png" alt="">
+    <img id="enemyHurt" src="/asset/flying-enemy/HURT.png" alt="">
+    <img id="enemyDeath" src="/asset/flying-enemy/DEATH.png" alt="">
+
+    <img id="city1" src="/asset/level-2layers/1.png" alt="">
+    <img id="city2" src="/asset/level-2layers/2.png" alt="">
+    <img id="city3" src="/asset/level-2layers/3.png" alt="">
+    <img id="city4" src="/asset/level-2layers/4.png" alt="">
+    <img id="city5" src="/asset/level-2layers/5.png" alt="">
+    <img id="city6" src="/asset/level-2layers/6.png" alt="">
+
+    <img id="l3_layer1" src="/asset/level-3layers/1.png" alt="">
+    <img id="l3_layer2" src="/asset/level-3layers/2.png" alt="">
+    <img id="l3_layer3" src="/asset/level-3layers/3.png" alt="">
+    <img id="l3_layer4" src="/asset/level-3layers/4.png" alt="">
+    <img id="l3_layer5" src="/asset/level-3layers/5.png" alt="">
+    <img id="l3_layer6" src="/asset/level-3layers/6.png" alt="">
+    <img id="l3_layer7" src="/asset/level-3layers/7.png" alt="">
+
+    <img id="l4_layer1" src="/asset/level4-background/1.png" alt="">
+    <img id="l4_layer2" src="/asset/level4-background/2.png" alt="">
+    <img id="l4_layer3" src="/asset/level4-background/3.png" alt="">
+    <img id="l4_layer4" src="/asset/level4-background/4.png" alt="">
+    <img id="l4_layer5" src="/asset/level4-background/5.png" alt="">
+    <img id="l4_layer6" src="/asset/level4-background/6.png" alt="">
+    <img id="l4_layer7" src="/asset/level4-background/7.png" alt="">
+    <img id="l4_layer8" src="/asset/level4-background/8.png" alt="">
+    <img id="l4_layer9" src="/asset/level4-background/9.png" alt="">
+
+    <img id="l5_layer1" src="/asset/level-5-backgorund/BG_1/BG_1.png" alt="">
+    <img id="l5_layer2" src="/asset/level-5-backgorund/BG_2/BG_2.png" alt="">
+    <img id="l5_layer3" src="/asset/level-5-backgorund/BG_3/BG_3.png" alt="">
+    <img id="l5_ground" src="/asset/level-5-backgorund/Forest_GroundTileSet.png" alt="">
+
+    <img id="dragonLordIdle" src="/asset/demon-lord-bosslevel2/dragon_lord_idle_basic_74x74.png" alt="">
+    <img id="dragonLordWalk" src="/asset/demon-lord-bosslevel2/dragon_lord_walk_basic_74x74.png" alt="">
+    <img id="dragonLordAttack" src="/asset/demon-lord-bosslevel2/dragon_lord_attack_arms_90x70.png" alt="">
+    <img id="dragonLordHurt" src="/asset/demon-lord-bosslevel2/dragon_lord_hurt_basic_130x130.png" alt="">
+    <img id="dragonLordDeath" src="/asset/demon-lord-bosslevel2/dragon_lord_death_160x160.png" alt="">
+    <img id="dimensionalPortal" src="/asset/dimensionalportal/Dimensional_Portal.png" alt="">
+    <img id="mechaStone" src="/asset/MECHA-stone/Character_sheet.png" alt="">
+    <img id="amarjeetBlackHoleImg" src="/asset/main-villan-of-stoory/amarjeet-da-blackhole.png" alt="">
+    <img id="amarjeetCustomProjectile" src="/asset/amarjeet_dark_hole_projectile.png" alt="">
+
+    <img id="demonIdle1" src="/asset/ground-fire-emeny/01_demon_idle/demon_idle_1.png" alt="">
+    <img id="demonIdle2" src="/asset/ground-fire-emeny/01_demon_idle/demon_idle_2.png" alt="">
+    <img id="demonIdle3" src="/asset/ground-fire-emeny/01_demon_idle/demon_idle_3.png" alt="">
+    <img id="demonIdle4" src="/asset/ground-fire-emeny/01_demon_idle/demon_idle_4.png" alt="">
+    <img id="demonIdle5" src="/asset/ground-fire-emeny/01_demon_idle/demon_idle_5.png" alt="">
+    <img id="demonIdle6" src="/asset/ground-fire-emeny/01_demon_idle/demon_idle_6.png" alt="">
+
+    <img id="demonWalk1" src="/asset/ground-fire-emeny/02_demon_walk/demon_walk_1.png" alt="">
+    <img id="demonWalk2" src="/asset/ground-fire-emeny/02_demon_walk/demon_walk_2.png" alt="">
+    <img id="demonWalk3" src="/asset/ground-fire-emeny/02_demon_walk/demon_walk_3.png" alt="">
+    <img id="demonWalk4" src="/asset/ground-fire-emeny/02_demon_walk/demon_walk_4.png" alt="">
+    <img id="demonWalk5" src="/asset/ground-fire-emeny/02_demon_walk/demon_walk_5.png" alt="">
+    <img id="demonWalk6" src="/asset/ground-fire-emeny/02_demon_walk/demon_walk_6.png" alt="">
+    <img id="demonWalk7" src="/asset/ground-fire-emeny/02_demon_walk/demon_walk_7.png" alt="">
+    <img id="demonWalk8" src="/asset/ground-fire-emeny/02_demon_walk/demon_walk_8.png" alt="">
+    <img id="demonWalk9" src="/asset/ground-fire-emeny/02_demon_walk/demon_walk_9.png" alt="">
+    <img id="demonWalk10" src="/asset/ground-fire-emeny/02_demon_walk/demon_walk_10.png" alt="">
+    <img id="demonWalk11" src="/asset/ground-fire-emeny/02_demon_walk/demon_walk_11.png" alt="">
+    <img id="demonWalk12" src="/asset/ground-fire-emeny/02_demon_walk/demon_walk_12.png" alt="">
+
+    <img id="demonCleave1" src="/asset/ground-fire-emeny/03_demon_cleave/demon_cleave_1.png" alt="">
+    <img id="demonCleave2" src="/asset/ground-fire-emeny/03_demon_cleave/demon_cleave_2.png" alt="">
+    <img id="demonCleave3" src="/asset/ground-fire-emeny/03_demon_cleave/demon_cleave_3.png" alt="">
+    <img id="demonCleave4" src="/asset/ground-fire-emeny/03_demon_cleave/demon_cleave_4.png" alt="">
+    <img id="demonCleave5" src="/asset/ground-fire-emeny/03_demon_cleave/demon_cleave_5.png" alt="">
+    <img id="demonCleave6" src="/asset/ground-fire-emeny/03_demon_cleave/demon_cleave_6.png" alt="">
+    <img id="demonCleave7" src="/asset/ground-fire-emeny/03_demon_cleave/demon_cleave_7.png" alt="">
+    <img id="demonCleave8" src="/asset/ground-fire-emeny/03_demon_cleave/demon_cleave_8.png" alt="">
+    <img id="demonCleave9" src="/asset/ground-fire-emeny/03_demon_cleave/demon_cleave_9.png" alt="">
+    <img id="demonCleave10" src="/asset/ground-fire-emeny/03_demon_cleave/demon_cleave_10.png" alt="">
+    <img id="demonCleave11" src="/asset/ground-fire-emeny/03_demon_cleave/demon_cleave_11.png" alt="">
+    <img id="demonCleave12" src="/asset/ground-fire-emeny/03_demon_cleave/demon_cleave_12.png" alt="">
+    <img id="demonCleave13" src="/asset/ground-fire-emeny/03_demon_cleave/demon_cleave_13.png" alt="">
+    <img id="demonCleave14" src="/asset/ground-fire-emeny/03_demon_cleave/demon_cleave_14.png" alt="">
+    <img id="demonCleave15" src="/asset/ground-fire-emeny/03_demon_cleave/demon_cleave_15.png" alt="">
+
+    <img id="demonHurt1" src="/asset/ground-fire-emeny/04_demon_take_hit/demon_take_hit_1.png" alt="">
+    <img id="demonHurt2" src="/asset/ground-fire-emeny/04_demon_take_hit/demon_take_hit_2.png" alt="">
+    <img id="demonHurt3" src="/asset/ground-fire-emeny/04_demon_take_hit/demon_take_hit_3.png" alt="">
+    <img id="demonHurt4" src="/asset/ground-fire-emeny/04_demon_take_hit/demon_take_hit_4.png" alt="">
+    <img id="demonHurt5" src="/asset/ground-fire-emeny/04_demon_take_hit/demon_take_hit_5.png" alt="">
+
+    <img id="demonDeath1" src="/asset/ground-fire-emeny/05_demon_death/demon_death_1.png" alt="">
+    <img id="demonDeath2" src="/asset/ground-fire-emeny/05_demon_death/demon_death_2.png" alt="">
+    <img id="demonDeath3" src="/asset/ground-fire-emeny/05_demon_death/demon_death_3.png" alt="">
+    <img id="demonDeath4" src="/asset/ground-fire-emeny/05_demon_death/demon_death_4.png" alt="">
+    <img id="demonDeath5" src="/asset/ground-fire-emeny/05_demon_death/demon_death_5.png" alt="">
+    <img id="demonDeath6" src="/asset/ground-fire-emeny/05_demon_death/demon_death_6.png" alt="">
+    <img id="demonDeath7" src="/asset/ground-fire-emeny/05_demon_death/demon_death_7.png" alt="">
+    <img id="demonDeath8" src="/asset/ground-fire-emeny/05_demon_death/demon_death_8.png" alt="">
+    <img id="demonDeath9" src="/asset/ground-fire-emeny/05_demon_death/demon_death_9.png" alt="">
+    <img id="demonDeath10" src="/asset/ground-fire-emeny/05_demon_death/demon_death_10.png" alt="">
+    <img id="demonDeath11" src="/asset/ground-fire-emeny/05_demon_death/demon_death_11.png" alt="">
+    <img id="demonDeath12" src="/asset/ground-fire-emeny/05_demon_death/demon_death_12.png" alt="">
+    <img id="demonDeath13" src="/asset/ground-fire-emeny/05_demon_death/demon_death_13.png" alt="">
+    <img id="demonDeath14" src="/asset/ground-fire-emeny/05_demon_death/demon_death_14.png" alt="">
+    <img id="demonDeath15" src="/asset/ground-fire-emeny/05_demon_death/demon_death_15.png" alt="">
+    <img id="demonDeath16" src="/asset/ground-fire-emeny/05_demon_death/demon_death_16.png" alt="">
+    <img id="demonDeath17" src="/asset/ground-fire-emeny/05_demon_death/demon_death_17.png" alt="">
+    <img id="demonDeath18" src="/asset/ground-fire-emeny/05_demon_death/demon_death_18.png" alt="">
+
+    <img id="minoIdle1" src="/asset/mino/idle/idle_1.png" alt="">
+    <img id="minoIdle2" src="/asset/mino/idle/idle_2.png" alt="">
+    <img id="minoIdle3" src="/asset/mino/idle/idle_3.png" alt="">
+    <img id="minoIdle4" src="/asset/mino/idle/idle_4.png" alt="">
+    <img id="minoIdle5" src="/asset/mino/idle/idle_5.png" alt="">
+    <img id="minoIdle6" src="/asset/mino/idle/idle_6.png" alt="">
+    <img id="minoIdle7" src="/asset/mino/idle/idle_7.png" alt="">
+    <img id="minoIdle8" src="/asset/mino/idle/idle_8.png" alt="">
+    <img id="minoIdle9" src="/asset/mino/idle/idle_9.png" alt="">
+    <img id="minoIdle10" src="/asset/mino/idle/idle_10.png" alt="">
+    <img id="minoIdle11" src="/asset/mino/idle/idle_11.png" alt="">
+    <img id="minoIdle12" src="/asset/mino/idle/idle_12.png" alt="">
+    <img id="minoIdle13" src="/asset/mino/idle/idle_13.png" alt="">
+    <img id="minoIdle14" src="/asset/mino/idle/idle_14.png" alt="">
+    <img id="minoIdle15" src="/asset/mino/idle/idle_15.png" alt="">
+    <img id="minoIdle16" src="/asset/mino/idle/idle_16.png" alt="">
+
+    <img id="minoWalk1" src="/asset/mino/walk/walk_1.png" alt="">
+    <img id="minoWalk2" src="/asset/mino/walk/walk_2.png" alt="">
+    <img id="minoWalk3" src="/asset/mino/walk/walk_3.png" alt="">
+    <img id="minoWalk4" src="/asset/mino/walk/walk_4.png" alt="">
+    <img id="minoWalk5" src="/asset/mino/walk/walk_5.png" alt="">
+    <img id="minoWalk6" src="/asset/mino/walk/walk_6.png" alt="">
+    <img id="minoWalk7" src="/asset/mino/walk/walk_7.png" alt="">
+    <img id="minoWalk8" src="/asset/mino/walk/walk_8.png" alt="">
+    <img id="minoWalk9" src="/asset/mino/walk/walk_9.png" alt="">
+    <img id="minoWalk10" src="/asset/mino/walk/walk_10.png" alt="">
+    <img id="minoWalk11" src="/asset/mino/walk/walk_11.png" alt="">
+    <img id="minoWalk12" src="/asset/mino/walk/walk_12.png" alt="">
+
+    <img id="minoAtk1" src="/asset/mino/atk_1/atk_1_1.png" alt="">
+    <img id="minoAtk2" src="/asset/mino/atk_1/atk_1_2.png" alt="">
+    <img id="minoAtk3" src="/asset/mino/atk_1/atk_1_3.png" alt="">
+    <img id="minoAtk4" src="/asset/mino/atk_1/atk_1_4.png" alt="">
+    <img id="minoAtk5" src="/asset/mino/atk_1/atk_1_5.png" alt="">
+    <img id="minoAtk6" src="/asset/mino/atk_1/atk_1_6.png" alt="">
+    <img id="minoAtk7" src="/asset/mino/atk_1/atk_1_7.png" alt="">
+    <img id="minoAtk8" src="/asset/mino/atk_1/atk_1_8.png" alt="">
+    <img id="minoAtk9" src="/asset/mino/atk_1/atk_1_9.png" alt="">
+    <img id="minoAtk10" src="/asset/mino/atk_1/atk_1_10.png" alt="">
+    <img id="minoAtk11" src="/asset/mino/atk_1/atk_1_11.png" alt="">
+    <img id="minoAtk12" src="/asset/mino/atk_1/atk_1_12.png" alt="">
+    <img id="minoAtk13" src="/asset/mino/atk_1/atk_1_13.png" alt="">
+    <img id="minoAtk14" src="/asset/mino/atk_1/atk_1_14.png" alt="">
+    <img id="minoAtk15" src="/asset/mino/atk_1/atk_1_15.png" alt="">
+    <img id="minoAtk16" src="/asset/mino/atk_1/atk_1_16.png" alt="">
+
+    <img id="minoHpOver" src="/asset/mino/bonus_mino_healthbar_UI/mino_health_over.png" alt="">
+    <img id="minoHpProgress" src="/asset/mino/bonus_mino_healthbar_UI/mino_health_progress.png" alt="">
+    <img id="minoHpUnder" src="/asset/mino/bonus_mino_healthbar_UI/mino_health_under.png" alt="">
+
+    <!-- Settings Gear Button -->
+    <div id="settings-btn" class="settings-btn">
+        <svg class="gear-icon" viewBox="0 0 24 24">
+            <path
+                d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" />
+        </svg>
+    </div>
+
+    <!-- Glassmorphic Settings Panel Overlay -->
+    <div id="settings-overlay" class="settings-overlay">
+        <div class="settings-modal">
+            <div class="settings-header">
+                <h2>SETTINGS</h2>
+                <button id="close-settings" class="close-btn">&times;</button>
+            </div>
+            <div class="settings-body">
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <span>Background Music</span>
+                        <span id="bgm-vol-txt">50%</span>
+                    </div>
+                    <input type="range" id="bgm-volume" min="0" max="100" value="50" class="volume-slider">
+                </div>
+                <div class="setting-item">
+                    <div class="setting-label">
+                        <span>Sound Effects (SFX)</span>
+                        <span id="sfx-vol-txt">50%</span>
+                    </div>
+                    <input type="range" id="sfx-volume" min="0" max="100" value="50" class="volume-slider">
+                </div>
+            </div>
+            <div class="settings-footer">
+                <button id="resume-btn" class="settings-btn-premium">RESUME</button>
+                <button id="restart-btn" class="settings-btn-premium">RESTART</button>
+                <button id="back-btn" class="settings-btn-premium">SELECT HERO</button>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Glassmorphic Character Selection Screen Modal Overlay (Zero-G Sci-Fi Redesign) -->
+    <div id="char-selection-overlay" class="char-selection-overlay">
+        <!-- Floating Particles -->
+        <div class="zg-particles">
+            <div class="zg-particle p1"></div>
+            <div class="zg-particle p2"></div>
+            <div class="zg-particle p3"></div>
+            <div class="zg-particle p4"></div>
+            <div class="zg-particle p5"></div>
+            <div class="zg-particle p6"></div>
+        </div>
+
+        <div class="char-selection-modal">
+            <!-- Holographic Scanlines -->
+            <div class="scanlines"></div>
+
+            <!-- Zero-G Sci-Fi Header with Coins Counter -->
+            <div class="char-selection-header"
+                style="display: flex; justify-content: space-between; align-items: center; width: 90%; max-width: 960px; margin: 0 auto 16px; border-bottom: 1px solid rgba(0, 240, 255, 0.15); padding-bottom: 10px;">
+                <h2
+                    style="font-family: 'Orbitron', sans-serif; font-size: 22px; font-weight: 900; color: #fff; letter-spacing: 3px; text-transform: uppercase; margin: 0; text-shadow: 0 0 10px rgba(255,255,255,0.2);">
+                    SELECT CHAMPION</h2>
+                <div class="coin-display"
+                    style="font-family: 'Orbitron', sans-serif; font-size: 16px; font-weight: 700; color: #ffd700; text-shadow: 0 0 12px rgba(255, 215, 0, 0.6); display: flex; align-items: center; gap: 8px; background: rgba(255, 215, 0, 0.08); padding: 4px 14px; border-radius: 6px; border: 1px solid rgba(255, 215, 0, 0.25);">
+                    🪙 <span id="user-coins-display">0</span> COINS
+                </div>
+            </div>
+
+            <div class="char-selection-content">
+                <!-- Left Side: Vertical Roster List -->
+                <div class="char-selection-left">
+                    <div class="char-list">
+                        <!-- Shinobi Slot -->
+                        <div class="char-card active-card" data-char="shinobi">
+                            <div class="char-card-glow text-cyan"></div>
+                            <div class="portrait-box theme-cyan">
+                                <img src="/asset/players/player-banner/player1-banner.png" alt="Shinobi"
+                                    class="portrait-img">
+                            </div>
+                            <div class="card-info">
+                                <span class="char-grid-name">SHINOBI</span>
+                                <span class="char-role text-cyan">Melee / Speed</span>
+                            </div>
+                            <div class="card-arrow text-cyan">›</div>
+                        </div>
+
+                        <!-- Jotem Slot -->
+                        <div class="char-card" data-char="jotem">
+                            <div class="char-card-glow text-amber"></div>
+                            <div class="portrait-box theme-amber">
+                                <img src="/asset/players/player-banner/player2-banner.png" alt="Jotem"
+                                    class="portrait-img">
+                            </div>
+                            <div class="card-info">
+                                <span class="char-grid-name">JOTEM</span>
+                                <span class="char-role text-amber">Heavy / Brawler</span>
+                            </div>
+                            <div class="card-arrow text-amber">›</div>
+                        </div>
+
+                        <!-- Shaia Slot -->
+                        <div class="char-card" data-char="shaia">
+                            <div class="char-card-glow text-purple"></div>
+                            <div class="portrait-box theme-purple">
+                                <img src="/asset/players/player-banner/player3-banner.png" alt="Shaia"
+                                    class="portrait-img">
+                            </div>
+                            <div class="card-info">
+                                <span class="char-grid-name">SHAIA</span>
+                                <span class="char-role text-purple">Ranged / Magic</span>
+                            </div>
+                            <div class="card-arrow text-purple">›</div>
+                        </div>
+
+                        <!-- DuskBorne Slot -->
+                        <div class="char-card" data-char="archdemon">
+                            <div class="char-card-glow text-crimson"></div>
+                            <div class="portrait-box theme-crimson">
+                                <img src="/asset/players/player-banner/player4-banner.png" alt="DuskBorne"
+                                    class="portrait-img">
+                            </div>
+                            <div class="card-info">
+                                <span class="char-grid-name">DUSKBORNE</span>
+                                <span class="char-role text-crimson">Demonic / Burst</span>
+                            </div>
+                            <div class="card-arrow text-crimson">›</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side: Holographic Preview Panel -->
+                <div class="char-selection-right">
+                    <div class="char-preview-panel theme-cyan" id="char-preview-panel">
+                        <div class="preview-info-box">
+                            <h3 class="preview-name text-cyan" id="preview-name">SHINOBI</h3>
+                            <span class="preview-title" id="preview-title">Wind Swiftblade</span>
+                            <p class="preview-desc" id="preview-desc">An elite ninja wielding the raw power of vacuum
+                                and plasma slashes. Relies on speed and precision to slice through hordes of skeletal
+                                foes.</p>
+
+                            <div class="char-stats">
+                                <div class="stat-row"><span>Vital Health</span>
+                                    <div class="stat-bar">
+                                        <div class="stat-fill pulse-fill" id="stat-fill-hp"
+                                            style="width: 80%; background: #00e5ff;"></div>
+                                    </div>
+                                </div>
+                                <div class="stat-row"><span>Agility Speed</span>
+                                    <div class="stat-bar">
+                                        <div class="stat-fill pulse-fill" id="stat-fill-speed"
+                                            style="width: 85%; background: #00e5ff;"></div>
+                                    </div>
+                                </div>
+                                <div class="stat-row"><span>Offense Power</span>
+                                    <div class="stat-bar">
+                                        <div class="stat-fill pulse-fill" id="stat-fill-power"
+                                            style="width: 70%; background: #00e5ff;"></div>
+                                    </div>
+                                </div>
+                                <div class="stat-row"><span>Shield Defense</span>
+                                    <div class="stat-bar">
+                                        <div class="stat-fill pulse-fill" id="stat-fill-defense"
+                                            style="width: 60%; background: #00e5ff;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="char-skills" id="preview-skills">
+                                <div class="skill"><span class="key">Q</span> <span class="skill-tag"><b
+                                            id="skill-q-name">Wind Blast</b>: <span id="skill-q-desc">Charges a
+                                            compressed vacuum projectile.</span></span></div>
+                                <div class="skill"><span class="key">E</span> <span class="skill-tag"><b
+                                            id="skill-e-name">Plasma Shield</b>: <span id="skill-e-desc">Deflects all
+                                            damage with cyan kinetic fields.</span></span></div>
+                                <div class="skill"><span class="key">R</span> <span class="skill-tag"><b
+                                            id="skill-r-name">Flame Slash</b>: <span id="skill-r-desc">Releases crescent
+                                            wave slashes of sword heat.</span></span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Confirm Button at Bottom with Thruster Exhaust -->
+            <div class="confirm-btn-container">
+                <button id="char-select-back-btn" class="confirm-char-btn btn-secondary">BACK</button>
+                <button id="confirm-char-btn" class="confirm-char-btn">CONFIRM CHAMPION</button>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Glassmorphic Level Selection Screen Overlay -->
+    <div id="level-selection-overlay" class="char-selection-overlay">
+        <!-- Floating Particles -->
+        <div class="zg-particles">
+            <div class="zg-particle p1"></div>
+            <div class="zg-particle p2"></div>
+            <div class="zg-particle p3"></div>
+            <div class="zg-particle p4"></div>
+            <div class="zg-particle p5"></div>
+            <div class="zg-particle p6"></div>
+        </div>
+
+        <div class="char-selection-modal">
+            <!-- Holographic Scanlines -->
+            <div class="scanlines"></div>
+
+            <div class="char-selection-content" style="flex-direction: column; align-items: center; width: 100%;">
+                <h2
+                    style="font-family: 'Orbitron', sans-serif; font-size: 24px; font-weight: 900; letter-spacing: 4px; color: #00f0ff; text-shadow: 0 0 15px rgba(0, 240, 255, 0.8); margin-bottom: 24px; text-transform: uppercase;">
+                    SELECT MISSION LEVEL</h2>
+
+                <div class="level-list" id="level-list-container">
+                    <!-- Dynamic level cards injected via JS -->
+                </div>
+            </div>
+
+            <!-- Confirm Button at Bottom with Thruster Exhaust -->
+            <div class="confirm-btn-container" style="margin-top: 24px;">
+                <button id="level-select-back-btn" class="confirm-char-btn btn-secondary">BACK</button>
+                <button id="confirm-level-btn" class="confirm-char-btn">LAUNCH MISSION</button>
+                <button id="reset-progress-btn" class="settings-btn-premium" style="
+                    background: linear-gradient(135deg, #7b0000, #c0392b);
+                    border-color: #e74c3c;
+                    color: #fff;
+                    letter-spacing: 1.5px;
+                    padding-block: 16px;
+                ">RESET PROGRESS</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Retro-Futuristic Story Narration Overlay -->
+    <div id="story-intro-overlay" class="story-intro-overlay">
+        <div class="story-intro-modal">
+            <h1 id="story-level-title" class="story-title">LEVEL 1: SHADOW CITY</h1>
+            <div id="story-text-container" class="story-text"></div>
+            <div class="story-prompt">PRESS SPACE / CLICK TO BEGIN MISSION</div>
+        </div>
+    </div>
+
+    <!-- Premium Frosted Dialogue Overlay -->
+    <div id="dialogue-overlay" class="dialogue-overlay">
+        <div class="dialogue-box">
+            <!-- Left Portrait Slot for the Player -->
+            <div id="dialogue-portrait-left" class="dialogue-portrait left">
+                <img id="dialogue-avatar-left" src="" alt="Player Avatar">
+            </div>
+
+            <!-- Right Portrait Slot for Boss / NPCs -->
+            <div id="dialogue-portrait-right" class="dialogue-portrait right">
+                <img id="dialogue-avatar-right" src="" alt="Speaker Avatar">
+            </div>
+
+            <!-- Speech/Dialogue Content -->
+            <div class="dialogue-body">
+                <div id="dialogue-speaker-name" class="dialogue-name">SHINOBI</div>
+                <div id="dialogue-text" class="dialogue-content"></div>
+                <div class="dialogue-prompt">PRESS SPACE / CLICK TO PROCEED...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final QTE Overlay -->
+    <div id="qte-overlay" class="qte-overlay" style="display: none;">
+        <div class="qte-container">
+            <h1 class="qte-prompt flash-text">PRESS E REPEATEDLY</h1>
+            <div class="qte-instruction">INSERT WORLD TREE STICK</div>
+            <div class="qte-bar-container">
+                <div id="qte-bar-fill" class="qte-bar-fill"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Post-Credit Void Emperor Overlay -->
+    <div id="post-credit-overlay" class="post-credit-overlay" style="display: none;">
+        <div id="post-credit-text-container" class="post-credit-text-container">
+            <!-- Text injected dynamically -->
+        </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+
+</html>
