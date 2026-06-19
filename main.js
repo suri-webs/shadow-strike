@@ -14,8 +14,17 @@ const sharedTintCtx = sharedTintCanvas.getContext('2d');
 
 window.drawTintedSprite = function (ctx, img, srcX, srcY, srcW, srcH, destX, destY, destW, destH, color, alpha = 1.0) {
     if (srcW <= 0 || srcH <= 0 || destW <= 0 || destH <= 0) return;
-    sharedTintCanvas.width = srcW;
-    sharedTintCanvas.height = srcH;
+
+    // Only resize the shared tint canvas if it's too small for the current sprite dimensions.
+    // This avoids resetting the canvas context and triggering GPU memory re-allocation on every frame.
+    if (sharedTintCanvas.width < srcW) {
+        sharedTintCanvas.width = srcW;
+    }
+    if (sharedTintCanvas.height < srcH) {
+        sharedTintCanvas.height = srcH;
+    }
+
+    // Clear only the active drawing area rather than resizing/clearing the whole canvas
     sharedTintCtx.clearRect(0, 0, srcW, srcH);
 
     // Draw the original sprite
@@ -31,7 +40,7 @@ window.drawTintedSprite = function (ctx, img, srcX, srcY, srcW, srcH, destX, des
     // Draw the tinted sprite onto the destination context with opacity blending
     ctx.save();
     ctx.globalAlpha = alpha * ctx.globalAlpha;
-    ctx.drawImage(sharedTintCanvas, destX, destY, destW, destH);
+    ctx.drawImage(sharedTintCanvas, 0, 0, srcW, srcH, destX, destY, destW, destH);
     ctx.restore();
 };
 
@@ -4259,9 +4268,18 @@ window.addEventListener('load', function () {
         }
     });
 
+    let accumulator = 0;
+    const timestep = 1000 / 60; // 16.666ms (60 Hz fixed timestep)
+
     function Animate(timeStamp) {
-        const deltaTime = Math.min(timeStamp - lastTime, 50);
+        if (!lastTime) lastTime = timeStamp;
+        let elapsed = timeStamp - lastTime;
         lastTime = timeStamp;
+
+        // Cap elapsed time to avoid "spiral of death" during heavy lag
+        if (elapsed > 100) elapsed = 100;
+
+        accumulator += elapsed;
 
         // Toggle virtual controls container display state
         const showControls = (game.gameStarted && !game.paused && !game.levelComplete && !game.gameOver && localStorage.getItem('shadowStrike_osControls') === 'true') || isCustomizingLayout;
@@ -4364,6 +4382,14 @@ window.addEventListener('load', function () {
             }
         }
 
+        // Run updates at a fixed logical frequency (60Hz)
+        while (accumulator >= timestep) {
+            game.update(timestep);
+            // Clear one-shot keys at the end of each logical update tick
+            game.input.clearOneShots();
+            accumulator -= timestep;
+        }
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         ctx.save();
@@ -4374,13 +4400,10 @@ window.addEventListener('load', function () {
             ctx.filter = `hue-rotate(${Math.sin(time) * 40}deg) blur(${Math.abs(Math.sin(time * 2)) * 2}px)`;
         }
 
-        game.update(deltaTime);
         game.draw(ctx);
 
         ctx.restore();
 
-        // Clear one-shot keys AFTER game has processed them this frame
-        game.input.clearOneShots();
         requestAnimationFrame(Animate);
     }
 

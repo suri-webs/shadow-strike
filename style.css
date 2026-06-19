@@ -38,6 +38,7 @@ body {
 
     image-rendering: pixelated;
     image-rendering: crisp-edges;
+    touch-action: none;
 }
 
 /* ── Fullscreen: remove max-width cap, fill the entire screen ── */
@@ -2063,6 +2064,7 @@ body {
     font-family: 'Orbitron', sans-serif;
     user-select: none;
     -webkit-user-select: none;
+    touch-action: none;
 }
 
 .virtual-controls-container.active {
@@ -2105,6 +2107,7 @@ body {
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5),
         inset 0 0 10px rgba(var(--glow-color-rgb, 0, 229, 255), 0.15),
         inset 0 2px 4px rgba(255, 255, 255, 0.15);
+    touch-action: none;
 }
 
 /* Hover state styling */
@@ -2636,4 +2639,76 @@ body {
 .editor-control input[type="range"]::-webkit-slider-thumb:hover {
     transform: scale(1.2);
     background: #00e5ff;
+}
+
+/* ========================================================= */
+/* MOBILE ORIENTATION PORTRAIT WARNING SCREEN OVERLAY */
+/* ========================================================= */
+.portrait-prompt-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+    background: linear-gradient(135deg, #02040e 0%, #0c081c 100%);
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 24px;
+    color: #ffffff;
+    font-family: 'Orbitron', sans-serif;
+    touch-action: none;
+}
+
+@media (orientation: portrait) and (max-width: 1024px) {
+    .portrait-prompt-overlay {
+        display: flex;
+    }
+}
+
+.portrait-prompt-content {
+    max-width: 340px;
+    background: rgba(22, 18, 38, 0.75);
+    border: 1.5px solid rgba(0, 229, 255, 0.35);
+    border-radius: 16px;
+    padding: 36px 28px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), inset 0 0 20px rgba(0, 229, 255, 0.12);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.phone-rotate-icon {
+    margin-bottom: 24px;
+    color: #00e5ff;
+    animation: phone-rotation-key 2.2s ease-in-out infinite;
+    display: inline-block;
+}
+
+.portrait-prompt-content h2 {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    margin-bottom: 14px;
+    text-shadow: 0 0 10px rgba(0, 229, 255, 0.6);
+    text-transform: uppercase;
+}
+
+.portrait-prompt-content p {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.72);
+    line-height: 1.55;
+    margin: 0;
+}
+
+@keyframes phone-rotation-key {
+    0% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(-90deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
 }

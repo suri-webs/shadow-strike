@@ -9,7 +9,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;400;500;600;700&display=swap"
         rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Game</title>
 </head>
 
@@ -85,6 +85,19 @@
             color: rgba(255,255,255,0.25);
             text-transform: uppercase;
         ">Please wait while the world loads...</div>
+    </div>
+
+    <!-- Portrait Mode Orientation Warning Prompt -->
+    <div id="portrait-prompt" class="portrait-prompt-overlay">
+        <div class="portrait-prompt-content">
+            <div class="phone-rotate-icon">
+                <svg viewBox="0 0 24 24" width="48" height="48">
+                    <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z" fill="currentColor"/>
+                </svg>
+            </div>
+            <h2>ROTATE DEVICE</h2>
+            <p>Please rotate your device to landscape mode for the optimal gaming experience.</p>
+        </div>
     </div>
 
     <style>
