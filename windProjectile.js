@@ -22,7 +22,7 @@ export class WindProjectile {
         this.hitDispH = 80;
         this.x = startX;
         this.y = startY;
-        this.speedX = facingLeft ? -14 : 14;
+        this.speedX = facingLeft ? -28 : 28;
         this.travelCol = 0;
         this.travelRow = 0;
         this.frameTimer = 0;

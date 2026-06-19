@@ -10,7 +10,7 @@ export class SlashProjectile {
         this.width = 90;
         this.height = 30;
 
-        this.speed = 18;
+        this.speed = 40;
         this.damage = 50;
 
 

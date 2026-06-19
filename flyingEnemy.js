@@ -40,6 +40,8 @@ class FireProjectile {
 
         this.x += this.speedX;
         this.y += this.speedY;
+        // Scroll ke saath move karo taaki dash par freeze na ho
+        this.x -= this.game.scrollSpeed || 0;
 
         this.particles.push({
             x: this.x + (Math.random() - 0.5) * 6,
@@ -290,6 +292,9 @@ export class FlyingEnemy {
             if (this.hurtTimer >= this.hurtDuration) {
                 this._setState('FLYING');
             }
+            // Projectiles HURT mein bhi update hote rahenge — early return se pehle
+            this.projectiles.forEach(p => p.update(deltaTime));
+            this.projectiles = this.projectiles.filter(p => !p.markedForDeletion);
             return;
         }
 

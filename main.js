@@ -55,9 +55,9 @@ window.addEventListener('load', function () {
     const LEVEL_CONFIG = {
         1: {
             waves: [
-                { type: 'skeleton_white', count: 10 },
-                { type: 'flying', count: 8 },
-                { type: 'mixed_level1', count: 12 },
+                { type: 'skeleton_white', count: 1 },
+                { type: 'flying', count: 1 },
+                // { type: 'mixed_level1', count: 12 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 3000,
@@ -1049,37 +1049,45 @@ window.addEventListener('load', function () {
                 this.shake = 450;
             } else if (wave.type === 'boss') {
                 this.enemies = this.enemies.filter(e => e.isBoss);
-                const lvlMod = this.level % 10 || 10;
-                if (lvlMod === 10) {
-                    this.enemies.push(new BossEnemy(this, 'amarjeet')); // Level 10 & 20: Final Boss
-                } else if (lvlMod === 9) {
-                    this.enemies.push(new BossEnemy(this, 'abyss_knight')); // Level 9 & 19: Abyss Knight
-                } else if (lvlMod === 8) {
-                    this.enemies.push(new BossEnemy(this, 'frost_wyrm')); // Level 8 & 18: Frost Wyrm
-                } else if (lvlMod === 7) {
-                    this.enemies.push(new BossEnemy(this, 'storm_seraph')); // Level 7 & 17: Storm Seraph
-                } else if (lvlMod === 6) {
-                    this.enemies.push(new BossEnemy(this, 'crystal_titan')); // Level 6 & 16: Crystal Titan
-                } else if (lvlMod === 5) {
-                    this.enemies.push(new BossEnemy(this, 'impaler')); // Level 5 & 15: Impaler
-                } else if (lvlMod === 4) {
-                    this.enemies.push(new MinoBoss(this));         // Level 4 & 14: Mino boss
-                } else if (lvlMod === 3) {
-                    this.enemies.push(new BossEnemy(this, 'demon_lord')); // Level 3 & 13: Demon Lord
-                } else if (lvlMod === 2) {
-                    this.enemies.push(new BossEnemy(this, 'mecha_stone')); // Level 2 & 12: Mecha Stone
-                } else {
-                    this.enemies.push(new BossEnemy(this, 'boss_level_1')); // Level 1 & 11: default
-                }
                 this.waveSpawnedCount++;
                 this.waveAnnounce = 'BOSS INCOMING!';
                 this.waveAnnTimer = 0;
                 this.enemyInterval = 999999;
                 this.shake = 450;
 
-                // Trigger Pre-Boss Dialogue cutscene!
+                // ── Boss dialogue khatam hone ke BAAD hi boss spawn hoga ──
+                const spawnBossNow = () => {
+                    const lvlMod = this.level % 10 || 10;
+                    if (lvlMod === 10) {
+                        this.enemies.push(new BossEnemy(this, 'amarjeet')); // Level 10 & 20: Final Boss
+                    } else if (lvlMod === 9) {
+                        this.enemies.push(new BossEnemy(this, 'abyss_knight')); // Level 9 & 19: Abyss Knight
+                    } else if (lvlMod === 8) {
+                        this.enemies.push(new BossEnemy(this, 'frost_wyrm')); // Level 8 & 18: Frost Wyrm
+                    } else if (lvlMod === 7) {
+                        this.enemies.push(new BossEnemy(this, 'storm_seraph')); // Level 7 & 17: Storm Seraph
+                    } else if (lvlMod === 6) {
+                        this.enemies.push(new BossEnemy(this, 'crystal_titan')); // Level 6 & 16: Crystal Titan
+                    } else if (lvlMod === 5) {
+                        this.enemies.push(new BossEnemy(this, 'impaler')); // Level 5 & 15: Impaler
+                    } else if (lvlMod === 4) {
+                        this.enemies.push(new MinoBoss(this));         // Level 4 & 14: Mino boss
+                    } else if (lvlMod === 3) {
+                        this.enemies.push(new BossEnemy(this, 'demon_lord')); // Level 3 & 13: Demon Lord
+                    } else if (lvlMod === 2) {
+                        this.enemies.push(new BossEnemy(this, 'mecha_stone')); // Level 2 & 12: Mecha Stone
+                    } else {
+                        this.enemies.push(new BossEnemy(this, 'boss_level_1')); // Level 1 & 11: default
+                    }
+                };
+
+                // Trigger Pre-Boss Dialogue cutscene — boss spawn dialogue ke baad!
                 if (this.storyDialogueManager) {
                     this.storyDialogueManager.startPreBossDialogue(this.level);
+                    this.storyDialogueManager.onCompleteCallback = spawnBossNow;
+                } else {
+                    // Agar dialogue manager nahi hai to seedha spawn karo
+                    spawnBossNow();
                 }
             }
         }
@@ -1574,7 +1582,9 @@ window.addEventListener('load', function () {
                 const allSpawned = this.waveSpawnedCount >= this._waveTotal();
                 // Boss is considered defeated as soon as HP hits 0 (don't wait for full death fade)
                 const allDead = this.enemies.every(e => e.markedForDeletion || (e.isBoss && e.currentHP <= 0));
-                if (allSpawned && allDead && wave && !this.waveComplete) {
+                // Dialogue chal rahi ho to wave complete mat karo — boss abhi spawn nahi hua
+                const dialogueActive = this.storyDialogueManager && this.storyDialogueManager.active;
+                if (allSpawned && allDead && wave && !this.waveComplete && !dialogueActive) {
                     this.waveComplete = true;
                     this.waveTransTimer = 0;
                     this.currentHP = Math.min(this.maxHP, this.currentHP + 8);
@@ -1730,33 +1740,43 @@ window.addEventListener('load', function () {
             this.player.draw(context);
             this.enemies.forEach(e => e.draw(context));
 
-            this.particles.forEach(p => {
+            if (this.particles.length > 0) {
                 context.save();
-                context.globalAlpha = Math.max(0, Math.min(1, p.alpha));
-                context.beginPath();
-                if (p.type === 'rect') {
-                    context.translate(p.x, p.y);
-                    context.rotate(p.angle || 0);
-                    context.fillStyle = p.color;
-                    context.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
-                } else if (p.type === 'spark') {
-                    context.translate(p.x, p.y);
-                    context.rotate(p.angle || 0);
-                    context.strokeStyle = p.color;
-                    context.lineWidth = p.lineWidth || 2;
-                    context.beginPath();
-                    context.moveTo(-p.size, 0);
-                    context.lineTo(p.size, 0);
-                    context.moveTo(0, -p.size * 0.45);
-                    context.lineTo(0, p.size * 0.45);
-                    context.stroke();
-                } else {
-                    context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    context.fillStyle = p.color;
-                    context.fill();
-                }
+                this.particles.forEach(p => {
+                    const alpha = Math.max(0, Math.min(1, p.alpha));
+                    if (p.type === 'rect') {
+                        context.save();
+                        context.globalAlpha = alpha;
+                        context.beginPath();
+                        context.translate(p.x, p.y);
+                        context.rotate(p.angle || 0);
+                        context.fillStyle = p.color;
+                        context.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                        context.restore();
+                    } else if (p.type === 'spark') {
+                        context.save();
+                        context.globalAlpha = alpha;
+                        context.strokeStyle = p.color;
+                        context.lineWidth = p.lineWidth || 2;
+                        context.beginPath();
+                        context.translate(p.x, p.y);
+                        context.rotate(p.angle || 0);
+                        context.moveTo(-p.size, 0);
+                        context.lineTo(p.size, 0);
+                        context.moveTo(0, -p.size * 0.45);
+                        context.lineTo(0, p.size * 0.45);
+                        context.stroke();
+                        context.restore();
+                    } else {
+                        context.globalAlpha = alpha;
+                        context.beginPath();
+                        context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        context.fillStyle = p.color;
+                        context.fill();
+                    }
+                });
                 context.restore();
-            });
+            }
 
             this.floatingTexts.forEach(t => {
                 context.save();
@@ -2021,127 +2041,268 @@ window.addEventListener('load', function () {
             };
             const th = themes[this.level] || themes[10];
 
-            context.fillStyle = th.dark;
+            const hexToRgba = (hex, alpha) => {
+                hex = hex.replace('#', '');
+                const r = parseInt(hex.substring(0, 2), 16);
+                const g = parseInt(hex.substring(2, 4), 16);
+                const b = parseInt(hex.substring(4, 6), 16);
+                return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+            };
+
+            // Modern gradient background
+            const bgGrad = context.createLinearGradient(0, 0, W, H);
+            bgGrad.addColorStop(0, th.dark);
+            bgGrad.addColorStop(1, '#020205');
+            context.fillStyle = bgGrad;
             context.fillRect(0, 0, W, H);
 
+            // Subtle center glow
             const centerGlow = context.createRadialGradient(W / 2, H / 2, 20, W / 2, H / 2, 500);
             centerGlow.addColorStop(0, th.accentDim);
             centerGlow.addColorStop(1, 'transparent');
             context.fillStyle = centerGlow;
             context.fillRect(0, 0, W, H);
 
+            // Tech grid lines for premium game feel
+            context.strokeStyle = 'rgba(255, 255, 255, 0.015)';
+            context.lineWidth = 1;
+            for (let x = 0; x < W; x += 80) {
+                context.beginPath();
+                context.moveTo(x, 0);
+                context.lineTo(x, H);
+                context.stroke();
+            }
+            for (let y = 0; y < H; y += 80) {
+                context.beginPath();
+                context.moveTo(0, y);
+                context.lineTo(W, y);
+                context.stroke();
+            }
+
+            // Glowing dust/particles float upwards
             const now = Date.now();
-            for (let i = 0; i < 100; i++) {
+            for (let i = 0; i < 60; i++) {
                 const t2 = (now * 0.018 + i * 63.7) % H;
                 const x2 = (i * 157 + Math.sin(now * 0.001 + i) * 30 + W) % W;
-                const a = 0.08 + 0.1 * Math.sin(now * 0.003 + i * 2.1);
-                context.fillStyle = th.accent.replace(')', `,${a})`).replace('#', 'rgba(').replace('rgba(', 'rgba(') || `rgba(255,255,255,${a})`;
-
-                context.globalAlpha = Math.max(0, a);
-                context.beginPath();
-                context.arc(x2, t2, 1.5 + Math.sin(i) * 1, 0, Math.PI * 2);
-                context.fillStyle = th.accent;
-                context.fill();
+                const a = 0.1 + 0.18 * Math.sin(now * 0.003 + i * 2.1);
+                if (a > 0) {
+                    context.save();
+                    context.fillStyle = hexToRgba(th.accent, a);
+                    context.shadowColor = th.glow;
+                    context.shadowBlur = 6;
+                    context.beginPath();
+                    context.arc(x2, t2, 1.5 + Math.sin(i) * 1.5, 0, Math.PI * 2);
+                    context.fill();
+                    context.restore();
+                }
             }
-            context.globalAlpha = 1;
 
-            context.font = '700 15px "Poppins"';
-            context.textAlign = 'center';
-            context.fillStyle = th.accent;
+            // LEVEL CLEARED capsule badge
+            const badgeText = `LEVEL ${this.level} CLEARED`;
+            context.font = '700 13px "Poppins"';
+            const badgeTextW = context.measureText(badgeText).width;
+            const badgeW = badgeTextW + 36;
+            const badgeH = 30;
+            const badgeX = W / 2 - badgeW / 2;
+            const badgeY = H / 2 - 146;
+
+            context.save();
+            context.fillStyle = hexToRgba(th.accent, 0.07);
             context.shadowColor = th.glow;
-            context.shadowBlur = 4;
-            context.fillText(`— LEVEL ${this.level} CLEARED —`, W / 2, H / 2 - 130);
+            context.shadowBlur = 10;
+            rr(context, badgeX, badgeY, badgeW, badgeH, 15);
+            context.fill();
             context.shadowBlur = 0;
 
+            context.strokeStyle = hexToRgba(th.accent, 0.45);
+            context.lineWidth = 1.5;
+            rr(context, badgeX, badgeY, badgeW, badgeH, 15);
+            context.stroke();
+
+            context.fillStyle = th.accent;
+            context.textAlign = 'center';
+            context.fillText(badgeText, W / 2, badgeY + 19);
+            context.restore();
+
+            // Large Area Title
             const titles = { 1: 'SHADOW CITY', 2: 'SPIDER FOREST', 3: 'HALLOWEEN HOUSE', 4: 'HAUNTED GRAVEYARD', 5: 'MUSHROOM GROVE', 6: 'CRYSTAL CAVERNS', 7: 'SKY TEMPLE', 8: 'FROZEN ABYSS', 9: 'VOID KINGDOM', 10: 'EDGE OF REALITY' };
             const subTitles = { 1: 'UNLOCKED', 2: 'UNLOCKED', 3: 'UNLOCKED', 4: 'UNLOCKED', 5: 'UNLOCKED', 6: 'UNLOCKED', 7: 'UNLOCKED', 8: 'UNLOCKED', 9: 'UNLOCKED', 10: 'YOU SAVED REALITY!' };
 
-            context.font = '800 58px "Poppins"';
-            context.fillStyle = th.accent;
+            const levelTitle = titles[this.level] || 'UNKNOWN AREA';
+            context.font = '800 60px "Poppins"';
+            context.textAlign = 'center';
+            
+            const textGrad = context.createLinearGradient(W/2 - 250, H/2 - 65, W/2 + 250, H/2 - 65);
+            textGrad.addColorStop(0, '#ffffff');
+            textGrad.addColorStop(0.3, '#ffffff');
+            textGrad.addColorStop(0.7, th.accent);
+            textGrad.addColorStop(1, th.accent);
+
+            context.save();
             context.shadowColor = th.glow;
-            context.shadowBlur = 8;
-            context.fillText(titles[this.level], W / 2, H / 2 - 70);
-            context.shadowBlur = 0;
+            context.shadowBlur = 12;
+            context.fillStyle = textGrad;
+            context.fillText(levelTitle, W / 2, H / 2 - 65);
+            context.restore();
 
-            context.font = '700 24px "Poppins"';
-            context.fillStyle = 'rgba(255,255,255,0.55)';
-            context.fillText(subTitles[this.level], W / 2, H / 2 - 25);
-
-            const statY = H / 2 + 50;
-
-            context.font = '700 13px "Poppins"';
-            context.fillStyle = 'rgba(255,255,255,0.4)';
+            // UNLOCKED subtitle with framing line accents
+            const subText = subTitles[this.level] || 'UNLOCKED';
+            context.font = '800 15px "Poppins"';
+            context.fillStyle = 'rgba(255, 255, 255, 0.75)';
             context.textAlign = 'center';
-            context.fillText('FINAL SCORE', W / 2 - 220, statY);
+            
+            const subTextW = context.measureText(subText).width;
+            const lineLength = 60;
+            const lineGap = 16;
+            const subY = H / 2 - 20;
 
-            context.font = '800 38px "Poppins"';
-            context.fillStyle = '#ffffff';
-            context.fillText(this.score.toLocaleString(), W / 2 - 220, statY + 45);
+            context.fillText(subText, W / 2, subY);
 
-            context.font = '700 13px "Poppins"';
-            context.fillStyle = 'rgba(255,255,255,0.4)';
-            context.textAlign = 'center';
-            context.fillText('TOTAL COINS', W / 2, statY);
+            context.strokeStyle = hexToRgba(th.accent, 0.4);
+            context.lineWidth = 2;
+            
+            // Left horizontal line
+            context.beginPath();
+            context.moveTo(W / 2 - subTextW / 2 - lineGap - lineLength, subY - 5);
+            context.lineTo(W / 2 - subTextW / 2 - lineGap, subY - 5);
+            context.stroke();
 
-            context.font = '800 38px "Poppins"';
-            context.fillStyle = '#ffd700';
-            context.fillText('🪙 ' + this.coins.toLocaleString(), W / 2, statY + 45);
+            // Right horizontal line
+            context.beginPath();
+            context.moveTo(W / 2 + subTextW / 2 + lineGap, subY - 5);
+            context.lineTo(W / 2 + subTextW / 2 + lineGap + lineLength, subY - 5);
+            context.stroke();
 
-            context.font = '700 13px "Poppins"';
-            context.fillStyle = 'rgba(255,255,255,0.4)';
-            context.textAlign = 'center';
-            context.fillText('HP LEFT', W / 2 + 220, statY);
-
+            // Glassmorphism stats cards
             const hpColor = this.currentHP > 60 ? '#00ffd0' : this.currentHP > 30 ? '#ffaa00' : '#ff2200';
-            context.font = '800 38px "Poppins"';
-            context.fillStyle = hpColor;
-            context.fillText(`${this.currentHP}/${this.maxHP}`, W / 2 + 220, statY + 45);
+            const cards = [
+                { label: 'FINAL SCORE', value: this.score.toLocaleString(), color: '#ffffff', icon: '🏆', cx: W / 2 - 230 },
+                { label: 'TOTAL COINS', value: this.coins.toLocaleString(), color: '#ffd700', icon: '🪙', cx: W / 2 },
+                { label: 'HP LEFT', value: `${this.currentHP}/${this.maxHP}`, color: hpColor, icon: '❤️', cx: W / 2 + 230 }
+            ];
 
-            if (this.level < 10) {
-                context.font = '700 14px "Poppins"';
-                context.fillStyle = 'rgba(255,255,255,0.5)';
+            const cardW = 200;
+            const cardH = 100;
+            const cardY = H / 2 + 25;
+
+            cards.forEach(c => {
+                const cardX = c.cx - cardW / 2;
+
+                // Shadow and base glass card
+                context.save();
+                context.fillStyle = 'rgba(255, 255, 255, 0.02)';
+                context.shadowColor = 'rgba(0, 0, 0, 0.6)';
+                context.shadowBlur = 15;
+                rr(context, cardX, cardY, cardW, cardH, 14);
+                context.fill();
+                context.shadowBlur = 0;
+
+                // Subtle inner gradient overlay
+                const innerGrad = context.createLinearGradient(cardX, cardY, cardX, cardY + cardH);
+                innerGrad.addColorStop(0, 'rgba(255, 255, 255, 0.05)');
+                innerGrad.addColorStop(1, 'rgba(255, 255, 255, 0.005)');
+                context.fillStyle = innerGrad;
+                rr(context, cardX, cardY, cardW, cardH, 14);
+                context.fill();
+
+                // Glowing card border
+                context.strokeStyle = hexToRgba(th.accent, 0.22);
+                context.lineWidth = 1.5;
+                rr(context, cardX, cardY, cardW, cardH, 14);
+                context.stroke();
+
+                // Bottom accent line highlight
+                context.fillStyle = hexToRgba(th.accent, 0.5);
+                rr(context, cardX + 30, cardY + cardH - 4, cardW - 60, 3, 1.5);
+                context.fill();
+
+                // Label
+                context.font = '700 11px "Poppins"';
+                context.fillStyle = 'rgba(255, 255, 255, 0.4)';
                 context.textAlign = 'center';
-                context.fillText(`NEXT AREA  ›  ${th.next}`, W / 2, H / 2 + 155);
+                context.fillText(c.label, c.cx, cardY + 28);
+
+                // Icon and Value
+                context.font = '800 22px "Poppins"';
+                context.fillStyle = c.color;
+                context.shadowColor = hexToRgba(c.color, 0.3);
+                context.shadowBlur = 6;
+                context.fillText(`${c.icon}  ${c.value}`, c.cx, cardY + 66);
+                context.restore();
+            });
+
+            // Next area badge
+            if (this.level < 10) {
+                const nextAreaText = `NEXT LEVEL  ›  ${th.next.toUpperCase()}`;
+                context.font = '700 11px "Poppins"';
+                const nW = context.measureText(nextAreaText).width + 24;
+                const nH = 26;
+                const nX = W / 2 - nW / 2;
+                const nY = H / 2 + 150;
+
+                context.save();
+                context.fillStyle = 'rgba(255, 255, 255, 0.02)';
+                rr(context, nX, nY, nW, nH, 6);
+                context.fill();
+
+                context.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+                context.lineWidth = 1;
+                rr(context, nX, nY, nW, nH, 6);
+                context.stroke();
+
+                context.fillStyle = 'rgba(255, 255, 255, 0.6)';
+                context.textAlign = 'center';
+                context.fillText(nextAreaText, W / 2, nY + 16);
+                context.restore();
             }
 
+            // Pulsing next button
             const btnW = 280;
             const btnH = 54;
             const btnX = W / 2 - btnW / 2;
             const btnY = H / 2 + 190;
-            const pulse = 0.94 + Math.sin(now * 0.006) * 0.06;
+            const pulse = 0.96 + Math.sin(now * 0.006) * 0.04;
 
             context.save();
             context.translate(W / 2, btnY + btnH / 2);
             context.scale(pulse, pulse);
             context.translate(-W / 2, -(btnY + btnH / 2));
 
+            // Outline glow for button
             context.shadowColor = th.glow;
-            context.shadowBlur = 10;
+            context.shadowBlur = 18;
             const btnGrad = context.createLinearGradient(btnX, btnY, btnX, btnY + btnH);
             btnGrad.addColorStop(0, th.accent);
             btnGrad.addColorStop(1, th.glow);
             context.fillStyle = btnGrad;
-            rr(context, btnX, btnY, btnW, btnH, 12); context.fill();
-
+            rr(context, btnX, btnY, btnW, btnH, 14);
+            context.fill();
             context.shadowBlur = 0;
 
-            context.fillStyle = 'rgba(255,255,255,0.18)';
+            // Highlight glare overlay on button top
+            context.fillStyle = 'rgba(255, 255, 255, 0.15)';
             context.beginPath();
-            context.roundRect(btnX + 3, btnY + 3, btnW - 6, btnH / 2 - 3, [10, 10, 0, 0]);
+            context.roundRect(btnX + 4, btnY + 4, btnW - 8, btnH / 2 - 2, [10, 10, 0, 0]);
             context.fill();
 
-            context.strokeStyle = 'rgba(255,255,255,0.22)';
+            // Shiny border
+            context.strokeStyle = 'rgba(255, 255, 255, 0.25)';
             context.lineWidth = 1.5;
-            rr(context, btnX, btnY, btnW, btnH, 12); context.stroke();
+            rr(context, btnX, btnY, btnW, btnH, 14);
+            context.stroke();
 
-            context.font = '800 18px "Poppins"';
+            // Label text
+            context.font = '800 17px "Poppins"';
             context.fillStyle = '#ffffff';
+            context.shadowColor = 'rgba(0,0,0,0.3)';
+            context.shadowBlur = 4;
             context.textAlign = 'center';
-            context.fillText(th.label, W / 2, btnY + 33);
+            context.fillText(th.label + '  →', W / 2, btnY + 33);
             context.restore();
 
+            // Footer instructions
             context.font = '11px "Poppins"';
-            context.fillStyle = 'rgba(255,255,255,0.25)';
+            context.fillStyle = 'rgba(255, 255, 255, 0.25)';
             context.textAlign = 'center';
             context.fillText('Click button to continue', W / 2, H - 24);
 
@@ -3046,6 +3207,9 @@ window.addEventListener('load', function () {
     const game = new Game(canvas.width, canvas.height);
     let lastTime = 0;
 
+    let osControlsEnabled = localStorage.getItem('shadowStrike_osControls') === 'true';
+    let lastShowControls = null;
+
     // ── Setup Premium Settings UI and Volume Controllers ───────────────
     const settingsBtn = document.getElementById('settings-btn');
     const settingsOverlay = document.getElementById('settings-overlay');
@@ -3252,6 +3416,7 @@ window.addEventListener('load', function () {
     osControlsToggle.addEventListener('change', (e) => {
         const active = e.target.checked;
         localStorage.setItem('shadowStrike_osControls', active ? 'true' : 'false');
+        osControlsEnabled = active;
         if (active) {
             controlsToggleTxt.innerText = 'ON';
             controlsToggleTxt.style.color = '#00e5ff';
@@ -3267,6 +3432,88 @@ window.addEventListener('load', function () {
     let isCustomizingLayout = false;
     let selectedElement = null;
     let layoutConfig = JSON.parse(localStorage.getItem('shadowStrike_layoutConfig') || '{}');
+
+    function updateButtonPositions() {
+        if (!settingsBtn || !fullscreenFloatingBtn) return;
+
+        const isSettingsCustomized = (layoutConfig && layoutConfig['settings-btn']) || isCustomizingLayout;
+        const isFsCustomized = (layoutConfig && layoutConfig['fullscreen-btn']) || isCustomizingLayout;
+
+        if (!isSettingsCustomized || !isFsCustomized) {
+            const canvasRect = canvas.getBoundingClientRect();
+            const canvasWidth = canvas.width || 1550;
+            const scale = canvasRect.width > 0 ? (canvasRect.width / canvasWidth) : 1;
+
+            const hx = 16;
+            const hy = 12;
+            const hw = 300;
+            const hh = 74;
+
+            const btnSize = Math.max(32, Math.min(48, 48 * scale));
+
+            const hudCenterY = canvasRect.top + (hy + hh / 2) * scale;
+            const btnY = hudCenterY - btnSize / 2;
+
+            const hudRightX = canvasRect.left + (hx + hw) * scale;
+            const gap = 15 * scale;
+
+            const settingsX = hudRightX + gap;
+            const fullscreenX = settingsX + btnSize + 10 * scale;
+
+            if (!isSettingsCustomized) {
+                settingsBtn.style.position = 'fixed';
+                settingsBtn.style.bottom = 'auto';
+                settingsBtn.style.top = `${btnY}px`;
+                settingsBtn.style.left = `${settingsX}px`;
+                settingsBtn.style.width = `${btnSize}px`;
+                settingsBtn.style.height = `${btnSize}px`;
+                settingsBtn.style.transition = 'none';
+            }
+            if (!isFsCustomized) {
+                fullscreenFloatingBtn.style.position = 'fixed';
+                fullscreenFloatingBtn.style.bottom = 'auto';
+                fullscreenFloatingBtn.style.top = `${btnY}px`;
+                fullscreenFloatingBtn.style.left = `${fullscreenX}px`;
+                fullscreenFloatingBtn.style.width = `${btnSize}px`;
+                fullscreenFloatingBtn.style.height = `${btnSize}px`;
+                fullscreenFloatingBtn.style.transition = 'none';
+            }
+        }
+
+        if (isSettingsCustomized && layoutConfig && layoutConfig['settings-btn'] && !isCustomizingLayout) {
+            const conf = layoutConfig['settings-btn'];
+            settingsBtn.style.position = 'absolute';
+            settingsBtn.style.left = `${conf.left}%`;
+            settingsBtn.style.top = `${conf.top}%`;
+            settingsBtn.style.width = `${conf.size}px`;
+            settingsBtn.style.height = `${conf.size}px`;
+            settingsBtn.style.opacity = conf.opacity;
+            settingsBtn.style.bottom = 'auto';
+            settingsBtn.style.right = 'auto';
+            settingsBtn.style.transform = 'none';
+            settingsBtn.style.transition = 'none';
+        }
+        if (isFsCustomized && layoutConfig && layoutConfig['fullscreen-btn'] && !isCustomizingLayout) {
+            const conf = layoutConfig['fullscreen-btn'];
+            fullscreenFloatingBtn.style.position = 'absolute';
+            fullscreenFloatingBtn.style.left = `${conf.left}%`;
+            fullscreenFloatingBtn.style.top = `${conf.top}%`;
+            fullscreenFloatingBtn.style.width = `${conf.size}px`;
+            fullscreenFloatingBtn.style.height = `${conf.size}px`;
+            fullscreenFloatingBtn.style.opacity = conf.opacity;
+            fullscreenFloatingBtn.style.bottom = 'auto';
+            fullscreenFloatingBtn.style.right = 'auto';
+            fullscreenFloatingBtn.style.transform = 'none';
+            fullscreenFloatingBtn.style.transition = 'none';
+        }
+    }
+
+    window.addEventListener('resize', () => {
+        const showControls = (game.gameStarted && !game.paused && !game.levelComplete && !game.gameOver && osControlsEnabled) || isCustomizingLayout;
+        if (showControls) {
+            updateButtonPositions();
+        }
+    });
 
     function applyLayout() {
         const buttons = [
@@ -3316,6 +3563,7 @@ window.addEventListener('load', function () {
                 btn.style.transform = 'none';
             }
         }
+        updateButtonPositions();
     }
 
     function getBtnDefaultLayout(btn) {
@@ -4268,6 +4516,44 @@ window.addEventListener('load', function () {
         }
     });
 
+    function gatherInterpolatableObjects(game) {
+        const list = [];
+        function add(obj, props = ['x', 'y']) {
+            if (!obj) return;
+            list.push({ obj, props });
+        }
+        if (game.player) {
+            add(game.player);
+            if (game.player.windProjectiles) game.player.windProjectiles.forEach(p => add(p));
+            if (game.player.slashProjectiles) game.player.slashProjectiles.forEach(p => add(p));
+            if (game.player.particles) game.player.particles.forEach(p => add(p));
+            if (game.player.shadows) game.player.shadows.forEach(s => add(s));
+        }
+        if (game.enemies) {
+            game.enemies.forEach(enemy => {
+                add(enemy);
+                if (enemy.projectiles) enemy.projectiles.forEach(p => add(p));
+                if (enemy.shadows) enemy.shadows.forEach(s => add(s));
+            });
+        }
+        if (game.particles) game.particles.forEach(p => add(p));
+        if (game.coinPickups) game.coinPickups.forEach(c => add(c));
+        if (game.floatingTexts) game.floatingTexts.forEach(t => add(t));
+        if (game.damageTexts) game.damageTexts.forEach(t => add(t));
+        if (game.portal) add(game.portal);
+
+        if (game.background) {
+            if (game.background.backgroundLayers) {
+                game.background.backgroundLayers.forEach(l => add(l));
+            }
+            if (game.background.embers) game.background.embers.forEach(e => add(e));
+            if (game.background.mist) game.background.mist.forEach(e => add(e));
+            if (game.background.spores) game.background.spores.forEach(e => add(e));
+            if (game.background.groundX !== undefined) add(game.background, ['groundX']);
+        }
+        return list;
+    }
+
     let accumulator = 0;
     const timestep = 1000 / 60; // 16.666ms (60 Hz fixed timestep)
 
@@ -4282,81 +4568,13 @@ window.addEventListener('load', function () {
         accumulator += elapsed;
 
         // Toggle virtual controls container display state
-        const showControls = (game.gameStarted && !game.paused && !game.levelComplete && !game.gameOver && localStorage.getItem('shadowStrike_osControls') === 'true') || isCustomizingLayout;
+        const showControls = (game.gameStarted && !game.paused && !game.levelComplete && !game.gameOver && osControlsEnabled) || isCustomizingLayout;
         const vContainer = document.getElementById('virtual-controls');
-        if (vContainer) {
+        if (vContainer && showControls !== lastShowControls) {
+            lastShowControls = showControls;
             if (showControls) {
                 vContainer.classList.add('active');
-
-                // Position settings and fullscreen buttons to the top right of the player HUD (if not customized)
-                const isSettingsCustomized = (layoutConfig && layoutConfig['settings-btn']) || isCustomizingLayout;
-                const isFsCustomized = (layoutConfig && layoutConfig['fullscreen-btn']) || isCustomizingLayout;
-
-                if (settingsBtn && fullscreenFloatingBtn) {
-                    const canvasRect = canvas.getBoundingClientRect();
-                    const canvasWidth = canvas.width || 1550;
-                    const scale = canvasRect.width > 0 ? (canvasRect.width / canvasWidth) : 1;
-
-                    const hx = 16;
-                    const hy = 12;
-                    const hw = 300;
-                    const hh = 74;
-
-                    const btnSize = Math.max(32, Math.min(48, 48 * scale));
-
-                    const hudCenterY = canvasRect.top + (hy + hh / 2) * scale;
-                    const btnY = hudCenterY - btnSize / 2;
-
-                    const hudRightX = canvasRect.left + (hx + hw) * scale;
-                    const gap = 15 * scale;
-
-                    const settingsX = hudRightX + gap;
-                    const fullscreenX = settingsX + btnSize + 10 * scale;
-
-                    if (!isSettingsCustomized) {
-                        settingsBtn.style.position = 'fixed';
-                        settingsBtn.style.bottom = 'auto';
-                        settingsBtn.style.top = `${btnY}px`;
-                        settingsBtn.style.left = `${settingsX}px`;
-                        settingsBtn.style.width = `${btnSize}px`;
-                        settingsBtn.style.height = `${btnSize}px`;
-                        settingsBtn.style.transition = 'none';
-                    } else if (layoutConfig && layoutConfig['settings-btn'] && !isCustomizingLayout) {
-                        const conf = layoutConfig['settings-btn'];
-                        settingsBtn.style.position = 'absolute';
-                        settingsBtn.style.left = `${conf.left}%`;
-                        settingsBtn.style.top = `${conf.top}%`;
-                        settingsBtn.style.width = `${conf.size}px`;
-                        settingsBtn.style.height = `${conf.size}px`;
-                        settingsBtn.style.opacity = conf.opacity;
-                        settingsBtn.style.bottom = 'auto';
-                        settingsBtn.style.right = 'auto';
-                        settingsBtn.style.transform = 'none';
-                        settingsBtn.style.transition = 'none';
-                    }
-
-                    if (!isFsCustomized) {
-                        fullscreenFloatingBtn.style.position = 'fixed';
-                        fullscreenFloatingBtn.style.bottom = 'auto';
-                        fullscreenFloatingBtn.style.top = `${btnY}px`;
-                        fullscreenFloatingBtn.style.left = `${fullscreenX}px`;
-                        fullscreenFloatingBtn.style.width = `${btnSize}px`;
-                        fullscreenFloatingBtn.style.height = `${btnSize}px`;
-                        fullscreenFloatingBtn.style.transition = 'none';
-                    } else if (layoutConfig && layoutConfig['fullscreen-btn'] && !isCustomizingLayout) {
-                        const conf = layoutConfig['fullscreen-btn'];
-                        fullscreenFloatingBtn.style.position = 'absolute';
-                        fullscreenFloatingBtn.style.left = `${conf.left}%`;
-                        fullscreenFloatingBtn.style.top = `${conf.top}%`;
-                        fullscreenFloatingBtn.style.width = `${conf.size}px`;
-                        fullscreenFloatingBtn.style.height = `${conf.size}px`;
-                        fullscreenFloatingBtn.style.opacity = conf.opacity;
-                        fullscreenFloatingBtn.style.bottom = 'auto';
-                        fullscreenFloatingBtn.style.right = 'auto';
-                        fullscreenFloatingBtn.style.transform = 'none';
-                        fullscreenFloatingBtn.style.transition = 'none';
-                    }
-                }
+                updateButtonPositions();
             } else {
                 vContainer.classList.remove('active');
 
@@ -4382,13 +4600,101 @@ window.addEventListener('load', function () {
             }
         }
 
+        // ── Cooldown Arc HUD update (runs every render frame for smoothness) ──
+        if (game.player && showControls) {
+            const p = game.player;
+
+            // Shield (E) cooldown arc
+            const arcE = document.getElementById('cd-arc-e');
+            if (arcE) {
+                const cdE = Math.max(0, p.shieldCooldown || 0);
+                const maxE = p.shieldCooldownMax || 10000;
+                if (cdE > 0) {
+                    const pct = (cdE / maxE) * 100;
+                    arcE.style.setProperty('--cd-pct', pct.toFixed(2));
+                    arcE.style.setProperty('--cd-glow', p.eColor || '#a060ff');
+                    if (!arcE.classList.contains('active')) arcE.classList.add('active');
+                    arcE._wasCoolingDown = true;
+                } else {
+                    arcE.classList.remove('active');
+                    arcE.style.setProperty('--cd-pct', '0');
+                    if (arcE._wasCoolingDown) {
+                        arcE._wasCoolingDown = false;
+                        const btnE = document.getElementById('vbtn-e');
+                        if (btnE) {
+                            btnE.classList.remove('cd-ready-flash');
+                            void btnE.offsetWidth; // force reflow to restart animation
+                            btnE.classList.add('cd-ready-flash');
+                            setTimeout(() => btnE.classList.remove('cd-ready-flash'), 600);
+                        }
+                    }
+                }
+            }
+
+            // R Attack cooldown arc
+            const arcR = document.getElementById('cd-arc-r');
+            if (arcR) {
+                const cdR = Math.max(0, p.slashCooldown || 0);
+                const maxR = p.slashCooldownMax || 14000;
+                if (cdR > 0) {
+                    const pct = (cdR / maxR) * 100;
+                    arcR.style.setProperty('--cd-pct', pct.toFixed(2));
+                    arcR.style.setProperty('--cd-glow', p.rColor || '#ff6000');
+                    if (!arcR.classList.contains('active')) arcR.classList.add('active');
+                    arcR._wasCoolingDown = true;
+                } else {
+                    arcR.classList.remove('active');
+                    arcR.style.setProperty('--cd-pct', '0');
+                    if (arcR._wasCoolingDown) {
+                        arcR._wasCoolingDown = false;
+                        const btnR = document.getElementById('vbtn-r');
+                        if (btnR) {
+                            btnR.classList.remove('cd-ready-flash');
+                            void btnR.offsetWidth;
+                            btnR.classList.add('cd-ready-flash');
+                            setTimeout(() => btnR.classList.remove('cd-ready-flash'), 600);
+                        }
+                    }
+                }
+            }
+        }
+
+
         // Run updates at a fixed logical frequency (60Hz)
         while (accumulator >= timestep) {
+            // Save previous positions of all moving objects before we update
+            const objects = gatherInterpolatableObjects(game);
+            objects.forEach(entry => {
+                const { obj, props } = entry;
+                props.forEach(prop => {
+                    obj['_prev_' + prop] = obj[prop];
+                });
+            });
+
             game.update(timestep);
             // Clear one-shot keys at the end of each logical update tick
             game.input.clearOneShots();
             accumulator -= timestep;
         }
+
+        // Apply interpolated positions for smooth drawing at any refresh rate
+        const alpha = accumulator / timestep;
+        const objects = gatherInterpolatableObjects(game);
+        objects.forEach(entry => {
+            const { obj, props } = entry;
+            props.forEach(prop => {
+                const prev = obj['_prev_' + prop] !== undefined ? obj['_prev_' + prop] : obj[prop];
+                const curr = obj[prop];
+                obj['_phys_' + prop] = curr;
+                const diff = curr - prev;
+                // If there's a big teleport/jump (like wrapping around backgrounds or respawning), don't interpolate
+                if (Math.abs(diff) > 150) {
+                    obj[prop] = curr;
+                } else {
+                    obj[prop] = prev + diff * alpha;
+                }
+            });
+        });
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -4403,6 +4709,16 @@ window.addEventListener('load', function () {
         game.draw(ctx);
 
         ctx.restore();
+
+        // Restore true physical values immediately after drawing
+        objects.forEach(entry => {
+            const { obj, props } = entry;
+            props.forEach(prop => {
+                if (obj['_phys_' + prop] !== undefined) {
+                    obj[prop] = obj['_phys_' + prop];
+                }
+            });
+        });
 
         requestAnimationFrame(Animate);
     }

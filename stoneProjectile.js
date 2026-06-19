@@ -18,7 +18,7 @@ export class StoneProjectile {
         this.y += this.dy * this.speed;
         this.rotation += 0.15;
 
-        const scrollShift = this.game.speed || 0;
+        const scrollShift = this.game.scrollSpeed || 0;
         this.x -= scrollShift;
 
         // Sparkling diamond shards trail

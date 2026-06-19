@@ -83,17 +83,17 @@ export class BoulderProjectile {
     }
 
     draw(context) {
-        this.particles.forEach(p => {
+        if (this.particles.length > 0) {
             context.save();
-            context.globalAlpha = p.alpha;
-            context.shadowColor = '#ffb74d';
-            context.shadowBlur = 6;
-            context.beginPath();
-            context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            context.fillStyle = p.color;
-            context.fill();
+            this.particles.forEach(p => {
+                context.globalAlpha = p.alpha;
+                context.beginPath();
+                context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                context.fillStyle = p.color;
+                context.fill();
+            });
             context.restore();
-        });
+        }
 
         context.save();
         if (this.exploding) {
@@ -301,7 +301,7 @@ export class StaticVoltProjectile {
         this.facingLeft = facingLeft;
         this.width = 60;
         this.height = 60;
-        this.speed = facingLeft ? -14 : 14;
+        this.speed = facingLeft ? -26 : 26;
         this.damage = 18;
         this.markedForDeletion = false;
         this.particles = [];
@@ -371,21 +371,21 @@ export class StaticVoltProjectile {
         context.save();
 
         // Trail spark lines with glow (now golden)
-        this.particles.forEach(p => {
+        if (this.particles.length > 0) {
             context.save();
-            context.globalAlpha = p.alpha;
-            context.shadowColor = '#ffb300';
-            context.shadowBlur = 8;
-            context.strokeStyle = p.color;
             context.lineWidth = 1.8;
-            // Zigzag spark lines
-            context.beginPath();
-            context.moveTo(p.x - p.size, p.y - p.size * 0.5);
-            context.lineTo(p.x, p.y + p.size * 0.5);
-            context.lineTo(p.x + p.size, p.y - p.size * 0.3);
-            context.stroke();
+            this.particles.forEach(p => {
+                context.globalAlpha = p.alpha;
+                context.strokeStyle = p.color;
+                // Zigzag spark lines
+                context.beginPath();
+                context.moveTo(p.x - p.size, p.y - p.size * 0.5);
+                context.lineTo(p.x, p.y + p.size * 0.5);
+                context.lineTo(p.x + p.size, p.y - p.size * 0.3);
+                context.stroke();
+            });
             context.restore();
-        });
+        }
 
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height / 2;
@@ -675,7 +675,7 @@ export class HellfireProjectile {
         this.facingLeft = facingLeft;
         this.width = 45;
         this.height = 45;
-        this.speed = facingLeft ? -11 : 11;
+        this.speed = facingLeft ? -22 : 22;
         this.damage = 16;
         this.markedForDeletion = false;
         this.particles = [];
@@ -736,18 +736,18 @@ export class HellfireProjectile {
     }
 
     draw(context) {
-        // Glowing particle trail
-        this.particles.forEach(p => {
+        // Glowing particle trail (optimized: no shadowBlur, single save/restore)
+        if (this.particles.length > 0) {
             context.save();
-            context.globalAlpha = p.alpha;
-            context.shadowColor = p.color;
-            context.shadowBlur = 10;
-            context.fillStyle = p.color;
-            context.beginPath();
-            context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            context.fill();
+            this.particles.forEach(p => {
+                context.globalAlpha = p.alpha;
+                context.fillStyle = p.color;
+                context.beginPath();
+                context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                context.fill();
+            });
             context.restore();
-        });
+        }
 
         context.save();
         const cx = this.x + this.width / 2;
@@ -822,11 +822,11 @@ export class ChaosCataclysmProjectile {
     constructor(game, x, y, facingLeft) {
         this.game = game;
         this.x = x;
-        this.y = y - 50;
-        this.facingLeft = facingLeft;
         this.width = 130;
         this.height = 200;
-        this.speed = facingLeft ? -13 : 13;
+        this.y = y - this.height / 2; // Center the projectile at spawn point
+        this.facingLeft = facingLeft;
+        this.speed = facingLeft ? -23 : 23;
         this.damage = 55;
         this.markedForDeletion = false;
         this.particles = [];
@@ -901,18 +901,18 @@ export class ChaosCataclysmProjectile {
     }
 
     draw(context) {
-        // Swirling void particles trail
-        this.particles.forEach(p => {
+        // Swirling void particles trail (optimized: no shadowBlur, single save/restore)
+        if (this.particles.length > 0) {
             context.save();
-            context.globalAlpha = p.alpha;
-            context.shadowColor = '#ff2244';
-            context.shadowBlur = 8;
-            context.fillStyle = p.color;
-            context.beginPath();
-            context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            context.fill();
+            this.particles.forEach(p => {
+                context.globalAlpha = p.alpha;
+                context.fillStyle = p.color;
+                context.beginPath();
+                context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                context.fill();
+            });
             context.restore();
-        });
+        }
 
         context.save();
         const cx = this.x + this.width / 2;
@@ -1060,17 +1060,17 @@ export class GoldenStarProjectile {
 
     draw(context) {
         context.save();
-        this.particles.forEach(p => {
+        if (this.particles.length > 0) {
             context.save();
-            context.globalAlpha = p.alpha;
-            context.shadowColor = '#fbc02d';
-            context.shadowBlur = 5;
-            context.fillStyle = p.color;
-            context.beginPath();
-            context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            context.fill();
+            this.particles.forEach(p => {
+                context.globalAlpha = p.alpha;
+                context.fillStyle = p.color;
+                context.beginPath();
+                context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                context.fill();
+            });
             context.restore();
-        });
+        }
 
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height / 2;
@@ -1106,10 +1106,10 @@ export class DragonShadowProjectile {
     constructor(game, x, y, facingLeft) {
         this.game = game;
         this.x = x;
-        this.y = y;
-        this.facingLeft = facingLeft;
         this.width = 160;
         this.height = 110;
+        this.y = y - this.height / 2;
+        this.facingLeft = facingLeft;
         this.speed = facingLeft ? -14 : 14;
         this.damage = 45;
         this.markedForDeletion = false;
@@ -1176,18 +1176,18 @@ export class DragonShadowProjectile {
     draw(context) {
         context.save();
 
-        // Trail smoke particles
-        this.particles.forEach(p => {
+        // Trail smoke particles (optimized: no shadowBlur, single save/restore)
+        if (this.particles.length > 0) {
             context.save();
-            context.globalAlpha = p.alpha;
-            context.shadowColor = '#6a1b9a';
-            context.shadowBlur = 10;
-            context.fillStyle = p.color;
-            context.beginPath();
-            context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            context.fill();
+            this.particles.forEach(p => {
+                context.globalAlpha = p.alpha;
+                context.fillStyle = p.color;
+                context.beginPath();
+                context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                context.fill();
+            });
             context.restore();
-        });
+        }
 
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height / 2;
@@ -1316,18 +1316,18 @@ export class DarkBallProjectile {
     draw(context) {
         context.save();
 
-        // Trail particles
-        this.particles.forEach(p => {
+        // Trail particles (optimized: no shadowBlur, single save/restore)
+        if (this.particles.length > 0) {
             context.save();
-            context.globalAlpha = p.alpha;
-            context.shadowColor = '#8e24aa';
-            context.shadowBlur = 5;
-            context.fillStyle = p.color;
-            context.beginPath();
-            context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            context.fill();
+            this.particles.forEach(p => {
+                context.globalAlpha = p.alpha;
+                context.fillStyle = p.color;
+                context.beginPath();
+                context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                context.fill();
+            });
             context.restore();
-        });
+        }
 
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height / 2;

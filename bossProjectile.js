@@ -1,5 +1,5 @@
 export class BossProjectile {
-    constructor(game, x, y, dx, dy, speed = 10, damage = 15) {
+    constructor(game, x, y, dx, dy, speed = 50, damage = 15) {
         this.game = game;
         this.x = x;
         this.y = y;
@@ -16,8 +16,8 @@ export class BossProjectile {
         this.x += this.dx * this.speed;
         this.y += this.dy * this.speed;
 
-        // Scroll with the camera
-        this.x -= this.game.speed || 0;
+        // Scroll ke saath move karo (scrollSpeed use karo, game.speed nahi)
+        this.x -= this.game.scrollSpeed || 0;
 
         if (
             this.x < -150 ||
@@ -79,7 +79,7 @@ export class BossProjectile {
                 context.rotate(t);
                 context.globalAlpha = 0.9;
                 const size = this.radius * 3.5;
-                context.drawImage(img, -size/2, -size/2, size, size);
+                context.drawImage(img, -size / 2, -size / 2, size, size);
                 context.restore();
                 return;
             }

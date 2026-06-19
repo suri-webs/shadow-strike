@@ -1,5 +1,5 @@
 export class BossFireballProjectile {
-    constructor(game, x, y, dx, dy, speed = 14, damage = 25) {
+    constructor(game, x, y, dx, dy, speed = 24, damage = 25) {
         this.game = game;
         this.x = x;
         this.y = y;
@@ -17,7 +17,7 @@ export class BossFireballProjectile {
         this.x += this.dx * this.speed;
         this.y += this.dy * this.speed;
 
-        const scrollShift = this.game.speed || 0;
+        const scrollShift = this.game.scrollSpeed || 0;
         this.x -= scrollShift;
 
         if (
@@ -49,7 +49,7 @@ export class BossFireballProjectile {
             const pdy = this.y - (player.y + player.height / 2);
             const pdist = Math.max(1, Math.hypot(pdx, pdy));
             // Pull player towards black hole center with strong gravity force
-            const pullStrength = 3.2 + (380 / pdist); 
+            const pullStrength = 3.2 + (380 / pdist);
             player.x += (pdx / pdist) * pullStrength;
             player.y += (pdy / pdist) * pullStrength;
 
@@ -121,54 +121,54 @@ export class BossFireballProjectile {
 
     draw(context) {
         if (this.isBlackHole) {
-            // Draw swirling/imploding matter particles first (behind the singularity)
-            this.particles.forEach(p => {
-                if (p.colorType === 'black_hole_matter') {
-                    context.save();
-                    context.beginPath();
-                    context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    // Glowing vibrant violet-purple color
-                    context.fillStyle = `rgba(180, 0, 255, ${p.alpha})`;
-                    context.shadowColor = '#d500f9';
-                    context.shadowBlur = 10;
-                    context.fill();
-                    context.restore();
-                }
-            });
+            // Draw swirling/imploding matter particles first (behind the singularity) (optimized: single save/restore)
+            if (this.particles.length > 0) {
+                context.save();
+                this.particles.forEach(p => {
+                    if (p.colorType === 'black_hole_matter') {
+                        context.beginPath();
+                        context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        // Glowing vibrant violet-purple color
+                        context.fillStyle = `rgba(180, 0, 255, ${p.alpha})`;
+                        context.fill();
+                    }
+                });
+                context.restore();
+            }
 
             context.save();
             context.translate(this.x, this.y);
             const time = Date.now() * 0.002;
-            
+
             const outerRadius = this.radius * 4;
             const grad = context.createRadialGradient(0, 0, this.radius * 0.5, 0, 0, outerRadius);
             grad.addColorStop(0, 'rgba(255, 255, 255, 1)'); // White-hot inner core edge
             grad.addColorStop(0.25, 'rgba(180, 0, 255, 0.85)'); // Glowing purple
             grad.addColorStop(0.65, 'rgba(40, 0, 90, 0.45)'); // Dark violet-blue outer glow
             grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-            
+
             context.fillStyle = grad;
             context.beginPath();
             context.arc(0, 0, outerRadius, 0, Math.PI * 2);
             context.fill();
-            
+
             context.rotate(time);
             context.strokeStyle = 'rgba(180, 0, 255, 0.55)'; // Deep purple orbiting ring
             context.lineWidth = 2;
             context.beginPath();
             context.ellipse(0, 0, outerRadius * 0.8, outerRadius * 0.3, time * 0.5, 0, Math.PI * 2);
             context.stroke();
-            
+
             context.beginPath();
             context.ellipse(0, 0, outerRadius * 0.7, outerRadius * 0.4, -time * 0.3, 0, Math.PI * 2);
             context.stroke();
-            
+
             // Event Horizon - pure black center
             context.fillStyle = '#000000';
             context.beginPath();
             context.arc(0, 0, this.radius * 1.5, 0, Math.PI * 2);
             context.fill();
-            
+
             // Outer glow edge rings of Event Horizon
             context.strokeStyle = 'rgba(230, 180, 255, 0.9)'; // Inner light violet highlight ring
             context.lineWidth = 4;
@@ -178,7 +178,7 @@ export class BossFireballProjectile {
             context.strokeStyle = 'rgba(130, 0, 255, 0.85)'; // Outer intense purple ring
             context.lineWidth = 8;
             context.stroke();
-            
+
             context.restore();
             return;
         }
@@ -186,26 +186,28 @@ export class BossFireballProjectile {
         context.save();
         const t = Date.now();
 
-        this.particles.forEach(p => {
+        if (this.particles.length > 0) {
             context.save();
-            context.beginPath();
-            context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            if (p.colorType === 'red_fire') {
-                const grad = context.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
-                grad.addColorStop(0, `rgba(255, 69, 0, ${p.alpha})`);
-                grad.addColorStop(0.5, `rgba(255, 0, 0, ${p.alpha * 0.6})`);
-                grad.addColorStop(1, 'rgba(100, 0, 0, 0)');
-                context.fillStyle = grad;
-            } else {
-                const grad = context.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
-                grad.addColorStop(0, `rgba(255, 215, 0, ${p.alpha})`);
-                grad.addColorStop(0.6, `rgba(255, 140, 0, ${p.alpha * 0.4})`);
-                grad.addColorStop(1, 'rgba(150, 50, 0, 0)');
-                context.fillStyle = grad;
-            }
-            context.fill();
+            this.particles.forEach(p => {
+                context.beginPath();
+                context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                if (p.colorType === 'red_fire') {
+                    const grad = context.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+                    grad.addColorStop(0, `rgba(255, 69, 0, ${p.alpha})`);
+                    grad.addColorStop(0.5, `rgba(255, 0, 0, ${p.alpha * 0.6})`);
+                    grad.addColorStop(1, 'rgba(100, 0, 0, 0)');
+                    context.fillStyle = grad;
+                } else {
+                    const grad = context.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size);
+                    grad.addColorStop(0, `rgba(255, 215, 0, ${p.alpha})`);
+                    grad.addColorStop(0.6, `rgba(255, 140, 0, ${p.alpha * 0.4})`);
+                    grad.addColorStop(1, 'rgba(150, 50, 0, 0)');
+                    context.fillStyle = grad;
+                }
+                context.fill();
+            });
             context.restore();
-        });
+        }
 
         const pulse = Math.sin(t * 0.015) * 3;
         const glowRadius = this.radius * 2.2 + pulse;
@@ -234,7 +236,7 @@ export class BossFireballProjectile {
             context.moveTo(0, -this.radius);
             context.quadraticCurveTo(this.radius * 1.2, -this.radius * 0.3, this.radius * 2.2, 0);
             context.quadraticCurveTo(this.radius * 1.2, this.radius * 0.3, 0, this.radius);
-            context.arc(0, 0, this.radius, Math.PI/2, -Math.PI/2, true);
+            context.arc(0, 0, this.radius, Math.PI / 2, -Math.PI / 2, true);
             context.closePath();
 
             const flameGrad = context.createLinearGradient(0, 0, this.radius * 2, 0);
@@ -365,7 +367,7 @@ export class FirePillar {
         const isErupting = this.timer >= this.delay;
 
         if (isErupting) {
-            const grad = context.createLinearGradient(this.x - this.width/2, 0, this.x + this.width/2, 0);
+            const grad = context.createLinearGradient(this.x - this.width / 2, 0, this.x + this.width / 2, 0);
             grad.addColorStop(0, 'rgba(255, 0, 0, 0)');
             grad.addColorStop(0.3, 'rgba(255, 69, 0, 0.7)');
             grad.addColorStop(0.5, 'rgba(255, 230, 100, 0.9)');
@@ -373,7 +375,7 @@ export class FirePillar {
             grad.addColorStop(1, 'rgba(255, 0, 0, 0)');
 
             context.fillStyle = grad;
-            context.fillRect(this.x - this.width/2, 0, this.width, this.y);
+            context.fillRect(this.x - this.width / 2, 0, this.width, this.y);
 
             context.fillStyle = 'rgba(255, 255, 255, 0.35)';
             context.fillRect(this.x - 6, 0, 12, this.y);
@@ -431,7 +433,7 @@ export class FlameThrowerParticle {
         this.x += this.dx * this.speed;
         this.y += this.dy * this.speed;
 
-        const scrollShift = this.game.speed || 0;
+        const scrollShift = this.game.scrollSpeed || 0;
         this.x -= scrollShift;
 
         this.radius = 16 + (this.maxRadius - 16) * ratio;

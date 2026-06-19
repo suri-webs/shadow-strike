@@ -448,10 +448,10 @@ export class BossEnemy {
         const dy = player.y + player.height / 2 - cy;
         const angle = Math.atan2(dy, dx);
         const damage = dmg !== undefined ? dmg : (this.phase === 2 ? this.projDamagePhase2 : this.projDamage);
-        let speed = this.phase === 2 ? 7 : 5;
+        let speed = this.phase === 2 ? 16 : 16;
 
         if (this.isAmarjeet) {
-            speed = this.phase === 2 ? 1.5 : 1.1;
+            speed = this.phase === 2 ? 3.5 : 2.5;
         }
 
         const dirX = Math.cos(angle);
@@ -494,10 +494,10 @@ export class BossEnemy {
         const dy = player.y + player.height / 2 - cy;
         const angle = Math.atan2(dy, dx);
         const damage = dmg !== undefined ? dmg : (this.phase === 2 ? this.projDamagePhase2 + 5 : this.projDamage + 5);
-        let speed = this.phase === 2 ? 15 : 12;
+        let speed = this.phase === 2 ? 28 : 22;
 
         if (this.isAmarjeet) {
-            speed = this.phase === 2 ? 1.4 : 1.0;
+            speed = this.phase === 2 ? 2.8 : 2.0;
         }
 
         const dirX = Math.cos(angle);
@@ -526,10 +526,10 @@ export class BossEnemy {
         const dy = player.y + player.height / 2 - cy;
         const angle = Math.atan2(dy, dx);
         const damage = this.phase === 2 ? 45 : 35;
-        let speed = this.phase === 2 ? 6.5 : 5.0;
+        let speed = this.phase === 2 ? 14 : 10;
 
         if (this.isAmarjeet) {
-            speed = this.phase === 2 ? 1.4 : 1.0; // Slow down the black hole projectile speed for Amarjeet!
+            speed = this.phase === 2 ? 2.8 : 2.0; // Slow down the black hole projectile speed for Amarjeet!
         }
 
         const dirX = Math.cos(angle);
@@ -567,7 +567,7 @@ export class BossEnemy {
         const dy = player.y + player.height / 2 - cy;
         const angle = Math.atan2(dy, dx);
         const damage = this.phase === 2 ? this.projDamagePhase2 : this.projDamage;
-        const speed = this.phase === 2 ? 10 : 8;
+        const speed = this.phase === 2 ? 24 : 18;
 
         const dirX = Math.cos(angle);
         const dirY = Math.sin(angle);
@@ -591,7 +591,7 @@ export class BossEnemy {
         const dy = player.y + player.height / 2 - cy;
         const angle = Math.atan2(dy, dx);
         const damage = this.phase === 2 ? this.projDamagePhase2 + 5 : this.projDamage + 5;
-        const speed = this.phase === 2 ? 11 : 9;
+        const speed = this.phase === 2 ? 25 : 19;
 
         const dirX = Math.cos(angle);
         const dirY = Math.sin(angle);
@@ -620,7 +620,7 @@ export class BossEnemy {
                     this.game,
                     cx, cy,
                     dx, dy,
-                    this.phase === 2 ? 8.5 : 7.0,
+                    this.phase === 2 ? 18.0 : 14.0,
                     this.phase === 2 ? 4 : 3
                 )
             );
@@ -973,13 +973,25 @@ export class BossEnemy {
         this.velocityX *= 0.88;
         this.x += this.velocityX * deltaTime * 0.06;
 
+        // ── Boundary clamp: boss screen se bahar nahi jayega ──
+        const minX = -this.width * 0.3;                 // left edge: thoda andar
+        const maxX = this.game.width - this.width * 0.7; // right edge: thoda andar
+        if (this.x < minX) {
+            this.x = minX;
+            this.velocityX = Math.abs(this.velocityX) * 0.3; // bounce back
+        }
+        if (this.x > maxX) {
+            this.x = maxX;
+            this.velocityX = -Math.abs(this.velocityX) * 0.3; // bounce back
+        }
+
         if (Math.abs(this.velocityX) > 0.5) {
             if (this.state !== 'WALK') this._setState('WALK');
         } else {
             if (this.state !== 'IDLE') this._setState('IDLE');
         }
 
-        this.y = this.baseY - (this.game.player ? this.game.player.bottomMargin : 0);
+        this.y = this.baseY;
 
         if (this.hasEnteredScreen) {
             this.attackTimer += deltaTime;

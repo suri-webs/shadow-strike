@@ -3033,4 +3033,53 @@ body {
         margin-top: 4px !important;
     }
 }
+
+/* ========================================================= */
+/* SKILL BUTTON COOLDOWN ARC OVERLAY                         */
+/* ========================================================= */
+
+/* Dark sweep overlay that shrinks as cooldown ticks down */
+.cd-arc {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+    background: conic-gradient(
+        rgba(0, 0, 0, 0.72) calc(var(--cd-pct, 0) * 1%),
+        transparent calc(var(--cd-pct, 0) * 1%)
+    );
+}
+
+.cd-arc.active {
+    opacity: 1;
+}
+
+/* Bright leading-edge sweep line */
+.cd-arc::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 50%;
+    background: conic-gradient(
+        var(--cd-glow, #a060ff) calc(var(--cd-pct, 0) * 1% - 3%),
+        transparent calc(var(--cd-pct, 0) * 1%)
+    );
+    opacity: 0.85;
+    mix-blend-mode: screen;
+}
+
+/* Flash when ability becomes ready again */
+@keyframes cd-ready-flash {
+    0%   { box-shadow: 0 0 0 0 var(--glow-color, #00e5ff); }
+    40%  { box-shadow: 0 0 22px 8px var(--glow-color, #00e5ff); }
+    100% { box-shadow: 0 0 0 0 var(--glow-color, #00e5ff); }
+}
+
+.cd-ready-flash {
+    animation: cd-ready-flash 0.55s ease-out forwards;
+}
+
 

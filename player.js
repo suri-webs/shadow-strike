@@ -32,9 +32,9 @@ export class Player {
         this.height = 96.1;
         this.srcWidth = 95;
         this.srcHeight = 96.1;
-        this.maxSpeed = 2.2;
+        this.maxSpeed = 5.2;
         this.maxHP = 100;
-        this.weight = 0.09;
+        this.weight = 0.16;
         this.image = document.getElementById('player');
 
         this.shieldColor = '86, 255, 255'; // Cyan
@@ -44,7 +44,7 @@ export class Player {
         this.eColor = '#56ffffff'; // Sky Blue
         this.rColor = '#ffea00'; // Yellow
         this.sprintFilter = 'sepia(1) hue-rotate(-40deg) saturate(4) brightness(1.2)';
-        this.dashSpeed = 26; // Shinobi dash speed
+        this.dashSpeed = 20; // Shinobi dash speed
         this.bottomMargin = 0;
 
         if (this.characterType === 'jotem') {
@@ -54,7 +54,7 @@ export class Player {
             this.srcHeight = 128;
             this.maxSpeed = 2.5;
             this.maxHP = 130;
-            this.weight = 0.14;
+            this.weight = 0.25;
             this.image = document.getElementById('player2_jotem');
             this.shieldColor = '255, 171, 0';
             this.shieldHex = '#ffa726';
@@ -66,11 +66,11 @@ export class Player {
             this.dashSpeed = 26;
             this.bottomMargin = -45;
         } else if (this.characterType === 'shaia') {
-            this.width = 185;
-            this.height = 185;
+            this.width = 210;
+            this.height = 210;
             this.maxSpeed = 3.2;
             this.maxHP = 90;
-            this.weight = 0.08;
+            this.weight = 0.14;
             this.shieldColor = '204, 85, 255';
             this.shieldHex = '#ffee58';
             this.dashHex = '#ffee58';
@@ -95,9 +95,9 @@ export class Player {
             this.height = 240;
             this.srcWidth = 128;
             this.srcHeight = 128;
-            this.maxSpeed = 2.8;
+            this.maxSpeed = 5.0;
             this.maxHP = 110;
-            this.weight = 0.09;
+            this.weight = 0.16;
             this.shieldColor = '255, 255, 255';
             this.shieldHex = '#ffffff';
             this.dashHex = '#ffffff';
@@ -129,8 +129,8 @@ export class Player {
 
         this.speed = 0;
 
-        this.dashSpeed = this.dashSpeed || 20;
-        this.dashDuration = 150;
+        this.dashSpeed = this.dashSpeed || 30;
+        this.dashDuration = 200;
         this.dashTimer = 0;
         this.dashCooldownMax = 800;
         this.dashCooldown = 0;
@@ -164,7 +164,7 @@ export class Player {
 
         this.windProjectiles = [];
         this.windCooldown = 0;
-        this.windCooldownMax = 1500;
+        this.windCooldownMax = 2200;
         this.windChargeTimer = 0;
         this.windChargeMax = 300;
         this.windCharging = false;
@@ -507,7 +507,7 @@ export class Player {
         if (pressingE && this.shieldCooldown <= 0 && !this.isDead &&
             this.currentState.state !== 'DEATH' && this.currentState.state !== 'DAMAGE') {
             this.shieldActive = true;
-            this.shieldTimer = 3500; // 3.5 seconds active duration
+            this.shieldTimer = 6000; // 3.5 seconds active duration
             this.shieldCooldown = this.shieldCooldownMax; // 5 seconds cooldown
 
             // Audio feedback
@@ -613,7 +613,7 @@ export class Player {
         this.x += move;
 
         if (this.game.gravityPullActive && this.game.gravityTargetX !== undefined) {
-            const pullSpd = 1.5;
+            const pullSpd = 0.1;
             if (this.x < this.game.gravityTargetX) this.x += pullSpd;
             else if (this.x > this.game.gravityTargetX) this.x -= pullSpd;
         }
@@ -708,7 +708,10 @@ export class Player {
     fireWind() {
         if (this.windCooldown > 0) return;
         const startX = this.facingLeft ? this.x - 80 : this.x + this.width;
-        const startY = this.y + this.height / 2 - 20;
+        // ArchDemon floats (bottomMargin = -80), adjust spawn Y to match visible body center
+        const startY = this.characterType === 'archdemon'
+            ? this.y + this.height * 0.35
+            : this.y + this.height / 2 - 20;
 
         if (this.characterType === 'jotem') {
             this.windProjectiles.push(new BoulderProjectile(this.game, startX, startY, this.facingLeft));
@@ -729,7 +732,10 @@ export class Player {
 
     fireSlash() {
         const startX = this.facingLeft ? this.x - 40 : this.x + this.width;
-        const startY = this.y + this.height / 2 - 10;
+        // ArchDemon floats (bottomMargin = -80), adjust spawn Y to match visible body center
+        const startY = this.characterType === 'archdemon'
+            ? this.y + this.height * 0.35
+            : this.y + this.height / 2 - 10;
 
         if (this.characterType === 'jotem') {
             this.slashProjectiles.push(new FissureSpikesProjectile(this.game, startX, startY, this.facingLeft));
@@ -747,7 +753,7 @@ export class Player {
     fireNormalAttack() {
         if (this.characterType === 'archdemon') {
             const startX = this.facingLeft ? this.x - 40 : this.x + this.width;
-            const startY = this.y + this.height / 2 + 20;
+            const startY = this.y + this.height * 0.35;
             this.slashProjectiles.push(new DarkBallProjectile(this.game, startX, startY, this.facingLeft));
         }
     }
@@ -824,16 +830,18 @@ export class Player {
             context.restore();
         });
 
-        // Draw particles
-        this.particles.forEach(p => {
+        // Draw particles (optimized: single save/restore around the loop)
+        if (this.particles.length > 0) {
             context.save();
-            context.globalAlpha = Math.max(0, Math.min(1, p.alpha * context.globalAlpha));
-            context.beginPath();
-            context.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-            context.fillStyle = p.color;
-            context.fill();
+            this.particles.forEach(p => {
+                context.globalAlpha = Math.max(0, Math.min(1, p.alpha * context.globalAlpha));
+                context.beginPath();
+                context.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                context.fillStyle = p.color;
+                context.fill();
+            });
             context.restore();
-        });
+        }
 
         this.windProjectiles.forEach(p => p.draw(context));
         this.slashProjectiles.forEach(p => p.draw(context));
@@ -1185,7 +1193,7 @@ export class Player {
     jump() {
         if (this.jumpCount < this.maxJumps) {
             if (this.game.audio) this.game.audio.playSFX('jump');
-            this.vy = -6;
+            this.vy = -8.0;
             this.jumpCount++;
             this.scaleY = 1.18;
             this.scaleX = 0.82;

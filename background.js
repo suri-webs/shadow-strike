@@ -154,18 +154,29 @@ export class Level3Background {
 
         this.backgroundLayers.forEach(l => l.draw(context));
 
+        // Draw embers outer glow circles (low opacity, larger size)
+        context.save();
         this.embers.forEach(e => {
             const alpha = Math.max(0, e.life);
-            context.save();
+            context.globalAlpha = alpha * 0.25;
+            context.fillStyle = e.color;
+            context.beginPath();
+            context.arc(e.x, e.y, e.size * 2.2, 0, Math.PI * 2);
+            context.fill();
+        });
+        context.restore();
+
+        // Draw embers inner core circles
+        context.save();
+        this.embers.forEach(e => {
+            const alpha = Math.max(0, e.life);
             context.globalAlpha = alpha;
-            context.shadowColor = e.color;
-            context.shadowBlur = 5;
             context.fillStyle = e.color;
             context.beginPath();
             context.arc(e.x, e.y, e.size, 0, Math.PI * 2);
             context.fill();
-            context.restore();
         });
+        context.restore();
 
         const vig = context.createRadialGradient(this.W / 2, this.H / 2, this.H * 0.3, this.W / 2, this.H / 2, this.H * 0.85);
         vig.addColorStop(0, 'transparent');
@@ -236,19 +247,29 @@ export class Level4Background {
         context.save();
         this.backgroundLayers.forEach(l => l.draw(context));
 
-        // Draw mist particles
+        // Draw mist particles outer glow (low opacity, larger size)
+        context.save();
         this.mist.forEach(e => {
             const alpha = Math.max(0, e.life * 0.5);
-            context.save();
+            context.globalAlpha = alpha * 0.3;
+            context.fillStyle = e.color;
+            context.beginPath();
+            context.arc(e.x, e.y, e.size * 2.5, 0, Math.PI * 2);
+            context.fill();
+        });
+        context.restore();
+
+        // Draw mist particles inner core
+        context.save();
+        this.mist.forEach(e => {
+            const alpha = Math.max(0, e.life * 0.5);
             context.globalAlpha = alpha;
-            context.shadowColor = e.color;
-            context.shadowBlur = 12;
             context.fillStyle = e.color;
             context.beginPath();
             context.arc(e.x, e.y, e.size, 0, Math.PI * 2);
             context.fill();
-            context.restore();
         });
+        context.restore();
 
         // Dark vignette for ominous atmosphere
         const vig = context.createRadialGradient(this.W / 2, this.H / 2, this.H * 0.25, this.W / 2, this.H / 2, this.H * 0.9);
@@ -331,8 +352,7 @@ export class Level5Background {
 
         // Draw tiled ground
         if (this.groundImage && this.groundImage.complete && this.groundImage.naturalWidth > 0) {
-            const playerOffset = (this.game.player ? this.game.player.bottomMargin : 0);
-            const gy = this.groundY - playerOffset;
+            const gy = this.groundY;
 
             let tx = this.groundX - this.groundTileWidth;
             while (tx < this.W + this.groundTileWidth) {

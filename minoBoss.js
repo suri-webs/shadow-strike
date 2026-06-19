@@ -217,7 +217,7 @@ export class MinoBoss {
         const dy = player.y + player.height / 2 - cy;
         const angle = Math.atan2(dy, dx);
         const damage = this.phase === 2 ? 35 : 22;
-        const speed = this.phase === 2 ? 14 : 11;
+        const speed = this.phase === 2 ? 28 : 22;
 
         const dirX = Math.cos(angle);
         const dirY = Math.sin(angle);
@@ -476,6 +476,18 @@ export class MinoBoss {
         }
         this.velocityX *= 0.88;
         this.x += this.velocityX * deltaTime * 0.06;
+
+        // ── Boundary clamp: MinoBoss screen se bahar nahi jayega ──
+        const minX = -this.width * 0.3;
+        const maxX = this.game.width - this.width * 0.7;
+        if (this.x < minX) {
+            this.x = minX;
+            this.velocityX = Math.abs(this.velocityX) * 0.3;
+        }
+        if (this.x > maxX) {
+            this.x = maxX;
+            this.velocityX = -Math.abs(this.velocityX) * 0.3;
+        }
 
         if (Math.abs(this.velocityX) > 0.5) {
             if (this.state !== 'WALK') this._setState('WALK');

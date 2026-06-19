@@ -19,7 +19,7 @@ export class BossSlashProjectile {
         this.x += this.dx * this.speed;
         this.y += this.dy * this.speed;
 
-        const scrollShift = this.game.speed || 0;
+        const scrollShift = this.game.scrollSpeed || 0;
         this.x -= scrollShift;
         this.history.forEach(pos => pos.x -= scrollShift);
 
