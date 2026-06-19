@@ -758,6 +758,8 @@ body {
     flex-direction: column;
     align-items: center;
     z-index: 1;
+    max-height: 95vh;
+    overflow: hidden;
 }
 
 /* Floating animation only when active */
@@ -815,6 +817,7 @@ body {
     justify-content: center;
     align-items: stretch;
     z-index: 3;
+    min-height: 0;
 }
 
 /* Left Side: Vertical List */
@@ -2716,7 +2719,7 @@ body {
 /* ========================================================= */
 /* MOBILE LANDSCAPE RESPONSIVENESS FIXES                     */
 /* ========================================================= */
-@media (max-height: 550px) {
+@media (max-height: 800px) {
     /* ─── Settings Panel Responsiveness ─── */
     .settings-modal {
         width: min(440px, 95vw);
