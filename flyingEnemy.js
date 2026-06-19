@@ -244,6 +244,7 @@ export class FlyingEnemy {
     }
 
     update(deltaTime) {
+        this.x -= this.game.scrollSpeed || 0;
         if (this.flashTimer > 0) this.flashTimer -= deltaTime;
 
         const easeSpd = 0.12 * (deltaTime / 16.6);

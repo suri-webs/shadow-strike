@@ -21,6 +21,7 @@ export class Portal {
     }
 
     update(deltaTime) {
+        this.x -= this.game.scrollSpeed || 0;
 
         this.frameTimer += deltaTime;
         if (this.frameTimer >= this.frameInterval) {

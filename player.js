@@ -37,8 +37,8 @@ export class Player {
         this.weight = 0.09;
         this.image = document.getElementById('player');
 
-        this.shieldColor = '86, 255, 255'; // Light blue
-        this.shieldHex = '#56ffffff';
+        this.shieldColor = '86, 255, 255'; // Cyan
+        this.shieldHex = '#56ffff';
         this.dashHex = '#ff2244'; // Red/Crimson to match character color
         this.qColor = '#ffffff'; // White
         this.eColor = '#56ffffff'; // Sky Blue
@@ -175,12 +175,12 @@ export class Player {
 
         this.slashProjectiles = [];
         this.slashCooldown = 0;
-        this.slashCooldownMax = 10000;
+        this.slashCooldownMax = 100;
 
         this.shieldActive = false;
         this.shieldTimer = 0;
         this.shieldCooldown = 0;
-        this.shieldCooldownMax = 5000;
+        this.shieldCooldownMax = 50;
 
         this.states = [
             new Standing(this),
@@ -492,13 +492,15 @@ export class Player {
         this.slashProjectiles.forEach(p => p.update(deltaTime));
         this.slashProjectiles = this.slashProjectiles.filter(p => !p.markedForDeletion);
 
-        // Update Shield (E)
+        // ── Update Shield (E) ────────────────────────────────────────────
         if (this.shieldCooldown > 0) this.shieldCooldown -= deltaTime;
         if (this.shieldActive) {
             this.shieldTimer -= deltaTime;
             if (this.shieldTimer <= 0) {
                 this.shieldActive = false;
                 this.shieldTimer = 0;
+                // Notify the player shield expired
+                if (this.game.audio) this.game.audio.playSFX('player_hurt');
             }
         }
         const pressingE = input.includes('e') || input.includes('E');
@@ -506,23 +508,26 @@ export class Player {
             this.currentState.state !== 'DEATH' && this.currentState.state !== 'DAMAGE') {
             this.shieldActive = true;
             this.shieldTimer = 3500; // 3.5 seconds active duration
-            this.shieldCooldown = this.shieldCooldownMax; // 12 seconds cooldown
+            this.shieldCooldown = this.shieldCooldownMax; // 5 seconds cooldown
 
-            // Trigger visual feedback: outward expanding burst of cyan energy particles!
-            for (let i = 0; i < 20; i++) {
-                const angle = (i / 20) * Math.PI * 2;
-                const spd = Math.random() * 3 + 4;
+            // Audio feedback
+            if (this.game.audio) this.game.audio.playSFX('sprint');
+
+            // Visual burst: outward expanding energy particles
+            for (let i = 0; i < 24; i++) {
+                const angle = (i / 24) * Math.PI * 2;
+                const spd = Math.random() * 4 + 5;
                 this.particles.push({
                     x: this.x + this.width / 2,
                     y: this.y + this.height / 2,
                     vx: Math.cos(angle) * spd,
                     vy: Math.sin(angle) * spd,
-                    radius: 3 + Math.random() * 4,
+                    radius: 4 + Math.random() * 5,
                     alpha: 1.0,
-                    color: Math.random() > 0.4 ? `rgba(${this.shieldColor}, 0.85)` : `rgba(${this.shieldColor}, 0.7)`
+                    color: Math.random() > 0.4 ? `rgba(${this.shieldColor}, 0.9)` : `rgba(${this.shieldColor}, 0.75)`
                 });
             }
-            this.game.shake = Math.max(this.game.shake, 15);
+            this.game.shake = Math.max(this.game.shake, 18);
         }
 
         this.windProjectiles.forEach(proj => {
@@ -1112,21 +1117,31 @@ export class Player {
         } else {
             // ╔══════════════════════════════════════════╗
             // ║  SHINOBI — Plasma Energy Bubble          ║
-            // ║  Radius: 52 (fits 95×96 body)            ║
+            // ║  Radius: 58 (fits 95×96 body)            ║
             // ╚══════════════════════════════════════════╝
-            const r = 52;
-            const pulse = 1 + 0.06 * Math.sin(now * 0.007);
+            const r = 58;
+            const pulse = 1 + 0.08 * Math.sin(now * 0.007);
             const spin1 = (now * 0.0018) % (Math.PI * 2);
             const spin2 = -(now * 0.0028) % (Math.PI * 2);
 
             context.save();
             context.translate(centerX, centerY);
 
+            // Outer halo glow (wide soft ring)
+            context.shadowColor = this.shieldHex;
+            context.shadowBlur = 40;
+            context.strokeStyle = `rgba(${this.shieldColor}, 0.25)`;
+            context.lineWidth = 10;
+            context.beginPath();
+            context.arc(0, 0, (r + 14) * pulse, 0, Math.PI * 2);
+            context.stroke();
+
             // Plasma haze fill
+            context.shadowBlur = 0;
             const plasmaGrad = context.createRadialGradient(0, 0, 8, 0, 0, r);
-            plasmaGrad.addColorStop(0, `rgba(${this.shieldColor}, 0.05)`);
-            plasmaGrad.addColorStop(0.65, `rgba(${this.shieldColor}, 0.12)`);
-            plasmaGrad.addColorStop(1, `rgba(${this.shieldColor}, 0.36)`);
+            plasmaGrad.addColorStop(0, `rgba(${this.shieldColor}, 0.10)`);
+            plasmaGrad.addColorStop(0.65, `rgba(${this.shieldColor}, 0.22)`);
+            plasmaGrad.addColorStop(1, `rgba(${this.shieldColor}, 0.55)`);
             context.beginPath();
             context.arc(0, 0, r * pulse, 0, Math.PI * 2);
             context.fillStyle = plasmaGrad;
@@ -1134,17 +1149,17 @@ export class Player {
 
             // Outer glow ring
             context.shadowColor = this.shieldHex;
-            context.shadowBlur = 26;
-            context.strokeStyle = `rgba(${this.shieldColor}, 0.9)`;
-            context.lineWidth = 2.8;
+            context.shadowBlur = 36;
+            context.strokeStyle = `rgba(${this.shieldColor}, 0.95)`;
+            context.lineWidth = 3.5;
             context.beginPath();
             context.arc(0, 0, r * pulse, 0, Math.PI * 2);
             context.stroke();
 
             // Inner spinning arc pair (CW)
             context.shadowBlur = 10;
-            context.strokeStyle = `rgba(${this.shieldColor}, 0.55)`;
-            context.lineWidth = 1.8;
+            context.strokeStyle = `rgba(${this.shieldColor}, 0.65)`;
+            context.lineWidth = 2.0;
             context.beginPath();
             context.arc(0, 0, r * 0.75, spin1, spin1 + Math.PI * 0.7);
             context.stroke();

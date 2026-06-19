@@ -291,6 +291,7 @@ export class GroundEnemy {
     }
 
     update(deltaTime) {
+        this.x -= this.game.scrollSpeed || 0;
         if (this.flashTimer > 0) this.flashTimer -= deltaTime;
 
         const easeSpd = 0.12 * (deltaTime / 16.6);
@@ -382,11 +383,6 @@ export class GroundEnemy {
             const chase = this.moveSpeed;
 
             this.x += dir * chase;
-
-            if (!this.hasEnteredScreen) {
-                this.x -= this.game.speed || 0;
-            }
-
             this.x = Math.max(-200, this.x);
 
             this._setState('WALK');

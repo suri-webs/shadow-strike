@@ -149,4 +149,33 @@ export class InputHandler {
         }
         this._oneShot.clear();
     }
+
+    /**
+     * Simulates pressing a key programmatically from virtual touch controls.
+     * @param {string} key
+     */
+    pressVirtualKey(key) {
+        if (key === 'r' || key === 'e' || key === 'Space' || key === 'MouseLeft') {
+            if (!this.keys.includes(key)) {
+                this.keys.push(key);
+                this._oneShot.add(key);
+            }
+        } else {
+            // Continuous movement/charge keys
+            if (!this.keys.includes(key)) {
+                this.keys.push(key);
+            }
+        }
+    }
+
+    /**
+     * Simulates releasing a key programmatically from virtual touch controls.
+     * @param {string} key
+     */
+    releaseVirtualKey(key) {
+        const index = this.keys.indexOf(key);
+        if (index > -1) {
+            this.keys.splice(index, 1);
+        }
+    }
 }

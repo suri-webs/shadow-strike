@@ -287,6 +287,7 @@ export class MinoBoss {
     }
 
     update(deltaTime) {
+        this.x -= this.game.scrollSpeed || 0;
         if (this.invuln > 0) this.invuln -= deltaTime;
         if (this.flashTimer > 0) this.flashTimer -= deltaTime;
         if (this.stompShake > 0) this.stompShake -= deltaTime;

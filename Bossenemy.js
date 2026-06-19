@@ -720,6 +720,7 @@ export class BossEnemy {
     }
 
     update(deltaTime) {
+        this.x -= this.game.scrollSpeed || 0;
         if (this.invuln > 0) this.invuln -= deltaTime;
         if (this.flashTimer > 0) this.flashTimer -= deltaTime;
         if (this.surpriseCooldown > 0) this.surpriseCooldown -= deltaTime;

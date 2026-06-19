@@ -46,8 +46,9 @@ window.addEventListener('load', function () {
     const LEVEL_CONFIG = {
         1: {
             waves: [
-                { type: 'skeleton_white', count: 4 },
-                { type: 'mixed_level1', count: 4 },
+                { type: 'skeleton_white', count: 1 },
+                // { type: 'flying', count: 5 },
+                // { type: 'mixed_level1', count: 12 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 3000,
@@ -56,9 +57,9 @@ window.addEventListener('load', function () {
         },
         2: {
             waves: [
-                { type: 'demon', count: 3 },
-                { type: 'skeleton_yellow', count: 3 },
-                { type: 'mixed_level2', count: 4 },
+                { type: 'demon', count: 1 },
+                // { type: 'skeleton_yellow', count: 10 },
+                // { type: 'mixed_level2', count: 14 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 2500,
@@ -67,9 +68,9 @@ window.addEventListener('load', function () {
         },
         3: {
             waves: [
-                { type: 'skeleton_white', count: 4 },
-                { type: 'arcane_archer', count: 3 },
-                { type: 'mixed_level3', count: 5 },
+                { type: 'skeleton_white', count: 1 },
+                // { type: 'arcane_archer', count: 13 },
+                // { type: 'mixed_level3', count: 15 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 2000,
@@ -78,9 +79,9 @@ window.addEventListener('load', function () {
         },
         4: {
             waves: [
-                { type: 'skeleton_yellow', count: 5 },
-                { type: 'arcane_archer', count: 4 },
-                { type: 'mixed_level3', count: 6 },
+                { type: 'skeleton_yellow', count: 1 },
+                // { type: 'arcane_archer', count: 14 },
+                // { type: 'mixed_level3', count: 16 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1800,
@@ -89,9 +90,9 @@ window.addEventListener('load', function () {
         },
         5: {
             waves: [
-                { type: 'demon', count: 4 },
-                { type: 'arcane_archer', count: 4 },
-                { type: 'mixed_level3', count: 6 },
+                { type: 'demon', count: 1 },
+                // { type: 'arcane_archer', count: 19 },
+                // { type: 'mixed_level3', count: 16 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1600,
@@ -100,9 +101,9 @@ window.addEventListener('load', function () {
         },
         6: {
             waves: [
-                { type: 'skeleton_yellow', count: 5 },
-                { type: 'mixed_level2', count: 5 },
-                { type: 'mixed_level3', count: 6 },
+                { type: 'skeleton_yellow', count: 1 },
+                // { type: 'mixed_level2', count: 5 },
+                // { type: 'mixed_level3', count: 6 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1500,
@@ -145,9 +146,117 @@ window.addEventListener('load', function () {
         10: {
             waves: [
                 { type: 'mixed_level3', count: 8 },
-                { type: 'boss', count: 1 }, // Amarjeet final encounter
+                { type: 'boss', count: 1 },
             ],
             enemyInterval: 1000,
+            groundMargin: 55,
+            bgClass: 'Level10Background',
+        },
+        11: {
+            waves: [
+                { type: 'skeleton_white', count: 5 },
+                { type: 'flying', count: 4 },
+                { type: 'mixed_level1', count: 5 },
+                { type: 'boss', count: 1 },
+            ],
+            enemyInterval: 2200,
+            groundMargin: 45,
+            bgClass: 'Background',
+        },
+        12: {
+            waves: [
+                { type: 'demon', count: 4 },
+                { type: 'skeleton_yellow', count: 4 },
+                { type: 'mixed_level2', count: 5 },
+                { type: 'boss', count: 1 },
+            ],
+            enemyInterval: 2000,
+            groundMargin: 55,
+            bgClass: 'Level2Background',
+        },
+        13: {
+            waves: [
+                { type: 'skeleton_white', count: 5 },
+                { type: 'arcane_archer', count: 4 },
+                { type: 'mixed_level3', count: 6 },
+                { type: 'boss', count: 1 },
+            ],
+            enemyInterval: 1800,
+            groundMargin: 55,
+            bgClass: 'Level3Background',
+        },
+        14: {
+            waves: [
+                { type: 'skeleton_yellow', count: 6 },
+                { type: 'arcane_archer', count: 5 },
+                { type: 'mixed_level3', count: 7 },
+                { type: 'boss', count: 1 },
+            ],
+            enemyInterval: 1600,
+            groundMargin: 55,
+            bgClass: 'Level4Background',
+        },
+        15: {
+            waves: [
+                { type: 'demon', count: 5 },
+                { type: 'arcane_archer', count: 5 },
+                { type: 'mixed_level3', count: 7 },
+                { type: 'boss', count: 1 },
+            ],
+            enemyInterval: 1400,
+            groundMargin: 55,
+            bgClass: 'Level5Background',
+        },
+        16: {
+            waves: [
+                { type: 'skeleton_yellow', count: 6 },
+                { type: 'mixed_level2', count: 6 },
+                { type: 'mixed_level3', count: 7 },
+                { type: 'boss', count: 1 },
+            ],
+            enemyInterval: 1300,
+            groundMargin: 55,
+            bgClass: 'Level6Background',
+        },
+        17: {
+            waves: [
+                { type: 'flying', count: 7 },
+                { type: 'arcane_archer', count: 6 },
+                { type: 'mixed_level3', count: 8 },
+                { type: 'boss', count: 1 },
+            ],
+            enemyInterval: 1200,
+            groundMargin: 55,
+            bgClass: 'Level7Background',
+        },
+        18: {
+            waves: [
+                { type: 'skeleton_white', count: 7 },
+                { type: 'demon', count: 6 },
+                { type: 'mixed_level3', count: 9 },
+                { type: 'boss', count: 1 },
+            ],
+            enemyInterval: 1100,
+            groundMargin: 55,
+            bgClass: 'Level8Background',
+        },
+        19: {
+            waves: [
+                { type: 'skeleton_yellow', count: 7 },
+                { type: 'arcane_archer', count: 7 },
+                { type: 'mixed_level3', count: 10 },
+                { type: 'boss', count: 1 },
+            ],
+            enemyInterval: 1000,
+            groundMargin: 55,
+            bgClass: 'Level9Background',
+        },
+        20: {
+            waves: [
+                { type: 'mixed_level3', count: 10 },
+                { type: 'boss', count: 1 }, // Amarjeet final-final encounter
+            ],
+            enemyInterval: 800,
             groundMargin: 55,
             bgClass: 'Level10Background',
         },
@@ -205,17 +314,27 @@ window.addEventListener('load', function () {
 
             // Databases
             this.narratives = {
-                prologue: "🌌 PROLOGUE — THE BEGINNING OF THE BLACK HOLE\n\nLong before time had a name, the universe was protected by Ten Dimensional Realms. Each realm contained a fragment of the Core of Creation, an energy that kept reality stable.\n\nAt the center of these realms stood a guardian:\n\nAMARJEET\n\n\"The Keeper of Infinity\"\n\nHe was not evil.\n\nHe protected worlds for millions of years.\n\nBut one day...\n\nA cosmic entity known as THE VOID EMPEROR attacked reality from beyond existence.\n\nTo save the universe, Amarjeet sealed the Void Emperor using forbidden cosmic energy.\n\nThe ritual succeeded.\n\nBut the energy transformed Amarjeet himself.\n\nA black singularity was born inside his chest.\n\nOver centuries the singularity consumed his mind.\n\nHe became—\n\nAMARJEET DA BLACK HOLE\nThe Devourer of Reality\n\nNow he seeks to merge all realms into one infinite black hole.\n\nOnly four heroes remain:\n\nSHINOBI\nJOTEM\nSHAIA\nARCHDEMON\n\nAncient prophecy says:\n\n\"When darkness consumes the stars,\nthe branch of creation shall pierce infinity.\"\n\nOnly the World Tree Stick can destroy Amarjeet's singularity.",
-                1: "LEVEL 1 — SHADOW CITY\n\nA once-glorious metropolis consumed by Amarjeet's darkness. The city of eternal night — overrun by corrupted guardians he once commanded.\n\nNeon towers gone dark. Streets ruled by shadow. At its heart waits the SHADOW LORD, Amarjeet's first corrupted lieutenant.\n\nDefeat the Shadow Lord. Prove your worth. Your journey across the realms begins here.",
-                2: "LEVEL 2 — SPIDER FOREST\n\nThe ancient forest is wrapped in living webs. Amarjeet's corruption has reached the trees — they no longer grow, they only consume.\n\nDeep within this arachnid nightmare stands MECHA-STONE, an ancient runic titan reprogrammed by Amarjeet's gravitational force into a weapon of destruction.\n\nCut through the webs. Shatter the machine. Move forward.",
-                3: "LEVEL 3 — HALLOWEEN HOUSE\n\nWithin the witch's cursed cabin, gravity behaves strangely and ghosts wander endlessly. Amarjeet's black hole energy has trapped the spirits here — unable to pass on. Their suffering fuels his power.\n\nDRAGON LORD guards this cursed place, feeding on the agony of the trapped souls.\n\nFree the spirits. Break the curse. Move forward.",
-                4: "LEVEL 4 — HAUNTED GRAVEYARD\n\nYou tread on sacred, desecrated ground. The ancient spirits of this graveyard have a secret — one Amarjeet does not want you to hear.\n\nMINO BOSS guards the portal jealously. Defeat him, and the spirits will finally speak.\n\nWhat they reveal... will change everything.",
-                5: "LEVEL 5 — MUSHROOM GROVE\n\nThe final fragment of the first chapter. A beautiful, toxic forest of glowing fungi — and at its heart grows something Amarjeet fears above all else.\n\nTHE IMPALER stands between you and destiny. Defeat him.\n\nThe World Tree Stick awaits.\nAnd with it... the first real confrontation with Amarjeet Da Black Hole himself.",
-                6: "LEVEL 6 — CRYSTAL CAVERNS\n\nAmarejeet has fled into a forgotten dimension. You follow.\n\nThe Crystal Caverns glow with corrupted energy — the crystals alive with fractured light, whispering from deep within their shattered hearts:\n\n\"The Void Emperor awakens...\"\n\nAmarejeet fears something greater than himself. CRYSTAL TITAN guards these caverns. Discover the truth hidden in the crystal dark.",
-                7: "LEVEL 7 — SKY TEMPLE\n\nFloating islands drift through endless storms. This ancient temple stands at the crossroads of dimensions — and Amarjeet is beginning to reveal his past.\n\nSomething broke him. Something he refuses to say.\n\nSTORM SERAPH, guardian of the skies, has been twisted by Amarjeet's singularity. Strike through the storms and reach the truth.",
-                8: "LEVEL 8 — FROZEN ABYSS\n\nBeneath frozen oceans, an ancient dragon sleeps. FROST WYRM guards secrets frozen in time.\n\nBut something far more terrifying is stirring. The sky is cracking. A giant eye appears in space.\n\nThe seal Amarjeet created is weakening. Something unimaginable is about to break free. Defeat Frost Wyrm... before the abyss opens completely.",
-                9: "LEVEL 9 — VOID KINGDOM\n\nThe realm itself bends. Reality collapses and rebuilds in real time.\n\nIn the fragments of broken space, you see memories — Amarjeet's memories. A guardian. A sacrifice. A tragedy that spans eternity.\n\nTHE ABYSS KNIGHT stands as the final guardian before the end. And when he falls... you will finally understand everything.",
-                10: "LEVEL 10 — EDGE OF REALITY\n\nThis is where it all ends.\n\nThe universe is collapsing. Stars disappear. Gravity breaks. Entire planets are swallowed.\n\nAmarjeet Da Black Hole stands before you — not as a monster, but as a broken guardian waiting for someone strong enough to end his suffering.\n\nThe World Tree Stick pulses with ancient light.\n\nThis is the final battle for all of reality."
+                prologue: "🌌 PROLOGUE — SINGULARITY KI SHURUWAAT\n\nSamay shuru hone se pehle, brahmand ki raksha Ten Dimensional Realms karte the. Har ek realm me brahmand ke core ka ek tukda tha jo reality ko control me rakhta tha.\n\nIn realms ke beech me ek rakshak khada tha:\n\nAMARJEET\n\n\"The Keeper of Infinity\"\n\nWoh bura nahi tha. Usne lakho saalo tak duniya ko bachaya.\n\nLekin ek din...\n\nEk shaktishali dushman THE VOID EMPEROR ne reality par hamla kar diya.\n\nBrahmand ko bachane ke liye, Amarjeet ne apne andar ki forbidden energy se use seal kar diya.\n\nSeal toh ho gaya, par is energy ne Amarjeet ko badal diya.\n\nUske seene me ek black singularity ban gayi, jo dheere dheere uske dimaag ko khane lagi.\n\nAur woh ban gaya—\n\nAMARJEET DA BLACK HOLE\nReality ko nigalne wala\n\nAb woh saare realms ko ek bade black hole me milana chahta hai.\n\nSirf 4 heroes bache hain:\n\nSHINOBI\nJOTEM\nSHAIA\nARCHDEMON\n\nPurani bhavishyavani kehti hai:\n\n\"Jab andhera taaro ko nigal lega,\ntoh srishti ki shakh anantata ko chir degi.\"\n\nSirf World Tree Stick hi Amarjeet ki singularity ko khatam kar sakti hai.",
+                1: "LEVEL 1 — SHADOW CITY\n\nEk pyara shahar jo ab Amarjeet ke andhere me doob chuka hai. Neon lights band ho gayi hain aur har gali me chhaya ka raj hai. Iske beech me khada hai SHADOW LORD, Amarjeet ka pehla senapati. Use harao aur aage badho.",
+                2: "LEVEL 2 — SPIDER FOREST\n\nYeh jungle purana hai par ab yahan sirf makdi ke jale hain. Trees ab ugte nahi, sirf consume karte hain. Yahan MECHA-STONE khada hai, jise Amarjeet ne reprogram kiya hai. Jalo ko kaato aur aage badho.",
+                3: "LEVEL 3 — HALLOWEEN HOUSE\n\nEk purani bhootaha jhopdi jahan gravity ajeeb tarike se behave karti hai. Amarjeet ki energy ne yahan ki aatmao ko qaid kar rakha hai. DRAGON LORD yahan ka pehra de raha hai. Aatmao ko aazad karo aur aage badho.",
+                4: "LEVEL 4 — HAUNTED GRAVEYARD\n\nTum ek kabristan me ho. Yahan ki aatmao ke paas ek raaz hai jo Amarjeet chhupana chahta hai. MINO BOSS is portal ka pehredar hai. Use harao taaki aatmaein sach bol sakein.",
+                5: "LEVEL 5 — MUSHROOM GROVE\n\nPehle chapter ka aakhri hissa. Chamakdar kukurmutto ka jungle jahan THE IMPALER tumhara rasta rok raha hai. Use harao, World Tree Stick ko haasil karo, aur Amarjeet se pehli baar samna karo.",
+                6: "LEVEL 6 — CRYSTAL CAVERNS\n\nAmarjeet dusre dimension me bhaag gaya hai. Tum bhi uske peeche aaye ho. Yeh gufaayein chamak rahi hain par crystals keh rahe hain: 'Void Emperor jaag raha hai...' CRYSTAL TITAN ko harao aur sach dhoondo.",
+                7: "LEVEL 7 — SKY TEMPLE\n\nHawa me tairte islands aur tufan. Yeh mandir sabhi dimensions ke beech me hai. Amarjeet ke past ke baare me kuch pata chal raha hai. STORM SERAPH ko harao aur aage badho.",
+                8: "LEVEL 8 — FROZEN ABYSS\n\nBaraf ke neeche ek dragon so raha hai. FROST WYRM iske raaz ki raksha karta hai. Aasman me ek badi aankh khul rahi hai. Amarjeet ka seal kamzor ho raha hai. Frost Wyrm ko jald se jald harao.",
+                9: "LEVEL 9 — VOID KINGDOM\n\nSpace toot raha hai aur ban raha hai. Tumhe Amarjeet ki yaadein dikh rahi hain—ek sachha rakshak jo ab shaitan ban chuka hai. ABYSS KNIGHT ko harao taaki aakhri rasta khul sake.",
+                10: "LEVEL 10 — EDGE OF REALITY\n\nYahan sab khatam hoga. Brahmand toot raha hai, taare gayab ho rahe hain. Amarjeet Da Black Hole tumhara intezar kar raha hai taaki koi use is dard se aazad kar sake. World Tree Stick taiyar hai. Chalo shuru karein.",
+                11: "LEVEL 11 — SHADOW CITY II\n\nAndhera aur gehra ho gaya hai. Purane raste ab aur mushkil hain. Shadow Lord ka naya roop tumhara rasta rok raha hai. Himmat mat harna!",
+                12: "LEVEL 12 — SPIDER FOREST II\n\nJungle ki makdiyan ab aur aakramak ho gayi hain. Mecha-Stone firse khada ho gaya hai naye upgrades ke sath. Is lohe ke pahad ko tod do!",
+                13: "LEVEL 13 — HALLOWEEN HOUSE II\n\nHunted house me aatmao ka rona aur tez ho gaya hai. Dragon Lord ki taqat dugni ho gayi hai. Uske gusse se bacho!",
+                14: "LEVEL 14 — HAUNTED GRAVEYARD II\n\nKabristan me ab tufan chal raha hai. Mino Boss naye hathiyar ke sath wapas aa gaya hai. Apne dhal ko taiyar rakho!",
+                15: "LEVEL 15 — MUSHROOM GROVE II\n\nToxic spores hawa me phaile hain. Impaler is baar bina kisi reham ke hamla karega. Stick ki taqat ka istemal karo!",
+                16: "LEVEL 16 — CRYSTAL CAVERNS II\n\nCrystals ab laal rang me chamak rahe hain. Crystal Titan ka gussa brahmand ko hila raha hai. Uske crystals ko shattered kar do!",
+                17: "LEVEL 17 — SKY TEMPLE II\n\nTufan ab out of control hai. Storm Seraph bijliyo ke sath aage badh raha hai. Aasman ki taqat ko chunauti do!",
+                18: "LEVEL 18 — FROZEN ABYSS II\n\nBaraf ka tapman ab absolute zero tak pahunch gaya hai. Frost Wyrm tumhe jamane ke liye taiyar hai. Apni aag ko jalaye rakho!",
+                19: "LEVEL 19 — VOID KINGDOM II\n\nReality ab khatam hone ki kagar par hai. Space me glitch chal rahe hain. Abyss Knight aakhri deewar ban kar khada hai.",
+                20: "LEVEL 20 — ULTIMATE SHOWDOWN\n\nBrahmand ka aakhri pal. Amarjeet apni puri taqat se reality ko black hole me khinch raha hai. World Tree Stick ko uski singularity me dalo aur sab kuch bachao!"
             };
 
             this.heroAvatars = {
@@ -242,7 +361,17 @@ window.addEventListener('load', function () {
                 7: "asset/demon-lord-bosslevel2/dragon_lord_idle_basic_74x74.png",
                 8: "asset/mino/idle/idle_1.png",
                 9: "asset/level-5-bossImpaler/idle/idle1.png",
-                10: "asset/main-villan-of-stoory/amarjeet-da-blackhole.png"
+                10: "asset/main-villan-of-stoory/amarjeet-da-blackhole.png",
+                11: "asset/boss-level1/idle/idle_0.png",
+                12: "asset/MECHA-stone/Character_sheet.png",
+                13: "asset/demon-lord-bosslevel2/dragon_lord_idle_basic_74x74.png",
+                14: "asset/mino/idle/idle_1.png",
+                15: "asset/level-5-bossImpaler/idle/idle1.png",
+                16: "asset/boss-level1/idle/idle_0.png",
+                17: "asset/demon-lord-bosslevel2/dragon_lord_idle_basic_74x74.png",
+                18: "asset/mino/idle/idle_1.png",
+                19: "asset/level-5-bossImpaler/idle/idle1.png",
+                20: "asset/main-villan-of-stoory/amarjeet-da-blackhole.png"
             };
 
             this.bossNames = {
@@ -255,7 +384,17 @@ window.addEventListener('load', function () {
                 7: "STORM SERAPH",
                 8: "FROST WYRM",
                 9: "THE ABYSS KNIGHT",
-                10: "AMARJEET DA BLACK HOLE"
+                10: "AMARJEET DA BLACK HOLE",
+                11: "SHADOW LORD",
+                12: "MECHA-STONE",
+                13: "DRAGON LORD",
+                14: "MINO BOSS",
+                15: "THE IMPALER",
+                16: "CRYSTAL TITAN",
+                17: "STORM SERAPH",
+                18: "FROST WYRM",
+                19: "THE ABYSS KNIGHT",
+                20: "AMARJEET DA BLACK HOLE"
             };
         }
 
@@ -279,7 +418,17 @@ window.addEventListener('load', function () {
                     7: "LEVEL 7: SKY TEMPLE",
                     8: "LEVEL 8: FROZEN ABYSS",
                     9: "LEVEL 9: VOID KINGDOM",
-                    10: "LEVEL 10: EDGE OF REALITY"
+                    10: "LEVEL 10: EDGE OF REALITY",
+                    11: "LEVEL 11: SHADOW CITY II",
+                    12: "LEVEL 12: SPIDER FOREST II",
+                    13: "LEVEL 13: HALLOWEEN HOUSE II",
+                    14: "LEVEL 14: HAUNTED GRAVEYARD II",
+                    15: "LEVEL 15: MUSHROOM GROVE II",
+                    16: "LEVEL 16: CRYSTAL CAVERNS II",
+                    17: "LEVEL 17: SKY TEMPLE II",
+                    18: "LEVEL 18: FROZEN ABYSS II",
+                    19: "LEVEL 19: VOID KINGDOM II",
+                    20: "LEVEL 20: ULTIMATE SHOWDOWN"
                 };
                 this.storyLevelTitle.innerText = titles[level] || `LEVEL ${level}`;
             }
@@ -308,59 +457,99 @@ window.addEventListener('load', function () {
             // Level 10: direct confrontation with Amarjeet himself.
             const dialogueDb = {
                 1: [
-                    { speaker: 'hero', name: H, text: "Show yourself, Amarjeet!" },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "I am what remains after stars die. Face my Shadow Lord." }
+                    { speaker: 'hero', name: H, text: "Samne aao, Amarjeet!" },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Main woh hoon jo taaro ke marne ke baad bachta hai. Mere Shadow Lord ka samna karo." }
                 ],
                 2: [
-                    { speaker: 'hero', name: H, text: "You destroyed this world." },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "No. Time destroyed it. I merely accelerate destiny." },
-                    { speaker: 'hero', name: H, text: "Destiny can be changed." },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "Then change the inevitable." }
+                    { speaker: 'hero', name: H, text: "Tumne is duniya ko barbad kar diya." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Nahi. Samay ne ise barbad kiya. Main toh bas anjam ko tez kar raha hoon." },
+                    { speaker: 'hero', name: H, text: "Kismat ko badla ja sakta hai." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Toh phir badal kar dikhao." }
                 ],
                 3: [
-                    { speaker: 'hero', name: H, text: "Why spread suffering?" },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "Suffering creates strength." },
-                    { speaker: 'hero', name: H, text: "Then your strength is built on corpses." },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "Empires always are." }
+                    { speaker: 'hero', name: H, text: "Logon ko itna dard kyun de rahe ho?" },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Dard se hi asli taqat aati hai." },
+                    { speaker: 'hero', name: H, text: "Toh tumhari taqat laashon par bani hai." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Samrajya hamesha aise hi bante hain." }
                 ],
                 4: [
-                    { speaker: 'hero', name: H, text: "This graveyard is restless." },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "Dead whispers. Meaningless noise." }
+                    { speaker: 'hero', name: H, text: "Yeh kabristan shant nahi hai." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Murdo ki aawazein. Fuzul ka shor." }
                 ],
                 5: [
-                    { speaker: 'hero', name: H, text: "The final fragment of this chapter." },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "The Impaler awaits." }
+                    { speaker: 'hero', name: H, text: "Is kahani ka aakhri tukda." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Impaler tumhara intezar kar raha hai." }
                 ],
                 6: [
-                    { speaker: 'hero', name: H, text: "These crystals... they are whispering." },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "Do not listen to them. Destroy the Crystal Titan." }
+                    { speaker: 'hero', name: H, text: "Yeh crystals ajeeb aawazein nikal rahe hain." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Unhe mat suno. Crystal Titan ko khatam karo." }
                 ],
                 7: [
-                    { speaker: 'hero', name: H, text: "Tell me the truth." },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "I became a monster so reality could survive." },
-                    { speaker: 'hero', name: H, text: "Millions died because of you." },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "Millions died so trillions may live." }
+                    { speaker: 'hero', name: H, text: "Mujhe sach batao." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Main monster isliye bana taaki reality zinda reh sake." },
+                    { speaker: 'hero', name: H, text: "Tumhari wajah se lakho log mare." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Lakho mare taaki karodo zinda reh sakein." }
                 ],
                 8: [
-                    { speaker: 'hero', name: H, text: "An ancient dragon sleeps here." },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "Let us see if you can wake it." }
+                    { speaker: 'hero', name: H, text: "Yahan ek purana dragon so raha hai." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Dekhte hain tum use jaga pate ho ya nahi." }
                 ],
                 9: [
-                    { speaker: 'hero', name: H, text: "You were a guardian..." },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "I was." },
-                    { speaker: 'hero', name: H, text: "Then return." },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "There is no return for singularities." }
+                    { speaker: 'hero', name: H, text: "Tum ek rakshak the..." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Haan, tha." },
+                    { speaker: 'hero', name: H, text: "Toh wapas aa jao." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Singularities ka koi wapas aana nahi hota." }
                 ],
                 10: [
-                    { speaker: 'hero', name: H, text: "This ends now." },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "I prayed someone strong enough would come." },
-                    { speaker: 'hero', name: H, text: "Then stop fighting." },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "If I fall... the Void Emperor awakens." },
+                    { speaker: 'hero', name: H, text: "Yeh abhi khatam hoga." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Maine prarthana ki thi ki koi mere jitna shaktishali aaye jo mujhe rok sake." },
+                    { speaker: 'hero', name: H, text: "Toh ladna band karo." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Agar main gira... toh Void Emperor jaag jayega." },
                     { speaker: 'hero', name: H, text: "We'll face him together." },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "You still believe in hope..." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Tumhe abhi bhi umeed par bharosa hai..." },
                     { speaker: 'hero', name: H, text: "Always." },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "Then show me... that hope is stronger than infinity." }
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Toh dikhao mujhe... ki umeed anantata se zyada shaktishali hai." }
                 ],
+                11: [
+                    { speaker: 'hero', name: H, text: "Shadows firse wapas aa gayi hain!" },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Andhera kabhi puri tarah khatam nahi hota." }
+                ],
+                12: [
+                    { speaker: 'hero', name: H, text: "Yeh machine abhi bhi chal rahi hai?" },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Koshish karte raho, loha aur pathar dard nahi maante." }
+                ],
+                13: [
+                    { speaker: 'hero', name: H, text: "Dragon Lord abhi bhi gussa hai." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Uski aag ko bujhana aasan nahi hoga." }
+                ],
+                14: [
+                    { speaker: 'hero', name: H, text: "Mino Boss, tumne pehli baar me sabak nahi seekha?" },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Kuch seekhne ke liye zinda rehna zaroori hai." }
+                ],
+                15: [
+                    { speaker: 'hero', name: H, text: "Stick mere sath hai, Impaler!" },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Par kya tum iski puri taqat use kar paoge?" }
+                ],
+                16: [
+                    { speaker: 'hero', name: H, text: "Crystal Titan, tumhara naya rang ajeeb hai." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Yeh rang aakhri tabahi ka hai." }
+                ],
+                17: [
+                    { speaker: 'hero', name: H, text: "Is tufan ko main rok ke rahunga!" },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Tufan ko rokna matlab hawa ko qaid karna." }
+                ],
+                18: [
+                    { speaker: 'hero', name: H, text: "Yahan thand bohot badh gayi hai." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Yeh tumhari aakhri thand hogi." }
+                ],
+                19: [
+                    { speaker: 'hero', name: H, text: "Reality toot rahi hai, Amarjeet!" },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Toh chalo is toote hue jahan me aakhri baar ladein." }
+                ],
+                20: [
+                    { speaker: 'hero', name: H, text: "Yeh aakhri jung hai!" },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "World Tree Stick ko mere dil me dalo... is singularity ko shant karo!" }
+                ]
             };
 
             this.dialogueList = dialogueDb[level] || [
@@ -384,55 +573,95 @@ window.addEventListener('load', function () {
             // Post-boss: the defeated boss's last words, then Amarjeet reacts
             const dialogueDb = {
                 1: [
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "Another guardian falls." },
-                    { speaker: 'hero', name: H, text: "Who are you?" },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "I am what remains after stars die." },
-                    { speaker: 'hero', name: H, text: "Then I will become your end." },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "Brave words. Let us see if they survive gravity." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Ek aur rakshak gir gaya." },
+                    { speaker: 'hero', name: H, text: "Tum kaun ho?" },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Main woh hoon jo taaro ke marne ke baad bachta hai." },
+                    { speaker: 'hero', name: H, text: "Toh main tumhara anth banunga." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Badi baatein. Dekhte hain kya yeh gravity ke samne tik pati hain." },
                 ],
                 2: [
                     { speaker: 'boss', name: bName, text: "SYSTEM ERROR..." },
-                    { speaker: 'hero', name: H, text: "The machine is destroyed." }
+                    { speaker: 'hero', name: H, text: "Machine barbad ho gayi." }
                 ],
                 3: [
-                    { speaker: 'boss', name: bName, text: "No... the spirits..." },
-                    { speaker: 'hero', name: H, text: "They are free." }
+                    { speaker: 'boss', name: bName, text: "Nahi... aatmaein..." },
+                    { speaker: 'hero', name: H, text: "Woh ab aazad hain." }
                 ],
                 4: [
-                    { speaker: 'boss', name: "SPIRIT", text: "Seek the World Tree. Wood is the enemy of infinity." },
-                    { speaker: 'hero', name: H, text: "Wood can defeat a black hole?" },
-                    { speaker: 'boss', name: "SPIRIT", text: "Creation defeats destruction." },
+                    { speaker: 'boss', name: "SPIRIT", text: "World Tree ko dhoondo. Lakdi hi infinity ki dushman hai." },
+                    { speaker: 'hero', name: H, text: "Lakdi ek black hole ko hara sakti hai?" },
+                    { speaker: 'boss', name: "SPIRIT", text: "Srishti hi tabahi ko hara sakti hai." },
                     { speaker: 'amarjeet', name: "AMARJEET", text: "..." } // Watches silently
                 ],
                 5: [
-                    { speaker: 'hero', name: H, text: "[Obtained WORLD TREE STICK]" },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "Impossible... The branch still exists." },
-                    { speaker: 'hero', name: H, text: "Your reign ends now." },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "No. This is only the beginning." },
+                    { speaker: 'hero', name: H, text: "[WORLD TREE STICK mil gayi]" },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Asambhav... Woh shakh abhi bhi zinda hai." },
+                    { speaker: 'hero', name: H, text: "Tumhara raj ab khatam." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Nahi. Yeh toh bas shuruwaat hai." },
                 ],
                 6: [
-                    { speaker: 'hero', name: H, text: "Who is the Void Emperor?" },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "The one even I fear." },
-                    { speaker: 'hero', name: H, text: "You fear someone?" },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "Fear created me." },
+                    { speaker: 'hero', name: H, text: "Void Emperor kaun hai?" },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Woh jisse main bhi darta hoon." },
+                    { speaker: 'hero', name: H, text: "Tum kisi se darte ho?" },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Dar ne hi mujhe aisa banaya." },
                 ],
                 7: [
-                    { speaker: 'boss', name: bName, text: "The storms... quiet..." },
-                    { speaker: 'hero', name: H, text: "We press on." }
+                    { speaker: 'boss', name: bName, text: "Tufan... shant..." },
+                    { speaker: 'hero', name: H, text: "Hum aage badhenge." }
                 ],
                 8: [
-                    { speaker: 'boss', name: "UNKNOWN VOICE", text: "Amarjeet... your seal weakens." },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "Stay back. You cannot fight what comes." }
+                    { speaker: 'boss', name: "UNKNOWN VOICE", text: "Amarjeet... tumhara seal kamzor ho raha hai." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Peeche hato. Jo aa raha hai tum usse nahi lad sakte." }
                 ],
                 9: [
-                    { speaker: 'boss', name: bName, text: "The void reclaims me..." },
-                    { speaker: 'hero', name: H, text: "To the Edge of Reality." }
+                    { speaker: 'boss', name: bName, text: "Void mujhe wapas bula raha hai..." },
+                    { speaker: 'hero', name: H, text: "Edge of Reality ki taraf." }
                 ],
                 10: [
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "Thank you... Guardian..." },
-                    { speaker: 'hero', name: H, text: "Guardian?" },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "You are the new protector of reality." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Shukriya... Rakshak..." },
+                    { speaker: 'hero', name: H, text: "Rakshak?" },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Ab tum reality ke naye protector ho." },
                 ],
+                11: [
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Kamyabi... par kab tak?" },
+                    { speaker: 'hero', name: H, text: "Jab tak main zinda hoon." }
+                ],
+                12: [
+                    { speaker: 'boss', name: bName, text: "SYSTEM REBOOT FAILED..." },
+                    { speaker: 'hero', name: H, text: "Firse kooda ban gaya." }
+                ],
+                13: [
+                    { speaker: 'boss', name: bName, text: "Aag... thandi..." },
+                    { speaker: 'hero', name: H, text: "Apne papo ke sath thande ho jao." }
+                ],
+                14: [
+                    { speaker: 'boss', name: "SPIRIT", text: "Singularity ki core ko target karna." },
+                    { speaker: 'hero', name: H, text: "Samajh gaya." }
+                ],
+                15: [
+                    { speaker: 'hero', name: H, text: "World Tree Stick ab aur chamak rahi hai." },
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Yeh iski aakhri chamak hogi." },
+                ],
+                16: [
+                    { speaker: 'boss', name: bName, text: "Crystals... shattered..." },
+                    { speaker: 'hero', name: H, text: "Ab aage ki baari." }
+                ],
+                17: [
+                    { speaker: 'boss', name: bName, text: "Storm clear..." },
+                    { speaker: 'hero', name: H, text: "Brahmand ab saaf dikh raha hai." }
+                ],
+                18: [
+                    { speaker: 'boss', name: "UNKNOWN VOICE", text: "Seal tootne wala hai..." },
+                    { speaker: 'hero', name: H, text: "Hum use bachayenge." }
+                ],
+                19: [
+                    { speaker: 'boss', name: bName, text: "Rasta khul gaya..." },
+                    { speaker: 'hero', name: H, text: "Aakhri samna." }
+                ],
+                20: [
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "Shukriya... tumne brahmand ko bacha liya... ab main chain se so sakta hoon..." },
+                    { speaker: 'hero', name: H, text: "Alvida, Amarjeet..." },
+                ]
             };
 
             this.dialogueList = dialogueDb[level] || [
@@ -644,6 +873,22 @@ window.addEventListener('load', function () {
             this.background = new bgMap[cfg.bgClass](this);
             this.player = new Player(this, this.selectedCharacter);
 
+            // Update virtual gamepad theme colors matching selected player character
+            const vContainer = document.getElementById('virtual-controls');
+            if (vContainer && this.player) {
+                vContainer.style.setProperty('--q-color', this.player.qColor || '#00e5ff');
+                vContainer.style.setProperty('--e-color', this.player.eColor || '#00e5ff');
+                vContainer.style.setProperty('--r-color', this.player.rColor || '#00e5ff');
+
+                const hexToRgb = (hex) => {
+                    const m = hex.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+                    return m ? `${parseInt(m[1], 16)}, ${parseInt(m[2], 16)}, ${parseInt(m[3], 16)}` : '0, 229, 255';
+                };
+                vContainer.style.setProperty('--q-color-rgb', hexToRgb(this.player.qColor || '#00e5ff'));
+                vContainer.style.setProperty('--e-color-rgb', hexToRgb(this.player.eColor || '#00e5ff'));
+                vContainer.style.setProperty('--r-color-rgb', hexToRgb(this.player.rColor || '#00e5ff'));
+            }
+
             if (this.audio && (this.gameStarted || this.startTransition)) {
                 this.audio.playBGMForLevel(this.level);
             }
@@ -660,12 +905,6 @@ window.addEventListener('load', function () {
 
             this.waveIndex = 0;
             this.waveDef = [...cfg.waves];
-            if (this.level < 10) {
-                const bossIdx = this.waveDef.findIndex(w => w.type === 'boss');
-                if (bossIdx !== -1) {
-                    this.waveDef.splice(bossIdx + 1, 0, { type: 'amarjeet_timed' });
-                }
-            }
             this.waveSpawnedCount = 0;
             this.waveComplete = false;
             this.waveTransTimer = 0;
@@ -700,6 +939,7 @@ window.addEventListener('load', function () {
             this.portal = null;
             this.portalSpawned = false;
             this.postBossDialoguePlayed = false;
+            this.scrollSpeed = 0;
         }
 
         restart() { this._init(); }
@@ -707,7 +947,7 @@ window.addEventListener('load', function () {
         nextLevel() {
             const savedHP = this.currentHP;
             const savedScore = this.score;
-            if (this.level >= 5) { this.level = 1; this._init(); return; }
+            if (this.level >= 20) { this.level = 1; this._init(); return; }
             this.level++;
 
             const maxUnlocked = parseInt(localStorage.getItem('maxUnlockedLevel') || '1');
@@ -800,26 +1040,27 @@ window.addEventListener('load', function () {
                 this.shake = 450;
             } else if (wave.type === 'boss') {
                 this.enemies = this.enemies.filter(e => e.isBoss);
-                if (this.level === 10) {
-                    this.enemies.push(new BossEnemy(this, 'amarjeet')); // Level 10: Final Boss
-                } else if (this.level === 9) {
-                    this.enemies.push(new BossEnemy(this, 'abyss_knight')); // Level 9: Abyss Knight
-                } else if (this.level === 8) {
-                    this.enemies.push(new BossEnemy(this, 'frost_wyrm')); // Level 8: Frost Wyrm
-                } else if (this.level === 7) {
-                    this.enemies.push(new BossEnemy(this, 'storm_seraph')); // Level 7: Storm Seraph
-                } else if (this.level === 6) {
-                    this.enemies.push(new BossEnemy(this, 'crystal_titan')); // Level 6: Crystal Titan
-                } else if (this.level === 5) {
-                    this.enemies.push(new BossEnemy(this, 'impaler')); // Level 5: Impaler
-                } else if (this.level === 4) {
-                    this.enemies.push(new MinoBoss(this));         // Level 4: Mino boss
-                } else if (this.level === 3) {
-                    this.enemies.push(new BossEnemy(this, 'demon_lord')); // Level 3: Demon Lord
-                } else if (this.level === 2) {
-                    this.enemies.push(new BossEnemy(this, 'mecha_stone')); // Level 2: Mecha Stone
+                const lvlMod = this.level % 10 || 10;
+                if (lvlMod === 10) {
+                    this.enemies.push(new BossEnemy(this, 'amarjeet')); // Level 10 & 20: Final Boss
+                } else if (lvlMod === 9) {
+                    this.enemies.push(new BossEnemy(this, 'abyss_knight')); // Level 9 & 19: Abyss Knight
+                } else if (lvlMod === 8) {
+                    this.enemies.push(new BossEnemy(this, 'frost_wyrm')); // Level 8 & 18: Frost Wyrm
+                } else if (lvlMod === 7) {
+                    this.enemies.push(new BossEnemy(this, 'storm_seraph')); // Level 7 & 17: Storm Seraph
+                } else if (lvlMod === 6) {
+                    this.enemies.push(new BossEnemy(this, 'crystal_titan')); // Level 6 & 16: Crystal Titan
+                } else if (lvlMod === 5) {
+                    this.enemies.push(new BossEnemy(this, 'impaler')); // Level 5 & 15: Impaler
+                } else if (lvlMod === 4) {
+                    this.enemies.push(new MinoBoss(this));         // Level 4 & 14: Mino boss
+                } else if (lvlMod === 3) {
+                    this.enemies.push(new BossEnemy(this, 'demon_lord')); // Level 3 & 13: Demon Lord
+                } else if (lvlMod === 2) {
+                    this.enemies.push(new BossEnemy(this, 'mecha_stone')); // Level 2 & 12: Mecha Stone
                 } else {
-                    this.enemies.push(new BossEnemy(this, 'boss_level_1')); // Level 1: default
+                    this.enemies.push(new BossEnemy(this, 'boss_level_1')); // Level 1 & 11: default
                 }
                 this.waveSpawnedCount++;
                 this.waveAnnounce = 'BOSS INCOMING!';
@@ -977,6 +1218,8 @@ window.addEventListener('load', function () {
                     player.y + player.height / 2,
                     'cyan'
                 );
+                this.shake = Math.max(this.shake, 14);
+                if (this.audio) this.audio.playSFX('punch');
                 this.hitCooldown = this.hitCooldownMax;
                 return false;
             }
@@ -1176,12 +1419,15 @@ window.addEventListener('load', function () {
                 }
             }
 
-            this.floatingTexts.forEach(t => { t.y += t.vy; t.life -= deltaTime * 0.001; });
+            this.scrollSpeed = (this.background && typeof this.background._scrollSpeed === 'function') ? this.background._scrollSpeed() : 0;
+            const scrollSpeed = this.scrollSpeed;
+
+            this.floatingTexts.forEach(t => { t.x -= scrollSpeed; t.y += t.vy; t.life -= deltaTime * 0.001; });
             this.floatingTexts = this.floatingTexts.filter(t => t.life > 0);
 
             this.damageTexts.forEach(t => {
                 t.life -= deltaTime;
-                t.x += t.vx;
+                t.x += t.vx - scrollSpeed;
                 t.y += t.vy;
                 t.vy += t.gravity * (deltaTime / 16.6); // Scale physics to frame rate
 
@@ -1196,7 +1442,7 @@ window.addEventListener('load', function () {
             this.damageTexts = this.damageTexts.filter(t => t.life > 0);
 
             this.particles.forEach(p => {
-                p.x += p.vx;
+                p.x += p.vx - scrollSpeed;
                 p.y += p.vy;
                 if (p.gravity !== undefined) p.vy += p.gravity * (deltaTime / 16.6);
                 p.alpha -= deltaTime * 0.002 * (p.fadeSpeedMultiplier || 1.0);
@@ -1207,7 +1453,6 @@ window.addEventListener('load', function () {
 
             // Update coin pickup animations
             if (this.coinHUDFlash > 0) this.coinHUDFlash -= deltaTime;
-            const scrollSpeed = (this.background && typeof this.background._scrollSpeed === 'function') ? this.background._scrollSpeed() : 0;
 
             this.coinPickups.forEach(c => {
                 if (c.done) return;
@@ -1351,19 +1596,18 @@ window.addEventListener('load', function () {
                     if (!enemy.markedForDeletion) {
                         if (!enemy.hasEnteredScreen) return;
 
-                        let attackRange = 65;
-                        if (this.player.characterType === 'jotem') attackRange = 35;
-                        else if (this.player.characterType === 'archdemon') attackRange = 100;
-                        else if (this.player.characterType === 'shaia') attackRange = 80;
+                        let attackRange = 35;
+                        if (this.player.characterType === 'jotem') attackRange = 25;
+                        else if (this.player.characterType === 'archdemon') attackRange = 55;
+                        else if (this.player.characterType === 'shaia') attackRange = 45;
 
-                        const centerX = this.player.x + this.player.width / 2;
                         let minX, maxX;
                         if (this.player.facingLeft) {
-                            minX = centerX - (this.player.width * 0.4) - attackRange;
-                            maxX = centerX;
+                            minX = this.player.x - attackRange;
+                            maxX = this.player.x + this.player.width * 0.3;
                         } else {
-                            minX = centerX;
-                            maxX = centerX + (this.player.width * 0.4) + attackRange;
+                            minX = this.player.x + this.player.width * 0.7;
+                            maxX = this.player.x + this.player.width + attackRange;
                         }
 
                         const attackHit =
@@ -2286,357 +2530,501 @@ window.addEventListener('load', function () {
                 context.restore();
             }
             // ── Premium Glassmorphic Ability Icons (bottom-right) ────────────
-            const player = this.player;
-            const iconSize = 52;
-            const iconGap = 14;
-            const iconY = H - iconSize - 18;
-            const r = iconSize / 2;
+            if (localStorage.getItem('shadowStrike_osControls') !== 'true') {
+                const player = this.player;
+                const iconSize = 52;
+                const iconGap = 14;
+                const iconY = H - iconSize - 18;
+                const r = iconSize / 2;
 
-            // ── Q ability (Blast) ───────────────────────────────────────────
-            const qX = W - iconSize * 3 - iconGap * 2 - 24;
-            const qCd = player.windCooldown;
-            const qMax = player.windCooldownMax;
-            const qReady = qCd <= 0;
-            const qCX = qX + r;
-            const qCY = iconY + r;
+                const hexToRgb = (hex) => {
+                    if (!hex) return '0, 229, 255';
+                    const m = hex.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+                    return m ? `${parseInt(m[1], 16)}, ${parseInt(m[2], 16)}, ${parseInt(m[3], 16)}` : '0, 229, 255';
+                };
 
-            context.save();
-            // 1. Radial graded glass backing
-            context.shadowColor = qReady ? player.qColor : 'transparent';
-            context.shadowBlur = qReady ? 14 : 0;
-            const qBgGrad = context.createRadialGradient(qCX, qCY, 0, qCX, qCY, r);
-            qBgGrad.addColorStop(0, 'rgba(24, 28, 22, 0.72)');
-            qBgGrad.addColorStop(1, 'rgba(10, 12, 8, 0.94)');
-            context.fillStyle = qBgGrad;
-            context.beginPath();
-            context.arc(qCX, qCY, r, 0, Math.PI * 2);
-            context.fill();
+                // ── Q ability (Blast) ───────────────────────────────────────────
+                const qX = W - iconSize * 3 - iconGap * 2 - 24;
+                const qCd = player.windCooldown;
+                const qMax = player.windCooldownMax;
+                const qReady = qCd <= 0;
+                const qCX = qX + r;
+                const qCY = iconY + r;
+                const qRgb = hexToRgb(player.qColor);
 
-            // 2. Translucent border
-            context.shadowBlur = 0; // reset
-            context.strokeStyle = qReady ? player.qColor : 'rgba(255, 255, 255, 0.08)';
-            context.lineWidth = qReady ? 2.0 : 1.5;
-            context.beginPath();
-            context.arc(qCX, qCY, r, 0, Math.PI * 2);
-            context.stroke();
+                context.save();
+                // 1. Radial/Linear premium backing gradient (matching controls button styling)
+                context.shadowColor = qReady ? player.qColor : 'transparent';
+                context.shadowBlur = qReady ? 14 : 0;
 
-            // 3. Cooldown Sector sweep dial
-            if (!qReady) {
-                const qProg = qCd / qMax;
+                const qBgGrad = context.createLinearGradient(qCX - r, qCY - r, qCX + r, qCY + r);
+                qBgGrad.addColorStop(0, `rgba(${qRgb}, 0.25)`);
+                qBgGrad.addColorStop(1, 'rgba(8, 6, 16, 0.95)');
+                context.fillStyle = qBgGrad;
                 context.beginPath();
-                context.moveTo(qCX, qCY);
-                context.arc(qCX, qCY, r - 1, -Math.PI / 2, -Math.PI / 2 + qProg * Math.PI * 2);
-                context.closePath();
-                context.fillStyle = 'rgba(12, 10, 16, 0.72)';
+                context.arc(qCX, qCY, r, 0, Math.PI * 2);
                 context.fill();
-            }
 
-            // 4. Q Icon vector graphics
-            context.save();
-            context.translate(qCX, qCY);
-            context.strokeStyle = qReady ? player.qColor : 'rgba(120, 120, 120, 0.45)';
-            context.lineWidth = 2.5; context.lineCap = 'round';
-            context.shadowColor = qReady ? player.qColor : 'transparent';
-            context.shadowBlur = qReady ? 6 : 0;
+                // Highlight radial overlay
+                const qHighlight = context.createRadialGradient(qCX, qCY - r * 0.4, 0, qCX, qCY - r * 0.4, r);
+                qHighlight.addColorStop(0, `rgba(${qRgb}, 0.15)`);
+                qHighlight.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                context.fillStyle = qHighlight;
+                context.beginPath();
+                context.arc(qCX, qCY, r, 0, Math.PI * 2);
+                context.fill();
 
-            if (player.characterType === 'jotem') {
-                // Boulder Icon: Draw a rough boulder circle with cracks
+                // 2. Translucent border
+                context.shadowBlur = 0; // reset
+                context.strokeStyle = qReady ? player.qColor : 'rgba(255, 255, 255, 0.08)';
+                context.lineWidth = qReady ? 2.0 : 1.5;
                 context.beginPath();
-                context.arc(0, 0, 10, 0, Math.PI * 2);
+                context.arc(qCX, qCY, r, 0, Math.PI * 2);
                 context.stroke();
+
+                // 3. Inset highlight arc for glass look
+                context.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+                context.lineWidth = 1.0;
                 context.beginPath();
-                context.moveTo(-5, -5); context.lineTo(5, 5);
-                context.moveTo(5, -5); context.lineTo(-3, 3);
+                context.arc(qCX, qCY, r - 2, Math.PI * 1.1, Math.PI * 1.9);
                 context.stroke();
-            } else if (player.characterType === 'shaia') {
-                // Electro Orb: Draw a spark star
-                context.beginPath();
-                for (let i = 0; i < 8; i++) {
-                    const a = (i / 8) * Math.PI * 2;
-                    const r1 = i % 2 === 0 ? 11 : 4;
-                    context.lineTo(Math.cos(a) * r1, Math.sin(a) * r1);
-                }
-                context.closePath();
-                context.stroke();
-            } else if (player.characterType === 'archdemon') {
-                // Fireball: Draw a flame teardrop
-                context.beginPath();
-                context.moveTo(0, -11);
-                context.quadraticCurveTo(7, 0, 4, 9);
-                context.quadraticCurveTo(0, 12, -4, 9);
-                context.quadraticCurveTo(-7, 0, 0, -11);
-                context.closePath();
-                context.stroke();
-            } else {
-                // Shinobi: Wind spiral
-                for (let wi = 0; wi < 3; wi++) {
-                    const wa = (wi / 3) * Math.PI * 2;
+
+                // 4. Cooldown Sector sweep dial
+                if (!qReady) {
+                    const qProg = qCd / qMax;
                     context.beginPath();
-                    context.arc(Math.cos(wa) * 7, Math.sin(wa) * 7, 7, wa, wa + Math.PI * 1.1);
-                    context.stroke();
+                    context.moveTo(qCX, qCY);
+                    context.arc(qCX, qCY, r - 1, -Math.PI / 2, -Math.PI / 2 + qProg * Math.PI * 2);
+                    context.closePath();
+                    context.fillStyle = 'rgba(12, 10, 16, 0.72)';
+                    context.fill();
                 }
-            }
-            context.restore();
 
-            // 5. Cooldown countdown text
-            if (!qReady) {
-                const secLeft = Math.ceil(qCd / 1000);
-                context.font = '700 13px "Poppins"';
-                context.fillStyle = '#ffffff';
-                context.textAlign = 'center';
-                context.fillText(`${secLeft}s`, qCX, qCY + 5);
-            }
-
-            // 6. Label letter Q
-            context.font = '800 11px "Poppins"';
-            context.fillStyle = qReady ? player.qColor : 'rgba(120, 120, 120, 0.55)';
-            context.textAlign = 'center';
-            context.fillText('Q', qCX, iconY + iconSize + 14);
-
-            // 7. Outer pulsating halo
-            if (qReady) {
-                const pulse = 1.0 + 0.04 * Math.sin(Date.now() * 0.008);
+                // 5. Q Icon vector graphics
                 context.save();
                 context.translate(qCX, qCY);
-                context.scale(pulse, pulse);
-                context.globalAlpha = 0.22;
-                context.strokeStyle = player.qColor;
-                context.lineWidth = 1.5;
-                context.beginPath();
-                context.arc(0, 0, r + 4, 0, Math.PI * 2);
-                context.stroke();
+                context.strokeStyle = qReady ? player.qColor : 'rgba(120, 120, 120, 0.45)';
+                context.lineWidth = 2.5; context.lineCap = 'round';
+                context.shadowColor = qReady ? player.qColor : 'transparent';
+                context.shadowBlur = qReady ? 6 : 0;
+
+                if (player.characterType === 'jotem') {
+                    context.beginPath();
+                    context.arc(0, 0, 10, 0, Math.PI * 2);
+                    context.stroke();
+                    context.beginPath();
+                    context.moveTo(-5, -5); context.lineTo(5, 5);
+                    context.moveTo(5, -5); context.lineTo(-3, 3);
+                    context.stroke();
+                } else if (player.characterType === 'shaia') {
+                    context.beginPath();
+                    for (let i = 0; i < 8; i++) {
+                        const a = (i / 8) * Math.PI * 2;
+                        const r1 = i % 2 === 0 ? 11 : 4;
+                        context.lineTo(Math.cos(a) * r1, Math.sin(a) * r1);
+                    }
+                    context.closePath();
+                    context.stroke();
+                } else if (player.characterType === 'archdemon') {
+                    context.beginPath();
+                    context.moveTo(0, -11);
+                    context.quadraticCurveTo(7, 0, 4, 9);
+                    context.quadraticCurveTo(0, 12, -4, 9);
+                    context.quadraticCurveTo(-7, 0, 0, -11);
+                    context.closePath();
+                    context.stroke();
+                } else {
+                    for (let wi = 0; wi < 3; wi++) {
+                        const wa = (wi / 3) * Math.PI * 2;
+                        context.beginPath();
+                        context.arc(Math.cos(wa) * 7, Math.sin(wa) * 7, 7, wa, wa + Math.PI * 1.1);
+                        context.stroke();
+                    }
+                }
                 context.restore();
-            }
-            context.restore();
 
-            // ── E ability (Shield) ───────────────────────────────────────────
-            const eX = W - iconSize * 2 - iconGap - 24;
-            const eCd = player.shieldCooldown;
-            const eMax = player.shieldCooldownMax;
-            const eReady = eCd <= 0;
-            const eCX = eX + r;
-            const eCY = iconY + r;
+                // 6. Cooldown countdown text
+                if (!qReady) {
+                    const secLeft = Math.ceil(qCd / 1000);
+                    context.font = '700 13px "Poppins"';
+                    context.fillStyle = '#ffffff';
+                    context.textAlign = 'center';
+                    context.fillText(`${secLeft}s`, qCX, qCY + 5);
+                }
 
-            context.save();
-            // 1. Radial graded glass backing
-            context.shadowColor = eReady ? player.eColor : 'transparent';
-            context.shadowBlur = eReady ? 14 : 0;
-            const eBgGrad = context.createRadialGradient(eCX, eCY, 0, eCX, eCY, r);
-            eBgGrad.addColorStop(0, 'rgba(18, 24, 32, 0.72)');
-            eBgGrad.addColorStop(1, 'rgba(8, 10, 14, 0.94)');
-            context.fillStyle = eBgGrad;
-            context.beginPath();
-            context.arc(eCX, eCY, r, 0, Math.PI * 2);
-            context.fill();
+                // 7. Premium Badge Overlay (matching controls style)
+                const qBadgeW = 16;
+                const qBadgeH = 13;
+                const qBadgeX = qCX + r * 0.45;
+                const qBadgeY = qCY - r * 1.05;
+                const qBadgeRadius = 3;
 
-            // 2. Translucent border
-            context.shadowBlur = 0; // reset
-            context.strokeStyle = eReady ? player.eColor : 'rgba(255, 255, 255, 0.08)';
-            context.lineWidth = eReady ? 2.0 : 1.5;
-            context.beginPath();
-            context.arc(eCX, eCY, r, 0, Math.PI * 2);
-            context.stroke();
+                context.save();
+                context.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                context.shadowBlur = 4;
+                context.shadowOffsetY = 1.5;
 
-            // 3. Cooldown Sector sweep dial
-            if (!eReady) {
-                const eProg = eCd / eMax;
-                context.beginPath();
-                context.moveTo(eCX, eCY);
-                context.arc(eCX, eCY, r - 1, -Math.PI / 2, -Math.PI / 2 + eProg * Math.PI * 2);
-                context.closePath();
-                context.fillStyle = 'rgba(12, 10, 16, 0.72)';
+                // Fill badge
+                context.fillStyle = qReady ? `rgba(${qRgb}, 0.22)` : 'rgba(20, 20, 20, 0.85)';
+                rr(context, qBadgeX, qBadgeY, qBadgeW, qBadgeH, qBadgeRadius);
                 context.fill();
-            }
+                context.shadowBlur = 0;
+                context.shadowOffsetY = 0;
 
-            // 4. Shield Icon vector graphics
-            context.save();
-            context.translate(eCX, eCY);
-            context.strokeStyle = eReady ? player.eColor : 'rgba(120, 120, 120, 0.45)';
-            context.lineWidth = 2.5; context.lineCap = 'round'; context.lineJoin = 'round';
-            context.shadowColor = eReady ? player.eColor : 'transparent';
-            context.shadowBlur = eReady ? 6 : 0;
+                // Stroke badge
+                context.strokeStyle = qReady ? player.qColor : 'rgba(120, 120, 120, 0.4)';
+                context.lineWidth = 1.2;
+                rr(context, qBadgeX, qBadgeY, qBadgeW, qBadgeH, qBadgeRadius);
+                context.stroke();
 
-            if (player.characterType === 'jotem') {
-                // Earth Aegis: Brick Shield
-                context.beginPath();
-                context.moveTo(-8, -10); context.lineTo(8, -10);
-                context.lineTo(8, 5); context.quadraticCurveTo(0, 11, -8, 5);
-                context.closePath();
-                context.stroke();
-                context.beginPath();
-                context.moveTo(-8, -2); context.lineTo(8, -2);
-                context.stroke();
-            } else if (player.characterType === 'shaia') {
-                // Static Barrier: Ring with outward discharges
-                context.beginPath();
-                context.arc(0, 0, 9, 0, Math.PI * 2);
-                context.stroke();
-                context.beginPath();
-                context.moveTo(-13, 0); context.lineTo(-9, 0);
-                context.moveTo(13, 0); context.lineTo(9, 0);
-                context.moveTo(0, -13); context.lineTo(0, -9);
-                context.moveTo(0, 13); context.lineTo(0, 9);
-                context.stroke();
-            } else if (player.characterType === 'archdemon') {
-                // Void Rift: Concentric swirling arcs
-                context.beginPath();
-                context.arc(0, 0, 10, 0, Math.PI * 1.35);
-                context.stroke();
-                context.beginPath();
-                context.arc(0, 0, 6, Math.PI * 0.7, Math.PI * 2);
-                context.stroke();
-            } else {
-                // Shinobi Plasma Shield
-                context.beginPath();
-                context.moveTo(-8, -10);
-                context.lineTo(8, -10);
-                context.lineTo(8, -2);
-                context.quadraticCurveTo(8, 6, 0, 11);
-                context.quadraticCurveTo(-8, 6, -8, -2);
-                context.closePath();
-                context.stroke();
-                context.beginPath();
-                context.moveTo(0, -6);
-                context.lineTo(0, 5);
-                context.moveTo(-4, -1);
-                context.lineTo(4, -1);
-                context.stroke();
-            }
-            context.restore();
-
-            // 5. Cooldown countdown text
-            if (!eReady) {
-                const secLeft = Math.ceil(eCd / 1000);
-                context.font = '700 13px "Poppins"';
-                context.fillStyle = '#ffffff';
+                // Key label text
+                context.font = '900 8.5px "Orbitron"';
+                context.fillStyle = qReady ? player.qColor : 'rgba(120, 120, 120, 0.6)';
                 context.textAlign = 'center';
-                context.fillText(`${secLeft}s`, eCX, eCY + 5);
-            }
+                context.textBaseline = 'middle';
+                if (qReady) {
+                    context.shadowColor = player.qColor;
+                    context.shadowBlur = 3;
+                }
+                context.fillText('Q', qBadgeX + qBadgeW / 2, qBadgeY + qBadgeH / 2 + 0.5);
+                context.restore();
 
-            // 6. Label letter E
-            context.font = '800 11px "Poppins"';
-            context.fillStyle = eReady ? player.eColor : 'rgba(120, 120, 120, 0.55)';
-            context.textAlign = 'center';
-            context.fillText('E', eCX, iconY + iconSize + 14);
+                // 8. Outer pulsating halo
+                if (qReady) {
+                    const pulse = 1.0 + 0.04 * Math.sin(Date.now() * 0.008);
+                    context.save();
+                    context.translate(qCX, qCY);
+                    context.scale(pulse, pulse);
+                    context.globalAlpha = 0.22;
+                    context.strokeStyle = player.qColor;
+                    context.lineWidth = 1.5;
+                    context.beginPath();
+                    context.arc(0, 0, r + 4, 0, Math.PI * 2);
+                    context.stroke();
+                    context.restore();
+                }
+                context.restore();
 
-            // 7. Outer pulsating halo
-            if (eReady) {
-                const pulse = 1.0 + 0.04 * Math.sin(Date.now() * 0.008);
+                // ── E ability (Shield) ───────────────────────────────────────────
+                const eX = W - iconSize * 2 - iconGap - 24;
+                const eCd = player.shieldCooldown;
+                const eMax = player.shieldCooldownMax;
+                const eReady = eCd <= 0;
+                const eCX = eX + r;
+                const eCY = iconY + r;
+                const eRgb = hexToRgb(player.eColor);
+
+                context.save();
+                // 1. Radial/Linear premium backing gradient
+                context.shadowColor = eReady ? player.eColor : 'transparent';
+                context.shadowBlur = eReady ? 14 : 0;
+
+                const eBgGrad = context.createLinearGradient(eCX - r, eCY - r, eCX + r, eCY + r);
+                eBgGrad.addColorStop(0, `rgba(${eRgb}, 0.25)`);
+                eBgGrad.addColorStop(1, 'rgba(8, 6, 16, 0.95)');
+                context.fillStyle = eBgGrad;
+                context.beginPath();
+                context.arc(eCX, eCY, r, 0, Math.PI * 2);
+                context.fill();
+
+                // Highlight radial overlay
+                const eHighlight = context.createRadialGradient(eCX, eCY - r * 0.4, 0, eCX, eCY - r * 0.4, r);
+                eHighlight.addColorStop(0, `rgba(${eRgb}, 0.15)`);
+                eHighlight.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                context.fillStyle = eHighlight;
+                context.beginPath();
+                context.arc(eCX, eCY, r, 0, Math.PI * 2);
+                context.fill();
+
+                // 2. Translucent border
+                context.shadowBlur = 0; // reset
+                context.strokeStyle = eReady ? player.eColor : 'rgba(255, 255, 255, 0.08)';
+                context.lineWidth = eReady ? 2.0 : 1.5;
+                context.beginPath();
+                context.arc(eCX, eCY, r, 0, Math.PI * 2);
+                context.stroke();
+
+                // 3. Inset highlight arc for glass look
+                context.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+                context.lineWidth = 1.0;
+                context.beginPath();
+                context.arc(eCX, eCY, r - 2, Math.PI * 1.1, Math.PI * 1.9);
+                context.stroke();
+
+                // 4. Cooldown Sector sweep dial
+                if (!eReady) {
+                    const eProg = eCd / eMax;
+                    context.beginPath();
+                    context.moveTo(eCX, eCY);
+                    context.arc(eCX, eCY, r - 1, -Math.PI / 2, -Math.PI / 2 + eProg * Math.PI * 2);
+                    context.closePath();
+                    context.fillStyle = 'rgba(12, 10, 16, 0.72)';
+                    context.fill();
+                }
+
+                // 5. Shield Icon vector graphics
                 context.save();
                 context.translate(eCX, eCY);
-                context.scale(pulse, pulse);
-                context.globalAlpha = 0.22;
-                context.strokeStyle = player.eColor;
-                context.lineWidth = 1.5;
-                context.beginPath();
-                context.arc(0, 0, r + 4, 0, Math.PI * 2);
-                context.stroke();
+                context.strokeStyle = eReady ? player.eColor : 'rgba(120, 120, 120, 0.45)';
+                context.lineWidth = 2.5; context.lineCap = 'round'; context.lineJoin = 'round';
+                context.shadowColor = eReady ? player.eColor : 'transparent';
+                context.shadowBlur = eReady ? 6 : 0;
+
+                if (player.characterType === 'jotem') {
+                    context.beginPath();
+                    context.moveTo(-8, -10); context.lineTo(8, -10);
+                    context.lineTo(8, 5); context.quadraticCurveTo(0, 11, -8, 5);
+                    context.closePath();
+                    context.stroke();
+                    context.beginPath();
+                    context.moveTo(-8, -2); context.lineTo(8, -2);
+                    context.stroke();
+                } else if (player.characterType === 'shaia') {
+                    context.beginPath();
+                    context.arc(0, 0, 9, 0, Math.PI * 2);
+                    context.stroke();
+                    context.beginPath();
+                    context.moveTo(-13, 0); context.lineTo(-9, 0);
+                    context.moveTo(13, 0); context.lineTo(9, 0);
+                    context.moveTo(0, -13); context.lineTo(0, -9);
+                    context.moveTo(0, 13); context.lineTo(0, 9);
+                    context.stroke();
+                } else if (player.characterType === 'archdemon') {
+                    context.beginPath();
+                    context.arc(0, 0, 10, 0, Math.PI * 1.35);
+                    context.stroke();
+                    context.beginPath();
+                    context.arc(0, 0, 6, Math.PI * 0.7, Math.PI * 2);
+                    context.stroke();
+                } else {
+                    context.beginPath();
+                    context.moveTo(-8, -10);
+                    context.lineTo(8, -10);
+                    context.lineTo(8, -2);
+                    context.quadraticCurveTo(8, 6, 0, 11);
+                    context.quadraticCurveTo(-8, 6, -8, -2);
+                    context.closePath();
+                    context.stroke();
+                    context.beginPath();
+                    context.moveTo(0, -6);
+                    context.lineTo(0, 5);
+                    context.moveTo(-4, -1);
+                    context.lineTo(4, -1);
+                    context.stroke();
+                }
                 context.restore();
-            }
-            context.restore();
 
-            // ── R ability (Slash/Ultimate) ───────────────────────────────────
-            const rX = W - iconSize - 24;
-            const rCd = player.slashCooldown;
-            const rMax = player.slashCooldownMax;
-            const rReady = rCd <= 0;
-            const rCX = rX + r;
-            const rCY = iconY + r;
+                // 6. Cooldown countdown text
+                if (!eReady) {
+                    const secLeft = Math.ceil(eCd / 1000);
+                    context.font = '700 13px "Poppins"';
+                    context.fillStyle = '#ffffff';
+                    context.textAlign = 'center';
+                    context.fillText(`${secLeft}s`, eCX, eCY + 5);
+                }
 
-            context.save();
-            // 1. Radial graded glass backing
-            context.shadowColor = rReady ? player.rColor : 'transparent';
-            context.shadowBlur = rReady ? 14 : 0;
-            const rBgGrad = context.createRadialGradient(rCX, rCY, 0, rCX, rCY, r);
-            rBgGrad.addColorStop(0, 'rgba(32, 26, 18, 0.72)');
-            rBgGrad.addColorStop(1, 'rgba(14, 11, 8, 0.94)');
-            context.fillStyle = rBgGrad;
-            context.beginPath();
-            context.arc(rCX, rCY, r, 0, Math.PI * 2);
-            context.fill();
+                // 7. Premium Badge Overlay (matching controls style)
+                const eBadgeW = 16;
+                const eBadgeH = 13;
+                const eBadgeX = eCX + r * 0.45;
+                const eBadgeY = eCY - r * 1.05;
+                const eBadgeRadius = 3;
 
-            // 2. Translucent border
-            context.shadowBlur = 0; // reset
-            context.strokeStyle = rReady ? player.rColor : 'rgba(255, 255, 255, 0.08)';
-            context.lineWidth = rReady ? 2.0 : 1.5;
-            context.beginPath();
-            context.arc(rCX, rCY, r, 0, Math.PI * 2);
-            context.stroke();
+                context.save();
+                context.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                context.shadowBlur = 4;
+                context.shadowOffsetY = 1.5;
 
-            // 3. Cooldown Sector sweep dial
-            if (!rReady) {
-                const rProg = rCd / rMax;
-                context.beginPath();
-                context.moveTo(rCX, rCY);
-                context.arc(rCX, rCY, r - 1, -Math.PI / 2, -Math.PI / 2 + rProg * Math.PI * 2);
-                context.closePath();
-                context.fillStyle = 'rgba(12, 10, 16, 0.72)';
+                // Fill badge
+                context.fillStyle = eReady ? `rgba(${eRgb}, 0.22)` : 'rgba(20, 20, 20, 0.85)';
+                rr(context, eBadgeX, eBadgeY, eBadgeW, eBadgeH, eBadgeRadius);
                 context.fill();
-            }
+                context.shadowBlur = 0;
+                context.shadowOffsetY = 0;
 
-            // 4. Slash/Ultimate Icon vector graphics
-            context.save();
-            context.translate(rCX, rCY);
-            context.strokeStyle = rReady ? player.rColor : 'rgba(120, 120, 120, 0.45)';
-            context.lineWidth = 3; context.lineCap = 'round';
-            context.shadowColor = rReady ? player.rColor : 'transparent';
-            context.shadowBlur = rReady ? 6 : 0;
+                // Stroke badge
+                context.strokeStyle = eReady ? player.eColor : 'rgba(120, 120, 120, 0.4)';
+                context.lineWidth = 1.2;
+                rr(context, eBadgeX, eBadgeY, eBadgeW, eBadgeH, eBadgeRadius);
+                context.stroke();
 
-            if (player.characterType === 'jotem') {
-                // Spikes Ultimate: Ground jagged lines
-                context.beginPath();
-                context.moveTo(-11, 8); context.lineTo(-6, -4); context.lineTo(-1, 8);
-                context.lineTo(4, -9); context.lineTo(9, 8);
-                context.stroke();
-            } else if (player.characterType === 'shaia') {
-                // Thunderstrike: Zig-zag lightning bolt
-                context.beginPath();
-                context.moveTo(5, -11);
-                context.lineTo(-4, 0);
-                context.lineTo(2, 0);
-                context.lineTo(-5, 11);
-                context.stroke();
-            } else if (player.characterType === 'archdemon') {
-                // Chaos rift: Curved crescent crescent wave
-                context.beginPath();
-                context.arc(-5, 0, 10, -Math.PI * 0.45, Math.PI * 0.45);
-                context.stroke();
-            } else {
-                // Shinobi Flame Slash
-                context.beginPath();
-                context.moveTo(-10, 10);
-                context.quadraticCurveTo(0, -2, 10, -10);
-                context.stroke();
-            }
-            context.restore();
-
-            // 5. Cooldown countdown text
-            if (!rReady) {
-                const secLeft = Math.ceil(rCd / 1000);
-                context.font = '700 13px "Poppins"';
-                context.fillStyle = '#ffffff';
+                // Key label text
+                context.font = '900 8.5px "Orbitron"';
+                context.fillStyle = eReady ? player.eColor : 'rgba(120, 120, 120, 0.6)';
                 context.textAlign = 'center';
-                context.fillText(`${secLeft}s`, rCX, rCY + 5);
-            }
+                context.textBaseline = 'middle';
+                if (eReady) {
+                    context.shadowColor = player.eColor;
+                    context.shadowBlur = 3;
+                }
+                context.fillText('E', eBadgeX + eBadgeW / 2, eBadgeY + eBadgeH / 2 + 0.5);
+                context.restore();
 
-            // 6. Label letter R
-            context.font = '800 11px "Poppins"';
-            context.fillStyle = rReady ? player.rColor : 'rgba(120, 120, 120, 0.55)';
-            context.textAlign = 'center';
-            context.fillText('R', rCX, iconY + iconSize + 14);
+                // 8. Outer pulsating halo
+                if (eReady) {
+                    const pulse = 1.0 + 0.04 * Math.sin(Date.now() * 0.008);
+                    context.save();
+                    context.translate(eCX, eCY);
+                    context.scale(pulse, pulse);
+                    context.globalAlpha = 0.22;
+                    context.strokeStyle = player.eColor;
+                    context.lineWidth = 1.5;
+                    context.beginPath();
+                    context.arc(0, 0, r + 4, 0, Math.PI * 2);
+                    context.stroke();
+                    context.restore();
+                }
+                context.restore();
 
-            // 7. Outer pulsating halo
-            if (rReady) {
-                const pulse = 1.0 + 0.04 * Math.sin(Date.now() * 0.008);
+                // ── R ability (Slash/Ultimate) ───────────────────────────────────
+                const rX = W - iconSize - 24;
+                const rCd = player.slashCooldown;
+                const rMax = player.slashCooldownMax;
+                const rReady = rCd <= 0;
+                const rCX = rX + r;
+                const rCY = iconY + r;
+                const rRgb = hexToRgb(player.rColor);
+
+                context.save();
+                // 1. Radial/Linear premium backing gradient
+                context.shadowColor = rReady ? player.rColor : 'transparent';
+                context.shadowBlur = rReady ? 14 : 0;
+
+                const rBgGrad = context.createLinearGradient(rCX - r, rCY - r, rCX + r, rCY + r);
+                rBgGrad.addColorStop(0, `rgba(${rRgb}, 0.25)`);
+                rBgGrad.addColorStop(1, 'rgba(8, 6, 16, 0.95)');
+                context.fillStyle = rBgGrad;
+                context.beginPath();
+                context.arc(rCX, rCY, r, 0, Math.PI * 2);
+                context.fill();
+
+                // Highlight radial overlay
+                const rHighlight = context.createRadialGradient(rCX, rCY - r * 0.4, 0, rCX, rCY - r * 0.4, r);
+                rHighlight.addColorStop(0, `rgba(${rRgb}, 0.15)`);
+                rHighlight.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                context.fillStyle = rHighlight;
+                context.beginPath();
+                context.arc(rCX, rCY, r, 0, Math.PI * 2);
+                context.fill();
+
+                // 2. Translucent border
+                context.shadowBlur = 0; // reset
+                context.strokeStyle = rReady ? player.rColor : 'rgba(255, 255, 255, 0.08)';
+                context.lineWidth = rReady ? 2.0 : 1.5;
+                context.beginPath();
+                context.arc(rCX, rCY, r, 0, Math.PI * 2);
+                context.stroke();
+
+                // 3. Inset highlight arc for glass look
+                context.strokeStyle = 'rgba(255, 255, 255, 0.12)';
+                context.lineWidth = 1.0;
+                context.beginPath();
+                context.arc(rCX, rCY, r - 2, Math.PI * 1.1, Math.PI * 1.9);
+                context.stroke();
+
+                // 4. Cooldown Sector sweep dial
+                if (!rReady) {
+                    const rProg = rCd / rMax;
+                    context.beginPath();
+                    context.moveTo(rCX, rCY);
+                    context.arc(rCX, rCY, r - 1, -Math.PI / 2, -Math.PI / 2 + rProg * Math.PI * 2);
+                    context.closePath();
+                    context.fillStyle = 'rgba(12, 10, 16, 0.72)';
+                    context.fill();
+                }
+
+                // 5. Slash/Ultimate Icon vector graphics
                 context.save();
                 context.translate(rCX, rCY);
-                context.scale(pulse, pulse);
-                context.globalAlpha = 0.22;
-                context.strokeStyle = player.rColor;
-                context.lineWidth = 1.5;
-                context.beginPath();
-                context.arc(0, 0, r + 4, 0, Math.PI * 2);
+                context.strokeStyle = rReady ? player.rColor : 'rgba(120, 120, 120, 0.45)';
+                context.lineWidth = 3; context.lineCap = 'round';
+                context.shadowColor = rReady ? player.rColor : 'transparent';
+                context.shadowBlur = rReady ? 6 : 0;
+
+                if (player.characterType === 'jotem') {
+                    context.beginPath();
+                    context.moveTo(-11, 8); context.lineTo(-6, -4); context.lineTo(-1, 8);
+                    context.lineTo(4, -9); context.lineTo(9, 8);
+                    context.stroke();
+                } else if (player.characterType === 'shaia') {
+                    context.beginPath();
+                    context.moveTo(5, -11);
+                    context.lineTo(-4, 0);
+                    context.lineTo(2, 0);
+                    context.lineTo(-5, 11);
+                    context.stroke();
+                } else if (player.characterType === 'archdemon') {
+                    context.beginPath();
+                    context.arc(-5, 0, 10, -Math.PI * 0.45, Math.PI * 0.45);
+                    context.stroke();
+                } else {
+                    context.beginPath();
+                    context.moveTo(-10, 10);
+                    context.quadraticCurveTo(0, -2, 10, -10);
+                    context.stroke();
+                }
+                context.restore();
+
+                // 6. Cooldown countdown text
+                if (!rReady) {
+                    const secLeft = Math.ceil(rCd / 1000);
+                    context.font = '700 13px "Poppins"';
+                    context.fillStyle = '#ffffff';
+                    context.textAlign = 'center';
+                    context.fillText(`${secLeft}s`, rCX, rCY + 5);
+                }
+
+                // 7. Premium Badge Overlay (matching controls style)
+                const rBadgeW = 16;
+                const rBadgeH = 13;
+                const rBadgeX = rCX + r * 0.45;
+                const rBadgeY = rCY - r * 1.05;
+                const rBadgeRadius = 3;
+
+                context.save();
+                context.shadowColor = 'rgba(0, 0, 0, 0.5)';
+                context.shadowBlur = 4;
+                context.shadowOffsetY = 1.5;
+
+                // Fill badge
+                context.fillStyle = rReady ? `rgba(${rRgb}, 0.22)` : 'rgba(20, 20, 20, 0.85)';
+                rr(context, rBadgeX, rBadgeY, rBadgeW, rBadgeH, rBadgeRadius);
+                context.fill();
+                context.shadowBlur = 0;
+                context.shadowOffsetY = 0;
+
+                // Stroke badge
+                context.strokeStyle = rReady ? player.rColor : 'rgba(120, 120, 120, 0.4)';
+                context.lineWidth = 1.2;
+                rr(context, rBadgeX, rBadgeY, rBadgeW, rBadgeH, rBadgeRadius);
                 context.stroke();
+
+                // Key label text
+                context.font = '900 8.5px "Orbitron"';
+                context.fillStyle = rReady ? player.rColor : 'rgba(120, 120, 120, 0.6)';
+                context.textAlign = 'center';
+                context.textBaseline = 'middle';
+                if (rReady) {
+                    context.shadowColor = player.rColor;
+                    context.shadowBlur = 3;
+                }
+                context.fillText('R', rBadgeX + rBadgeW / 2, rBadgeY + rBadgeH / 2 + 0.5);
+                context.restore();
+
+                // 8. Outer pulsating halo
+                if (rReady) {
+                    const pulse = 1.0 + 0.04 * Math.sin(Date.now() * 0.008);
+                    context.save();
+                    context.translate(rCX, rCY);
+                    context.scale(pulse, pulse);
+                    context.globalAlpha = 0.22;
+                    context.strokeStyle = player.rColor;
+                    context.lineWidth = 1.5;
+                    context.beginPath();
+                    context.arc(0, 0, r + 4, 0, Math.PI * 2);
+                    context.stroke();
+                    context.restore();
+                }
                 context.restore();
             }
             context.restore();
@@ -2692,6 +3080,11 @@ window.addEventListener('load', function () {
     }
 
     settingsBtn.addEventListener('click', (e) => {
+        if (isCustomizingLayout) {
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
         e.stopPropagation();
         toggleSettings(true);
     });
@@ -2782,6 +3175,538 @@ window.addEventListener('load', function () {
     sfxVolumeSlider.addEventListener('change', () => {
         if (game.audio) game.audio.playSFX('punch');
     });
+
+    // ── Fullscreen Toggle ──────────────────────────────────────────────
+    const fullscreenFloatingBtn = document.getElementById('fullscreen-btn');
+    const fullscreenSettingsBtn = document.getElementById('fullscreen-settings-btn');
+    const fsIconExpand = document.getElementById('fs-icon-expand');
+    const fsIconExit = document.getElementById('fs-icon-exit');
+    const fsSettIconExpand = document.getElementById('fs-settings-icon-expand');
+    const fsSettIconExit = document.getElementById('fs-settings-icon-exit');
+    const fsSettLabel = document.getElementById('fs-settings-label');
+
+    function toggleFullscreen() {
+        if (!document.fullscreenElement) {
+            // Enter fullscreen
+            document.documentElement.requestFullscreen().catch(err => {
+                console.warn('Fullscreen request failed:', err.message);
+            });
+        } else {
+            // Exit fullscreen
+            document.exitFullscreen();
+        }
+    }
+
+    function updateFsIcons() {
+        const isFs = !!document.fullscreenElement;
+        // Floating button icons
+        if (fsIconExpand) fsIconExpand.style.display = isFs ? 'none' : 'block';
+        if (fsIconExit) fsIconExit.style.display = isFs ? 'block' : 'none';
+        // Settings panel icons + label
+        if (fsSettIconExpand) fsSettIconExpand.style.display = isFs ? 'none' : 'inline';
+        if (fsSettIconExit) fsSettIconExit.style.display = isFs ? 'inline' : 'none';
+        if (fsSettLabel) fsSettLabel.textContent = isFs ? 'EXIT FULLSCREEN' : 'FULLSCREEN';
+    }
+
+    if (fullscreenFloatingBtn) {
+        fullscreenFloatingBtn.addEventListener('click', (e) => {
+            if (isCustomizingLayout) {
+                e.preventDefault();
+                e.stopPropagation();
+                return;
+            }
+            e.stopPropagation();
+            toggleFullscreen();
+        });
+    }
+    if (fullscreenSettingsBtn) fullscreenSettingsBtn.addEventListener('click', () => toggleFullscreen());
+    document.addEventListener('fullscreenchange', updateFsIcons);
+
+
+    const osControlsToggle = document.getElementById('os-controls-toggle');
+    const controlsToggleTxt = document.getElementById('controls-toggle-txt');
+    const virtualControlsContainer = document.getElementById('virtual-controls');
+
+    // Load initial preference from local storage
+    const showVirtualControls = localStorage.getItem('shadowStrike_osControls') === 'true';
+    osControlsToggle.checked = showVirtualControls;
+    if (showVirtualControls) {
+        controlsToggleTxt.innerText = 'ON';
+        controlsToggleTxt.style.color = '#00e5ff';
+        controlsToggleTxt.style.textShadow = '0 0 10px rgba(0, 229, 255, 0.6)';
+    } else {
+        controlsToggleTxt.innerText = 'OFF';
+        controlsToggleTxt.style.color = 'rgba(255, 255, 255, 0.45)';
+        controlsToggleTxt.style.textShadow = 'none';
+    }
+
+    osControlsToggle.addEventListener('change', (e) => {
+        const active = e.target.checked;
+        localStorage.setItem('shadowStrike_osControls', active ? 'true' : 'false');
+        if (active) {
+            controlsToggleTxt.innerText = 'ON';
+            controlsToggleTxt.style.color = '#00e5ff';
+            controlsToggleTxt.style.textShadow = '0 0 10px rgba(0, 229, 255, 0.6)';
+        } else {
+            controlsToggleTxt.innerText = 'OFF';
+            controlsToggleTxt.style.color = 'rgba(255, 255, 255, 0.45)';
+            controlsToggleTxt.style.textShadow = 'none';
+        }
+    });
+
+    // ── Layout Customizer Variables & Functions ──────────────────────
+    let isCustomizingLayout = false;
+    let selectedElement = null;
+    let layoutConfig = JSON.parse(localStorage.getItem('shadowStrike_layoutConfig') || '{}');
+
+    function applyLayout() {
+        const buttons = [
+            ...virtualControlsContainer.querySelectorAll('.vbtn'),
+            settingsBtn,
+            fullscreenFloatingBtn
+        ].filter(Boolean);
+        // Clear all inline styles first to revert to CSS defaults
+        buttons.forEach(btn => {
+            btn.style.position = '';
+            btn.style.left = '';
+            btn.style.top = '';
+            btn.style.width = '';
+            btn.style.height = '';
+            btn.style.opacity = '';
+            btn.style.bottom = '';
+            btn.style.right = '';
+            btn.style.transform = '';
+        });
+
+        const hasSavedConfig = Object.keys(layoutConfig).length > 0;
+        if (hasSavedConfig) {
+            virtualControlsContainer.classList.add('has-custom-layout');
+        } else {
+            virtualControlsContainer.classList.remove('has-custom-layout');
+        }
+
+        for (const id in layoutConfig) {
+            const btn = document.getElementById(id);
+            if (btn) {
+                let conf = layoutConfig[id];
+
+                // Validate coordinates to prevent NaN / null coordinates piling bugs
+                if (!conf || isNaN(conf.left) || isNaN(conf.top) || conf.left === null || conf.top === null) {
+                    conf = getBtnDefaultLayout(btn);
+                    layoutConfig[id] = conf;
+                }
+
+                btn.style.position = 'absolute';
+                btn.style.left = `${conf.left}%`;
+                btn.style.top = `${conf.top}%`;
+                btn.style.width = `${conf.size}px`;
+                btn.style.height = `${conf.size}px`;
+                btn.style.opacity = conf.opacity;
+                btn.style.bottom = 'auto';
+                btn.style.right = 'auto';
+                btn.style.transform = 'none';
+            }
+        }
+    }
+
+    function getBtnDefaultLayout(btn) {
+        const rect = btn.getBoundingClientRect();
+        const parentRect = virtualControlsContainer.getBoundingClientRect();
+
+        let leftPercent = 0;
+        let topPercent = 0;
+
+        if (parentRect.width > 0 && parentRect.height > 0 && rect.width > 0) {
+            leftPercent = ((rect.left - parentRect.left) / parentRect.width) * 100;
+            topPercent = ((rect.top - parentRect.top) / parentRect.height) * 100;
+        }
+
+        // Fallback robust coordinates if dimensions are not laid out/computed yet (hidden screen or page load)
+        if (isNaN(leftPercent) || !isFinite(leftPercent) || leftPercent <= 0 || parentRect.width === 0) {
+            const fallbacks = {
+                'vbtn-left': { left: 4, top: 80 },
+                'vbtn-right': { left: 11, top: 80 },
+                'vbtn-q': { left: 78, top: 62 },
+                'vbtn-e': { left: 84, top: 56 },
+                'vbtn-r': { left: 90, top: 62 },
+                'vbtn-dash': { left: 74, top: 80 },
+                'vbtn-jump': { left: 82, top: 72 },
+                'vbtn-attack': { left: 90, top: 80 },
+                'settings-btn': { left: 21.5, top: 6 },
+                'fullscreen-btn': { left: 25.2, top: 6 }
+            };
+            const f = fallbacks[btn.id] || { left: 50, top: 50 };
+            leftPercent = f.left;
+            topPercent = f.top;
+        }
+
+        const style = window.getComputedStyle(btn);
+        return {
+            left: leftPercent,
+            top: topPercent,
+            size: parseFloat(style.width) || 60,
+            opacity: parseFloat(style.opacity) || 0.85
+        };
+    }
+
+    function resetLayoutToDefault() {
+        localStorage.removeItem('shadowStrike_layoutConfig');
+        layoutConfig = {};
+        const buttons = [
+            ...virtualControlsContainer.querySelectorAll('.vbtn'),
+            settingsBtn,
+            fullscreenFloatingBtn
+        ].filter(Boolean);
+        buttons.forEach(btn => {
+            btn.style.position = '';
+            btn.style.left = '';
+            btn.style.top = '';
+            btn.style.width = '';
+            btn.style.height = '';
+            btn.style.opacity = '';
+            btn.style.bottom = '';
+            btn.style.right = '';
+            btn.style.transform = '';
+            btn.classList.remove('selected-el');
+        });
+
+        // Repopulate with safe defaults inside customizer memory so subsequent drags don't crash
+        if (isCustomizingLayout) {
+            buttons.forEach(btn => {
+                layoutConfig[btn.id] = getBtnDefaultLayout(btn);
+            });
+        }
+
+        layoutElementEditor.classList.remove('active');
+        selectedElement = null;
+        applyLayout();
+    }
+
+    // Initialize layout positions
+    applyLayout();
+
+    // ── Right-Click & Developer Inspection Blocks ────────────────────
+    window.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+    }, false);
+
+    window.addEventListener('keydown', (e) => {
+        // F12 key
+        if (e.key === 'F12' || e.keyCode === 123) {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+Shift+K
+        if (e.ctrlKey && e.shiftKey && (
+            e.key === 'I' || e.key === 'i' ||
+            e.key === 'J' || e.key === 'j' ||
+            e.key === 'C' || e.key === 'c' ||
+            e.key === 'K' || e.key === 'k'
+        )) {
+            e.preventDefault();
+            return false;
+        }
+        // Ctrl+U (View Source)
+        if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
+            e.preventDefault();
+            return false;
+        }
+    }, false);
+
+    // Customizer UI Element Selectors
+    const customizeLayoutBtn = document.getElementById('customize-layout-btn');
+    const layoutElementEditor = document.getElementById('layout-element-editor');
+    const elSizeSlider = document.getElementById('el-size-slider');
+    const elOpacitySlider = document.getElementById('el-opacity-slider');
+    const elSizeTxt = document.getElementById('el-size-txt');
+    const elOpacityTxt = document.getElementById('el-opacity-txt');
+    const selectedElName = document.getElementById('selected-el-name');
+
+    function selectElement(btn) {
+        if (selectedElement) {
+            selectedElement.classList.remove('selected-el');
+        }
+        selectedElement = btn;
+        selectedElement.classList.add('selected-el');
+        layoutElementEditor.classList.add('active');
+
+        const id = btn.id;
+        const config = layoutConfig[id];
+        let displayName = btn.innerText || btn.id.replace('vbtn-', '').toUpperCase();
+        if (displayName === '←') displayName = 'LEFT';
+        if (displayName === '→') displayName = 'RIGHT';
+        if (btn.id === 'settings-btn') displayName = 'SETTINGS';
+        if (btn.id === 'fullscreen-btn') displayName = 'FULLSCREEN';
+        selectedElName.innerText = `Edit: ${displayName}`;
+
+        elSizeSlider.value = config.size;
+        elSizeTxt.innerText = `${Math.round(config.size)}px`;
+
+        elOpacitySlider.value = Math.round(config.opacity * 100);
+        elOpacityTxt.innerText = `${Math.round(config.opacity * 100)}%`;
+    }
+
+    customizeLayoutBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        settingsOverlay.classList.remove('active');
+        isCustomizingLayout = true;
+        virtualControlsContainer.classList.add('active');
+        virtualControlsContainer.classList.add('layout-customizing');
+
+        const buttons = [
+            ...virtualControlsContainer.querySelectorAll('.vbtn'),
+            settingsBtn,
+            fullscreenFloatingBtn
+        ].filter(Boolean);
+        buttons.forEach(btn => {
+            const id = btn.id;
+            if (!layoutConfig[id]) {
+                layoutConfig[id] = getBtnDefaultLayout(btn);
+            }
+        });
+        applyLayout();
+    });
+
+    elSizeSlider.addEventListener('input', (e) => {
+        if (!selectedElement) return;
+        const size = parseInt(e.target.value);
+        elSizeTxt.innerText = `${size}px`;
+        selectedElement.style.width = `${size}px`;
+        selectedElement.style.height = `${size}px`;
+        layoutConfig[selectedElement.id].size = size;
+    });
+
+    elOpacitySlider.addEventListener('input', (e) => {
+        if (!selectedElement) return;
+        const val = parseInt(e.target.value);
+        elOpacityTxt.innerText = `${val}%`;
+        selectedElement.style.opacity = val / 100;
+        layoutConfig[selectedElement.id].opacity = val / 100;
+    });
+
+    const layoutResetBtn = document.getElementById('layout-reset-btn');
+    layoutResetBtn.addEventListener('click', () => {
+        const ok = window.confirm("Reset layout to default console positions?");
+        if (ok) {
+            resetLayoutToDefault();
+        }
+    });
+
+    const layoutCloseBtn = document.getElementById('layout-close-btn');
+    function exitCustomizer() {
+        isCustomizingLayout = false;
+        virtualControlsContainer.classList.remove('layout-customizing');
+        layoutElementEditor.classList.remove('active');
+        if (selectedElement) {
+            selectedElement.classList.remove('selected-el');
+            selectedElement = null;
+        }
+        const show = localStorage.getItem('shadowStrike_osControls') === 'true';
+        if (!show) {
+            virtualControlsContainer.classList.remove('active');
+        }
+    }
+
+    layoutCloseBtn.addEventListener('click', () => {
+        // Reload layout
+        layoutConfig = JSON.parse(localStorage.getItem('shadowStrike_layoutConfig') || '{}');
+        applyLayout();
+        exitCustomizer();
+        settingsOverlay.classList.add('active');
+    });
+
+    const layoutSaveBtn = document.getElementById('layout-save-btn');
+    layoutSaveBtn.addEventListener('click', () => {
+        localStorage.setItem('shadowStrike_layoutConfig', JSON.stringify(layoutConfig));
+        exitCustomizer();
+        settingsOverlay.classList.add('active');
+    });
+
+    // Deselect elements on backdrop click
+    virtualControlsContainer.addEventListener('mousedown', (e) => {
+        if (isCustomizingLayout && e.target === virtualControlsContainer) {
+            if (selectedElement) {
+                selectedElement.classList.remove('selected-el');
+                selectedElement = null;
+            }
+            layoutElementEditor.classList.remove('active');
+        }
+    });
+    virtualControlsContainer.addEventListener('touchstart', (e) => {
+        if (isCustomizingLayout && e.target === virtualControlsContainer) {
+            if (selectedElement) {
+                selectedElement.classList.remove('selected-el');
+                selectedElement = null;
+            }
+            layoutElementEditor.classList.remove('active');
+        }
+    });
+
+    // Bind virtual buttons gameplay key events
+    const vButtons = virtualControlsContainer.querySelectorAll('.vbtn');
+    vButtons.forEach(btn => {
+        const key = btn.getAttribute('data-key');
+        if (!key) return;
+
+        // Touch handlers for mobile devices
+        btn.addEventListener('touchstart', (e) => {
+            if (isCustomizingLayout) return;
+            e.preventDefault();
+            game.input.pressVirtualKey(key);
+
+            // Dialogue / narrative advancement on Jump touch
+            if (game.storyDialogueManager && game.storyDialogueManager.active && key === 'Space') {
+                game.storyDialogueManager.nextStep();
+            }
+
+            // QTE trigger integration (Space or E keys)
+            if (qteActive && (key === 'e' || key === 'Space')) {
+                qteProgress += 12;
+                document.getElementById('qte-bar-fill').style.width = Math.min(100, qteProgress) + '%';
+                if (qteProgress >= qteMax) {
+                    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'e' }));
+                }
+            }
+        }, { passive: false });
+
+        btn.addEventListener('touchend', (e) => {
+            if (isCustomizingLayout) return;
+            e.preventDefault();
+            game.input.releaseVirtualKey(key);
+        }, { passive: false });
+
+        btn.addEventListener('touchcancel', (e) => {
+            if (isCustomizingLayout) return;
+            e.preventDefault();
+            game.input.releaseVirtualKey(key);
+        }, { passive: false });
+
+        // Mouse handlers for desktop / testing
+        btn.addEventListener('mousedown', (e) => {
+            if (isCustomizingLayout) return;
+            if (e.button === 0) {
+                game.input.pressVirtualKey(key);
+
+                // Dialogue / narrative advancement on Jump click
+                if (game.storyDialogueManager && game.storyDialogueManager.active && key === 'Space') {
+                    game.storyDialogueManager.nextStep();
+                }
+
+                // QTE trigger integration on click
+                if (qteActive && (key === 'e' || key === 'Space')) {
+                    qteProgress += 12;
+                    document.getElementById('qte-bar-fill').style.width = Math.min(100, qteProgress) + '%';
+                    if (qteProgress >= qteMax) {
+                        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'e' }));
+                    }
+                }
+            }
+        });
+
+        btn.addEventListener('mouseup', (e) => {
+            if (isCustomizingLayout) return;
+            if (e.button === 0) {
+                game.input.releaseVirtualKey(key);
+            }
+        });
+
+        btn.addEventListener('mouseleave', (e) => {
+            if (isCustomizingLayout) return;
+            game.input.releaseVirtualKey(key);
+        });
+    });
+
+    // Bind layout customizer drag events for all customizable elements
+    const customizableButtons = [
+        ...virtualControlsContainer.querySelectorAll('.vbtn'),
+        settingsBtn,
+        fullscreenFloatingBtn
+    ].filter(Boolean);
+
+    customizableButtons.forEach(btn => {
+        let isDragging = false;
+        let startX, startY;
+        let startLeft, startTop;
+
+        const onDragStart = (clientX, clientY) => {
+            if (!isCustomizingLayout) return;
+            isDragging = true;
+            selectElement(btn);
+
+            startX = clientX;
+            startY = clientY;
+
+            const id = btn.id;
+            startLeft = layoutConfig[id].left;
+            startTop = layoutConfig[id].top;
+
+            btn.style.transition = 'none'; // prevents transitions from delaying drag
+        };
+
+        const onDragMove = (clientX, clientY) => {
+            if (!isDragging || !isCustomizingLayout) return;
+
+            const dx = clientX - startX;
+            const dy = clientY - startY;
+
+            const parentRect = virtualControlsContainer.getBoundingClientRect();
+            const dxPercent = (dx / parentRect.width) * 100;
+            const dyPercent = (dy / parentRect.height) * 100;
+
+            const newLeft = Math.max(0, Math.min(100 - (btn.offsetWidth / parentRect.width) * 100, startLeft + dxPercent));
+            const newTop = Math.max(0, Math.min(100 - (btn.offsetHeight / parentRect.height) * 100, startTop + dyPercent));
+
+            btn.style.left = `${newLeft}%`;
+            btn.style.top = `${newTop}%`;
+
+            const id = btn.id;
+            layoutConfig[id].left = newLeft;
+            layoutConfig[id].top = newTop;
+        };
+
+        const onDragEnd = () => {
+            if (!isDragging) return;
+            isDragging = false;
+            btn.style.transition = '';
+        };
+
+        btn.addEventListener('touchstart', (e) => {
+            if (isCustomizingLayout) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                onDragStart(touch.clientX, touch.clientY);
+            }
+        }, { passive: false });
+
+        window.addEventListener('touchmove', (e) => {
+            if (isDragging && isCustomizingLayout) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                onDragMove(touch.clientX, touch.clientY);
+            }
+        }, { passive: false });
+
+        window.addEventListener('touchend', () => {
+            onDragEnd();
+        });
+
+        btn.addEventListener('mousedown', (e) => {
+            if (isCustomizingLayout && e.button === 0) {
+                e.preventDefault();
+                onDragStart(e.clientX, e.clientY);
+            }
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (isDragging && isCustomizingLayout) {
+                onDragMove(e.clientX, e.clientY);
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            onDragEnd();
+        });
+    });
     // ─────────────────────────────────────────────────────────────────
 
     canvas.addEventListener('click', function (e) {
@@ -2826,17 +3751,17 @@ window.addEventListener('load', function () {
                 my <= bY + bH
             ) {
 
-                if (game.level >= 10) {
+                if (game.level >= 20) {
                     // Trigger Post-Credits Scene instead of going back to Level 1
                     document.getElementById('post-credit-overlay').style.display = 'flex';
                     const textContainer = document.getElementById('post-credit-text-container');
                     textContainer.innerHTML = `
-                        <div class="void-text">Deep in the void—</div>
-                        <div class="void-text" style="animation-delay: 2s;">A colossal throne awakens.</div>
-                        <div class="void-text" style="animation-delay: 4s;">Billions of red eyes open.</div>
-                        <div class="void-text" style="animation-delay: 6s;">"Amarjeet has fallen."</div>
-                        <div class="void-text" style="animation-delay: 8s;">"Good."</div>
-                        <div class="void-text" style="animation-delay: 10s;">"Open the gates."</div>
+                        <div class="void-text">Void ke bohot andar—</div>
+                        <div class="void-text" style="animation-delay: 2s;">Ek bada sa takht jaag utha hai.</div>
+                        <div class="void-text" style="animation-delay: 4s;">Lakhon laal aakhein khul gayi hain.</div>
+                        <div class="void-text" style="animation-delay: 6s;">"Amarjeet har chuka hai."</div>
+                        <div class="void-text" style="animation-delay: 8s;">"Sahi hai."</div>
+                        <div class="void-text" style="animation-delay: 10s;">"Saare darwaze khol do."</div>
                         <div class="void-title void-shake">THE VOID EMPEROR RISES</div>
                         <div class="void-subtitle">REALM BREAKER II: THE END OF INFINITY</div>
                     `;
@@ -3092,10 +4017,20 @@ window.addEventListener('load', function () {
         { id: 7, name: "SKY TEMPLE", desc: "Discover Amarjeet's past. Defeat the Storm Seraph.", playable: true, theme: "amber" },
         { id: 8, name: "FROZEN ABYSS", desc: "The seal is cracking. The Void Emperor watches. Defeat the Frost Wyrm.", playable: true, theme: "purple" },
         { id: 9, name: "VOID KINGDOM", desc: "Walk through Amarjeet's fractured memories. Face the Abyss Knight.", playable: true, theme: "crimson" },
-        { id: 10, name: "EDGE OF REALITY", desc: "The final battle. Break Amarjeet Da Black Hole.", playable: true, theme: "neon-green" }
+        { id: 10, name: "EDGE OF REALITY", desc: "The final battle. Break Amarjeet Da Black Hole.", playable: true, theme: "neon-green" },
+        { id: 11, name: "SHADOW CITY II", desc: "The shadows return. Confront the upgraded Shadow Lord.", playable: true, theme: "cyan" },
+        { id: 12, name: "SPIDER FOREST II", desc: "The spider forest grows more hostile. Battle Mecha-Stone V2.", playable: true, theme: "amber" },
+        { id: 13, name: "HALLOWEEN HOUSE II", desc: "The Dragon Lord awakens with twice the fury in the haunted cabin.", playable: true, theme: "purple" },
+        { id: 14, name: "HAUNTED GRAVEYARD II", desc: "The spirits scream in anger. Defeat the Mino Boss once more.", playable: true, theme: "crimson" },
+        { id: 15, name: "MUSHROOM GROVE II", desc: "The Impaler has reclaimed the grove. Strike him down.", playable: true, theme: "neon-green" },
+        { id: 16, name: "CRYSTAL CAVERNS II", desc: "The crystals glow in warning. Shatter the Crystal Titan.", playable: true, theme: "cyan" },
+        { id: 17, name: "SKY TEMPLE II", desc: "A localized storm rages in the sky. Challenge the Storm Seraph.", playable: true, theme: "amber" },
+        { id: 18, name: "FROZEN ABYSS II", desc: "Temperature drops to absolute zero. Defeat the Frost Wyrm.", playable: true, theme: "purple" },
+        { id: 19, name: "VOID KINGDOM II", desc: "Reality collapses completely. Confront the Abyss Knight.", playable: true, theme: "crimson" },
+        { id: 20, name: "ULTIMATE SHOWDOWN", desc: "The final showdown. Defeat Amarjeet Da Black Hole once and for all.", playable: true, theme: "neon-green" }
     ];
 
-    let selectedLevel = Math.min(10, parseInt(localStorage.getItem('maxUnlockedLevel') || '1'));
+    let selectedLevel = Math.min(20, parseInt(localStorage.getItem('maxUnlockedLevel') || '1'));
 
     function renderLevelSelectionUI() {
         const container = document.getElementById('level-list-container');
@@ -3327,6 +4262,108 @@ window.addEventListener('load', function () {
     function Animate(timeStamp) {
         const deltaTime = Math.min(timeStamp - lastTime, 50);
         lastTime = timeStamp;
+
+        // Toggle virtual controls container display state
+        const showControls = (game.gameStarted && !game.paused && !game.levelComplete && !game.gameOver && localStorage.getItem('shadowStrike_osControls') === 'true') || isCustomizingLayout;
+        const vContainer = document.getElementById('virtual-controls');
+        if (vContainer) {
+            if (showControls) {
+                vContainer.classList.add('active');
+
+                // Position settings and fullscreen buttons to the top right of the player HUD (if not customized)
+                const isSettingsCustomized = (layoutConfig && layoutConfig['settings-btn']) || isCustomizingLayout;
+                const isFsCustomized = (layoutConfig && layoutConfig['fullscreen-btn']) || isCustomizingLayout;
+
+                if (settingsBtn && fullscreenFloatingBtn) {
+                    const canvasRect = canvas.getBoundingClientRect();
+                    const canvasWidth = canvas.width || 1550;
+                    const scale = canvasRect.width > 0 ? (canvasRect.width / canvasWidth) : 1;
+
+                    const hx = 16;
+                    const hy = 12;
+                    const hw = 300;
+                    const hh = 74;
+
+                    const btnSize = Math.max(32, Math.min(48, 48 * scale));
+
+                    const hudCenterY = canvasRect.top + (hy + hh / 2) * scale;
+                    const btnY = hudCenterY - btnSize / 2;
+
+                    const hudRightX = canvasRect.left + (hx + hw) * scale;
+                    const gap = 15 * scale;
+
+                    const settingsX = hudRightX + gap;
+                    const fullscreenX = settingsX + btnSize + 10 * scale;
+
+                    if (!isSettingsCustomized) {
+                        settingsBtn.style.position = 'fixed';
+                        settingsBtn.style.bottom = 'auto';
+                        settingsBtn.style.top = `${btnY}px`;
+                        settingsBtn.style.left = `${settingsX}px`;
+                        settingsBtn.style.width = `${btnSize}px`;
+                        settingsBtn.style.height = `${btnSize}px`;
+                        settingsBtn.style.transition = 'none';
+                    } else if (layoutConfig && layoutConfig['settings-btn'] && !isCustomizingLayout) {
+                        const conf = layoutConfig['settings-btn'];
+                        settingsBtn.style.position = 'absolute';
+                        settingsBtn.style.left = `${conf.left}%`;
+                        settingsBtn.style.top = `${conf.top}%`;
+                        settingsBtn.style.width = `${conf.size}px`;
+                        settingsBtn.style.height = `${conf.size}px`;
+                        settingsBtn.style.opacity = conf.opacity;
+                        settingsBtn.style.bottom = 'auto';
+                        settingsBtn.style.right = 'auto';
+                        settingsBtn.style.transform = 'none';
+                        settingsBtn.style.transition = 'none';
+                    }
+
+                    if (!isFsCustomized) {
+                        fullscreenFloatingBtn.style.position = 'fixed';
+                        fullscreenFloatingBtn.style.bottom = 'auto';
+                        fullscreenFloatingBtn.style.top = `${btnY}px`;
+                        fullscreenFloatingBtn.style.left = `${fullscreenX}px`;
+                        fullscreenFloatingBtn.style.width = `${btnSize}px`;
+                        fullscreenFloatingBtn.style.height = `${btnSize}px`;
+                        fullscreenFloatingBtn.style.transition = 'none';
+                    } else if (layoutConfig && layoutConfig['fullscreen-btn'] && !isCustomizingLayout) {
+                        const conf = layoutConfig['fullscreen-btn'];
+                        fullscreenFloatingBtn.style.position = 'absolute';
+                        fullscreenFloatingBtn.style.left = `${conf.left}%`;
+                        fullscreenFloatingBtn.style.top = `${conf.top}%`;
+                        fullscreenFloatingBtn.style.width = `${conf.size}px`;
+                        fullscreenFloatingBtn.style.height = `${conf.size}px`;
+                        fullscreenFloatingBtn.style.opacity = conf.opacity;
+                        fullscreenFloatingBtn.style.bottom = 'auto';
+                        fullscreenFloatingBtn.style.right = 'auto';
+                        fullscreenFloatingBtn.style.transform = 'none';
+                        fullscreenFloatingBtn.style.transition = 'none';
+                    }
+                }
+            } else {
+                vContainer.classList.remove('active');
+
+                // Reset settings and fullscreen buttons to default CSS positions
+                if (settingsBtn) {
+                    settingsBtn.style.position = '';
+                    settingsBtn.style.bottom = '';
+                    settingsBtn.style.top = '';
+                    settingsBtn.style.left = '';
+                    settingsBtn.style.width = '';
+                    settingsBtn.style.height = '';
+                    settingsBtn.style.transition = '';
+                }
+                if (fullscreenFloatingBtn) {
+                    fullscreenFloatingBtn.style.position = '';
+                    fullscreenFloatingBtn.style.bottom = '';
+                    fullscreenFloatingBtn.style.top = '';
+                    fullscreenFloatingBtn.style.left = '';
+                    fullscreenFloatingBtn.style.width = '';
+                    fullscreenFloatingBtn.style.height = '';
+                    fullscreenFloatingBtn.style.transition = '';
+                }
+            }
+        }
+
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         ctx.save();
