@@ -175,12 +175,12 @@ export class Player {
 
         this.slashProjectiles = [];
         this.slashCooldown = 0;
-        this.slashCooldownMax = 100;
+        this.slashCooldownMax = 12000;
 
         this.shieldActive = false;
         this.shieldTimer = 0;
         this.shieldCooldown = 0;
-        this.shieldCooldownMax = 50;
+        this.shieldCooldownMax = 7000;
 
         this.states = [
             new Standing(this),
