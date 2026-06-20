@@ -30,7 +30,10 @@ export class AudioManager {
             flame_slash: 'asset/music/flame-slash.mp3',
             player_hurt: 'asset/music/player-hurt-sound.mp3',
             sprint: 'asset/music/sprint.mp3',
-            jump: 'asset/music/jump.mp3'
+            jump: 'asset/music/jump.mp3',
+            boss_intro: 'asset/music/freesound_community-boss-intro-02-72039.mp3',
+            boss_roar: 'asset/music/freesound_community-monster-roar-02-102957.mp3',
+            coin_collect: 'asset/music/ribhavagrawal-coin-recieved-230517.mp3'
         };
 
         this.preloadedSFX = {};
@@ -118,6 +121,55 @@ export class AudioManager {
         clone.volume = volume;
         clone.play().catch(err => {
             console.log(`SFX "${type}" play deferred:`, err.message);
+        });
+    }
+
+    // Boss intro ko track karo taaki baad mein band kar sako
+    playBossIntro() {
+        this.stopBossIntro(); // pehle se chal raha ho toh band karo
+        const path = this.sfxPaths['boss_intro'];
+        if (!path) return;
+        this._bossIntroAudio = new Audio(path);
+        this._bossIntroAudio.volume = this.sfxVolume;
+        this._bossIntroAudio.play().catch(err => {
+            console.log('Boss intro play deferred:', err.message);
+        });
+    }
+
+    // Boss intro ko dheere dheere fade out karke band karo
+    stopBossIntro() {
+        if (!this._bossIntroAudio) return;
+        const audio = this._bossIntroAudio;
+        this._bossIntroAudio = null;
+        // Smooth fade out (200ms)
+        const fadeStep = audio.volume / 10;
+        const fadeInterval = setInterval(() => {
+            if (audio.volume > fadeStep) {
+                audio.volume = Math.max(0, audio.volume - fadeStep);
+            } else {
+                audio.pause();
+                audio.currentTime = 0;
+                clearInterval(fadeInterval);
+            }
+        }, 20);
+    }
+
+    // SFX bajao aur khatam hone par callback chalao
+    playSFXWithEnded(type, onEndedCallback) {
+        const original = this.preloadedSFX[type];
+        if (!original) {
+            console.warn(`SFX type "${type}" not preloaded.`);
+            if (onEndedCallback) onEndedCallback();
+            return;
+        }
+        const clone = original.cloneNode(true);
+        clone.volume = this.sfxVolume;
+        if (onEndedCallback) {
+            clone.addEventListener('ended', onEndedCallback, { once: true });
+        }
+        clone.play().catch(err => {
+            console.log(`SFX "${type}" play deferred:`, err.message);
+            if (onEndedCallback) onEndedCallback();
         });
     }
 }

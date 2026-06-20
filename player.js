@@ -309,6 +309,11 @@ export class Player {
     }
 
     update(input, deltaTime) {
+        // If boss is introducing/roaring (introLocked is active), block player attacks
+        if (this.game.enemies.some(e => e.isBoss && e.introLocked)) {
+            input = input.filter(key => key !== 'MouseLeft' && key !== 'q' && key !== 'Q' && key !== 'r' && key !== 'R');
+        }
+
         if (this.flashTimer > 0) this.flashTimer -= deltaTime;
 
         if (this.characterType === 'jotem') {

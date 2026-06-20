@@ -8,15 +8,12 @@ import { FlyingEnemy } from "./flyingEnemy.js";
 import { Portal } from "./portal.js";
 import { AudioManager } from "./audio.js";
 
-// Global high-performance sprite tinting utility using offscreen canvas caching
 const sharedTintCanvas = document.createElement('canvas');
 const sharedTintCtx = sharedTintCanvas.getContext('2d');
 
 window.drawTintedSprite = function (ctx, img, srcX, srcY, srcW, srcH, destX, destY, destW, destH, color, alpha = 1.0) {
     if (srcW <= 0 || srcH <= 0 || destW <= 0 || destH <= 0) return;
 
-    // Only resize the shared tint canvas if it's too small for the current sprite dimensions.
-    // This avoids resetting the canvas context and triggering GPU memory re-allocation on every frame.
     if (sharedTintCanvas.width < srcW) {
         sharedTintCanvas.width = srcW;
     }
@@ -24,20 +21,16 @@ window.drawTintedSprite = function (ctx, img, srcX, srcY, srcW, srcH, destX, des
         sharedTintCanvas.height = srcH;
     }
 
-    // Clear only the active drawing area rather than resizing/clearing the whole canvas
     sharedTintCtx.clearRect(0, 0, srcW, srcH);
 
-    // Draw the original sprite
     sharedTintCtx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, srcW, srcH);
 
-    // Overlay the tint color
     sharedTintCtx.save();
     sharedTintCtx.globalCompositeOperation = 'source-atop';
     sharedTintCtx.fillStyle = color;
     sharedTintCtx.fillRect(0, 0, srcW, srcH);
     sharedTintCtx.restore();
 
-    // Draw the tinted sprite onto the destination context with opacity blending
     ctx.save();
     ctx.globalAlpha = alpha * ctx.globalAlpha;
     ctx.drawImage(sharedTintCanvas, 0, 0, srcW, srcH, destX, destY, destW, destH);
@@ -55,9 +48,9 @@ window.addEventListener('load', function () {
     const LEVEL_CONFIG = {
         1: {
             waves: [
-                { type: 'skeleton_white', count: 1 },
-                { type: 'flying', count: 1 },
-                // { type: 'mixed_level1', count: 12 },
+                { type: 'skeleton_white', count: 10 },
+                { type: 'flying', count: 10 },
+                { type: 'mixed_level1', count: 12 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 3000,
@@ -121,9 +114,9 @@ window.addEventListener('load', function () {
         },
         7: {
             waves: [
-                { type: 'flying', count: 6 },
-                { type: 'arcane_archer', count: 5 },
-                { type: 'mixed_level3', count: 7 },
+                { type: 'flying', count: 19 },
+                { type: 'arcane_archer', count: 19 },
+                { type: 'mixed_level3', count: 15 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1400,
@@ -132,8 +125,8 @@ window.addEventListener('load', function () {
         },
         8: {
             waves: [
-                { type: 'skeleton_white', count: 6 },
-                { type: 'demon', count: 5 },
+                { type: 'skeleton_white', count: 20 },
+                { type: 'demon', count: 21 },
                 { type: 'mixed_level3', count: 8 },
                 { type: 'boss', count: 1 },
             ],
@@ -143,9 +136,9 @@ window.addEventListener('load', function () {
         },
         9: {
             waves: [
-                { type: 'skeleton_yellow', count: 6 },
-                { type: 'arcane_archer', count: 6 },
-                { type: 'mixed_level3', count: 9 },
+                { type: 'skeleton_yellow', count: 22 },
+                { type: 'arcane_archer', count: 23 },
+                { type: 'mixed_level3', count: 12 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1200,
@@ -154,7 +147,9 @@ window.addEventListener('load', function () {
         },
         10: {
             waves: [
-                { type: 'mixed_level3', count: 8 },
+                { type: 'skeleton_yellow', count: 23 },
+                { type: 'arcane_archer', count: 23 },
+                { type: 'mixed_level3', count: 22 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1000,
@@ -579,7 +574,6 @@ window.addEventListener('load', function () {
             const H = this.heroNames[hero];
             const bName = this.bossNames[level];
 
-            // Post-boss: the defeated boss's last words, then Amarjeet reacts
             const dialogueDb = {
                 1: [
                     { speaker: 'amarjeet', name: "AMARJEET", text: "Ek aur rakshak gir gaya." },
@@ -600,7 +594,7 @@ window.addEventListener('load', function () {
                     { speaker: 'boss', name: "SPIRIT", text: "World Tree ko dhoondo. Lakdi hi infinity ki dushman hai." },
                     { speaker: 'hero', name: H, text: "Lakdi ek black hole ko hara sakti hai?" },
                     { speaker: 'boss', name: "SPIRIT", text: "Srishti hi tabahi ko hara sakti hai." },
-                    { speaker: 'amarjeet', name: "AMARJEET", text: "..." } // Watches silently
+                    { speaker: 'amarjeet', name: "AMARJEET", text: "..." }
                 ],
                 5: [
                     { speaker: 'hero', name: H, text: "[WORLD TREE STICK mil gayi]" },
@@ -1053,32 +1047,48 @@ window.addEventListener('load', function () {
                 this.waveAnnounce = 'BOSS INCOMING!';
                 this.waveAnnTimer = 0;
                 this.enemyInterval = 999999;
-                this.shake = 450;
 
                 // ── Boss dialogue khatam hone ke BAAD hi boss spawn hoga ──
                 const spawnBossNow = () => {
-                    const lvlMod = this.level % 10 || 10;
-                    if (lvlMod === 10) {
-                        this.enemies.push(new BossEnemy(this, 'amarjeet')); // Level 10 & 20: Final Boss
-                    } else if (lvlMod === 9) {
-                        this.enemies.push(new BossEnemy(this, 'abyss_knight')); // Level 9 & 19: Abyss Knight
-                    } else if (lvlMod === 8) {
-                        this.enemies.push(new BossEnemy(this, 'frost_wyrm')); // Level 8 & 18: Frost Wyrm
-                    } else if (lvlMod === 7) {
-                        this.enemies.push(new BossEnemy(this, 'storm_seraph')); // Level 7 & 17: Storm Seraph
-                    } else if (lvlMod === 6) {
-                        this.enemies.push(new BossEnemy(this, 'crystal_titan')); // Level 6 & 16: Crystal Titan
-                    } else if (lvlMod === 5) {
-                        this.enemies.push(new BossEnemy(this, 'impaler')); // Level 5 & 15: Impaler
-                    } else if (lvlMod === 4) {
-                        this.enemies.push(new MinoBoss(this));         // Level 4 & 14: Mino boss
-                    } else if (lvlMod === 3) {
-                        this.enemies.push(new BossEnemy(this, 'demon_lord')); // Level 3 & 13: Demon Lord
-                    } else if (lvlMod === 2) {
-                        this.enemies.push(new BossEnemy(this, 'mecha_stone')); // Level 2 & 12: Mecha Stone
-                    } else {
-                        this.enemies.push(new BossEnemy(this, 'boss_level_1')); // Level 1 & 11: default
+                    // Screen shake jab dialogue khatam ho
+                    this.shake = 450;
+
+                    // BGM band karo, boss intro music bajao
+                    if (this.audio) {
+                        this.audio.stopBGM();
+                        this.audio.playBossIntro();
                     }
+
+                    const lvlMod = this.level % 10 || 10;
+                    let newBoss;
+                    if (lvlMod === 10) {
+                        newBoss = new BossEnemy(this, 'amarjeet'); // Level 10 & 20: Final Boss
+                    } else if (lvlMod === 9) {
+                        newBoss = new BossEnemy(this, 'abyss_knight'); // Level 9 & 19: Abyss Knight
+                    } else if (lvlMod === 8) {
+                        newBoss = new BossEnemy(this, 'frost_wyrm'); // Level 8 & 18: Frost Wyrm
+                    } else if (lvlMod === 7) {
+                        newBoss = new BossEnemy(this, 'storm_seraph'); // Level 7 & 17: Storm Seraph
+                    } else if (lvlMod === 6) {
+                        newBoss = new BossEnemy(this, 'crystal_titan'); // Level 6 & 16: Crystal Titan
+                    } else if (lvlMod === 5) {
+                        newBoss = new BossEnemy(this, 'impaler'); // Level 5 & 15: Impaler
+                    } else if (lvlMod === 4) {
+                        newBoss = new MinoBoss(this);         // Level 4 & 14: Mino boss
+                    } else if (lvlMod === 3) {
+                        newBoss = new BossEnemy(this, 'demon_lord'); // Level 3 & 13: Demon Lord
+                    } else if (lvlMod === 2) {
+                        newBoss = new BossEnemy(this, 'mecha_stone'); // Level 2 & 12: Mecha Stone
+                    } else {
+                        newBoss = new BossEnemy(this, 'boss_level_1'); // Level 1 & 11: default
+                    }
+
+                    // Boss ko introLocked mode mein spawn karo
+                    newBoss.introLocked = true;
+                    newBoss.introTimer = 0;
+                    newBoss.introDuration = 100; // 2 sec khada raho, phir roar
+                    newBoss.introRoarPlayed = false;
+                    this.enemies.push(newBoss);
                 };
 
                 // Trigger Pre-Boss Dialogue cutscene — boss spawn dialogue ke baad!
@@ -1129,23 +1139,16 @@ window.addEventListener('load', function () {
         }
 
         spawnDamageText(x, y, amount) {
-            // RPG-style scale calculation: display value is around amount * 85 + random variance
             const baseMultiplier = 85;
             const displayVal = Math.round(amount * baseMultiplier + (Math.random() - 0.5) * 60);
 
-            // Determine if it is a critical / special hit
             const isCrit = amount > 12 || Math.random() < 0.3;
 
-            // Random horizontal velocity to scatter numbers slightly
             const vx = (Math.random() - 0.5) * 4;
-            // Upward initial velocity for the bounce
             const vy = -7 - Math.random() * 4;
-            // Gravity to pull it back down
             const gravity = 0.38;
-            // Slight starting angle (tilt)
             const angle = (Math.random() - 0.5) * 0.28;
 
-            // Optional badge text like "DOUBLE", "CRIT", "MAX"
             let badgeText = null;
             if (isCrit) {
                 const r = Math.random();
@@ -1164,8 +1167,8 @@ window.addEventListener('load', function () {
                 vy: vy,
                 gravity: gravity,
                 angle: angle,
-                scale: 1.8, // starts large (pop)
-                life: 900,  // life in milliseconds
+                scale: 1.8,
+                life: 900,
                 maxLife: 900
             });
         }
@@ -1218,18 +1221,12 @@ window.addEventListener('load', function () {
             }
         }
 
-        /**
-         * Central damage handler for all sources that damage the player.
-         * Returns true if damage was actually applied (not blocked by shield).
-         */
         hurtPlayer(damage, isBossKill = false) {
             if (this.hitCooldown > 0) return false;
             const player = this.player;
             if (!player || player.isDead) return false;
 
-            // Shield blocks all damage
             if (player.shieldActive) {
-                // Show a blocked-hit effect so player feels the shield working
                 this.spawnHitSparks(
                     player.x + player.width / 2,
                     player.y + player.height / 2,
@@ -1325,46 +1322,33 @@ window.addEventListener('load', function () {
             }
         }
 
-        /**
-         * Spawns animated coin objects that arc from (fromX, fromY) to the HUD coin panel.
-         * count controls how many coin tokens fly (capped at 8 for perf).
-         */
         spawnCoinPickup(fromX, fromY, count) {
-            // Ground level where coins land (canvas ground)
             const groundY = this.height - this.groundMargin - 10;
-            // HUD coin panel centre: hx=16, hh+hy = 86, cy = 94 => target ~(86, 110)
             const hudX = 86;
             const hudY = 110;
             const numTokens = Math.min(count, 8);
             for (let i = 0; i < numTokens; i++) {
-                // Initial scatter so coins don't all overlap
                 const sx = fromX + (Math.random() - 0.5) * 60;
                 const sy = fromY;
-                // Random horizontal drift while falling
                 const vx = (Math.random() - 0.5) * 3.5;
-                const vy = -(Math.random() * 3 + 1); // small upward pop first
+                const vy = -(Math.random() * 3 + 1);
                 const value = Math.floor(count / numTokens) + (i < (count % numTokens) ? 1 : 0);
 
                 this.coinPickups.push({
-                    // position
                     x: sx, y: sy,
-                    // physics (phase 1: fall)
                     vx, vy,
                     gravity: 0.55,
                     bounced: false,
                     groundY,
-                    // phase 3 bezier
-                    sx: 0, sy: 0,   // filled on pickup
+                    sx: 0, sy: 0,
                     cpx: 0, cpy: 0,
                     hudX, hudY,
-                    // state
-                    phase: 1,   // 1 = falling, 2 = waiting on ground, 3 = flying to hud
+                    phase: 1,
                     value,
-                    flyDelay: 120 + i * 80, // ms to wait after pickup before flying
+                    flyDelay: 120 + i * 80,
                     flyDelayTimer: 0,
                     t: 0,
                     flySpeed: 0.026 + Math.random() * 0.01,
-                    // visuals
                     size: 7 + Math.random() * 4,
                     alpha: 1,
                     done: false,
@@ -1372,9 +1356,6 @@ window.addEventListener('load', function () {
             }
         }
 
-        /**
-         * Draws animated coin pickups in pure screen-space (outside shake transform).
-         */
         drawCoinPickups(context) {
             if (!this.coinPickups || this.coinPickups.length === 0) return;
             this.coinPickups.forEach(c => {
@@ -1426,17 +1407,19 @@ window.addEventListener('load', function () {
 
                     this.startTransition = false;
                     this.gameStarted = true;
-                    this.levelSelectMode = false; // reset after transition completes
+                    this.levelSelectMode = false;
                     if (this.storyDialogueManager) {
                         this.storyDialogueManager.startLevelIntro(this.level);
                     }
                 } else {
-                    // Don't update game objects during the transition fade
                     return;
                 }
             }
 
             this.scrollSpeed = (this.background && typeof this.background._scrollSpeed === 'function') ? this.background._scrollSpeed() : 0;
+            if (this.enemies.some(e => e.isBoss && e.introLocked)) {
+                this.scrollSpeed = 0;
+            }
             const scrollSpeed = this.scrollSpeed;
 
             this.floatingTexts.forEach(t => { t.x -= scrollSpeed; t.y += t.vy; t.life -= deltaTime * 0.001; });
@@ -1446,9 +1429,7 @@ window.addEventListener('load', function () {
                 t.life -= deltaTime;
                 t.x += t.vx - scrollSpeed;
                 t.y += t.vy;
-                t.vy += t.gravity * (deltaTime / 16.6); // Scale physics to frame rate
-
-                // Interpolate scale down to 1.0 from 1.8 over the first 150ms of life
+                t.vy += t.gravity * (deltaTime / 16.6);
                 const elapsed = t.maxLife - t.life;
                 if (elapsed < 150) {
                     t.scale = 1.8 - (elapsed / 150) * 0.8;
@@ -1517,6 +1498,9 @@ window.addEventListener('load', function () {
                         c.sy = c.y;
                         c.cpx = c.x * 0.5 + c.hudX * 0.5 + (Math.random() - 0.5) * 120;
                         c.cpy = Math.min(c.y, c.hudY) - 120 - Math.random() * 80;
+                        if (this.audio) {
+                            this.audio.playSFX('coin_collect');
+                        }
                     }
                 } else if (c.phase === 3) {
                     // Phase 3: wait then fly to HUD via bezier
@@ -1545,9 +1529,8 @@ window.addEventListener('load', function () {
                 }
                 if (this.gameOverTimer < this.gameOverDelay) this.gameOverTimer += deltaTime;
                 this.shake = 0;
-                this.speed = 0; // Stop background scrolling on game over / level complete
+                this.speed = 0;
                 this.background.update();
-                // keep updating player so death animation finishes rendering
                 if (this.player.isDead) this.player.update(this.input.keys, deltaTime);
                 return;
             }
@@ -1580,9 +1563,7 @@ window.addEventListener('load', function () {
                 }
 
                 const allSpawned = this.waveSpawnedCount >= this._waveTotal();
-                // Boss is considered defeated as soon as HP hits 0 (don't wait for full death fade)
-                const allDead = this.enemies.every(e => e.markedForDeletion || (e.isBoss && e.currentHP <= 0));
-                // Dialogue chal rahi ho to wave complete mat karo — boss abhi spawn nahi hua
+                const allDead = this.enemies.every(e => e.markedForDeletion);
                 const dialogueActive = this.storyDialogueManager && this.storyDialogueManager.active;
                 if (allSpawned && allDead && wave && !this.waveComplete && !dialogueActive) {
                     this.waveComplete = true;
@@ -1592,7 +1573,6 @@ window.addEventListener('load', function () {
 
                 if (this.waveComplete) {
                     this.waveTransTimer += deltaTime;
-                    // Use short 400ms delay after boss wave; longer 1800ms between mid-waves
                     const transDelay = (this.waveIndex === this.waveDef.length - 1) ? 400 : this.waveTransDelay;
                     if (this.waveTransTimer > transDelay) {
                         if (this.waveIndex < this.waveDef.length - 1) {
@@ -1633,7 +1613,6 @@ window.addEventListener('load', function () {
                             enemy.x < maxX && enemy.x + enemy.width > minX &&
                             enemy.y < this.player.y + this.player.height && enemy.y + enemy.height > this.player.y;
 
-                        // Melee hits halfway through the animation
                         const hitFrame = Math.max(1, Math.floor(this.player.maxFrame / 2));
                         if (attackHit && this.player.currentState.state === 'ATTACK' && this.player.frameX >= hitFrame) {
                             if (!enemy._hitByPlayerThisSwing) {
@@ -1662,12 +1641,11 @@ window.addEventListener('load', function () {
 
                         const coinsEarned = Math.max(1, Math.floor(pts / 10));
                         this._addFloatingText(e.x + e.width / 2, e.y - 10, '+' + pts, this.multiplier > 1 ? '#ffd700' : '#ffffff');
-                        // Spawn animated coin pickups that drop on the ground for player collection
                         this.spawnCoinPickup(e.x + e.width / 2, e.y + e.height * 0.4, coinsEarned);
                     }
                 });
 
-                this.enemies = this.enemies.filter(e => !e.markedForDeletion && e.x + e.width > -400);
+                this.enemies = this.enemies.filter(e => !e.markedForDeletion && (e.isBoss || e.x + e.width > -400));
 
                 if (this.portal) {
                     this.portal.update(deltaTime);
@@ -1679,7 +1657,6 @@ window.addEventListener('load', function () {
         }
 
         draw(context) {
-            // --- Start / Transition screens ---
             if (!this.gameStarted) {
                 this.background.draw(context);
 
@@ -1687,14 +1664,12 @@ window.addEventListener('load', function () {
                     const progress = Math.min(1, this.startTransitionTimer / this.startTransitionDuration);
 
                     if (this.levelSelectMode) {
-                        // Launching from level select: clean background fade-to-black (no start screen)
                         context.save();
                         context.globalAlpha = progress;
                         context.fillStyle = 'black';
                         context.fillRect(0, 0, this.width, this.height);
                         context.restore();
                     } else {
-                        // Launching from canvas START GAME button: start screen fades out
                         context.save();
                         context.globalAlpha = Math.max(0, 1 - progress);
                         context.translate(0, progress * -40);
@@ -1713,13 +1688,9 @@ window.addEventListener('load', function () {
                 return;
             }
 
-            // If transition is active while game is running (e.g. level change),
-            // draw the game background first then fade to black on top for a cinematic look
             if (this.startTransition) {
                 const progress = Math.min(1, this.startTransitionTimer / this.startTransitionDuration);
-                // Draw background so it's visible under the fade
                 this.background.draw(context);
-                // Then draw black overlay that fades IN (0 → 1)
                 context.save();
                 context.globalAlpha = progress;
                 context.fillStyle = 'black';
@@ -1813,21 +1784,17 @@ window.addEventListener('load', function () {
                 const fontSize = t.isCrit ? 34 : 26;
                 context.font = `900 ${fontSize}px "Orbitron", "Impact", sans-serif`;
 
-                // Thick black border/outline (important to pop out against chaotic backgrounds)
                 context.lineJoin = 'round';
                 context.strokeStyle = '#000000';
                 context.lineWidth = t.isCrit ? 8 : 6;
                 context.strokeText(t.text, 0, 0);
 
-                // Vertical gradient for body fill
                 const grad = context.createLinearGradient(0, -fontSize / 2, 0, fontSize / 2);
                 if (t.isCrit) {
-                    // Premium Rainbow/Critical color (Yellow top, magenta/purple bottom)
                     grad.addColorStop(0, '#ffff55');
                     grad.addColorStop(0.4, '#ff33aa');
                     grad.addColorStop(1, '#8800ff');
                 } else {
-                    // Regular hit: Orange/Red gradient (White top, yellow middle, orange/red bottom)
                     grad.addColorStop(0, '#ffffff');
                     grad.addColorStop(0.3, '#ffea00');
                     grad.addColorStop(1, '#ff3d00');
@@ -1835,11 +1802,9 @@ window.addEventListener('load', function () {
                 context.fillStyle = grad;
                 context.fillText(t.text, 0, 0);
 
-                // If there's badge text like "DOUBLE" or "CRIT", draw it above the number
                 if (t.badgeText) {
                     context.save();
                     context.translate(0, -fontSize * 0.95);
-                    // Add slight bounce/wiggle using sinus based on lifetime
                     const wiggle = Math.sin(t.life * 0.035) * 2;
                     context.translate(0, wiggle);
 
@@ -1848,7 +1813,6 @@ window.addEventListener('load', function () {
                     context.lineWidth = 4;
                     context.strokeText(t.badgeText, 0, 0);
 
-                    // Create a badge gradient (e.g. bright yellow to orange/red)
                     const badgeGrad = context.createLinearGradient(0, -6, 0, 6);
                     if (t.badgeText === 'DOUBLE') {
                         badgeGrad.addColorStop(0, '#ff9100');
@@ -2131,8 +2095,8 @@ window.addEventListener('load', function () {
             const levelTitle = titles[this.level] || 'UNKNOWN AREA';
             context.font = '800 60px "Poppins"';
             context.textAlign = 'center';
-            
-            const textGrad = context.createLinearGradient(W/2 - 250, H/2 - 65, W/2 + 250, H/2 - 65);
+
+            const textGrad = context.createLinearGradient(W / 2 - 250, H / 2 - 65, W / 2 + 250, H / 2 - 65);
             textGrad.addColorStop(0, '#ffffff');
             textGrad.addColorStop(0.3, '#ffffff');
             textGrad.addColorStop(0.7, th.accent);
@@ -2150,7 +2114,7 @@ window.addEventListener('load', function () {
             context.font = '800 15px "Poppins"';
             context.fillStyle = 'rgba(255, 255, 255, 0.75)';
             context.textAlign = 'center';
-            
+
             const subTextW = context.measureText(subText).width;
             const lineLength = 60;
             const lineGap = 16;
@@ -2160,7 +2124,7 @@ window.addEventListener('load', function () {
 
             context.strokeStyle = hexToRgba(th.accent, 0.4);
             context.lineWidth = 2;
-            
+
             // Left horizontal line
             context.beginPath();
             context.moveTo(W / 2 - subTextW / 2 - lineGap - lineLength, subY - 5);

@@ -309,16 +309,85 @@ export class MinoBoss {
             this.hasEnteredScreen = true;
         }
 
+        // ── Boss Intro Sequence: dheere aao, 4 sec ruko, roar karo, tab attack ──
+        if (this.introLocked) {
+            // Boss dheere dheere chale screen mein
+            if (this.x > this.game.width - this.width - 80) {
+                this.x -= 1.5 * (deltaTime / 16.6); // slow walk speed
+                this._setState('WALK');
+                // Jab tak boss walk kar raha hai, shake hoti rahe
+                this.game.shake = Math.max(this.game.shake, 18);
+            } else {
+                // Position par aa gaya, ab IDLE mein ruko
+                this._setState('IDLE');
+                this.introTimer = (this.introTimer || 0) + deltaTime;
+
+                if (!this.introRoarPlayed && this.introTimer >= this.introDuration) {
+                    this.introRoarPlayed = true;
+                    if (this.game.audio) {
+                        // Roar bajao — khatam hote hi boss intro music band karo aur attack shuru
+                        this.game.audio.playSFXWithEnded('boss_roar', () => {
+                            this.game.audio.stopBossIntro();
+                            this.introLocked = false;
+                            this.attackTimer = 0;
+                        });
+                    } else {
+                        // Audio nahi hai toh seedha unlock
+                        this.introLocked = false;
+                        this.attackTimer = 0;
+                    }
+                    this.game.shake = 300;
+                }
+            }
+
+            this.projectiles.forEach(p => p.update(deltaTime));
+            this.projectiles = this.projectiles.filter(p => !p.markedForDeletion);
+
+            this.frameTimer += deltaTime;
+            if (this.frameTimer > this.frameInterval) {
+                this.frameTimer = 0;
+                this.frameX = (this.frameX + 1) % (this.frameCounts[this.state] || 1);
+            }
+            return;
+        }
+
         this.projectiles.forEach(p => p.update(deltaTime));
         this.projectiles = this.projectiles.filter(p => !p.markedForDeletion);
 
+
         if (this.state === 'TELEPORT') {
             const player = this.game.player;
+            const speed = deltaTime / 16.6; // normalize to 60fps
+
             if (this.teleportPhase === 0) {
-                this.teleportAlpha -= 0.05;
+                // Fade out + shrink
+                this.teleportAlpha -= 0.07 * speed;
+                this.scaleX += (0 - this.scaleX) * 0.18 * speed;
+                this.scaleY += (0 - this.scaleY) * 0.18 * speed;
+
                 if (this.teleportAlpha <= 0) {
                     this.teleportAlpha = 0;
                     this.teleportPhase = 1;
+
+                    // Departure particle burst
+                    for (let i = 0; i < 18; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const spd = Math.random() * 8 + 3;
+                        this.game.particles.push({
+                            x: this.x + this.width / 2 + (Math.random() - 0.5) * 60,
+                            y: this.y + this.height / 2 + (Math.random() - 0.5) * 60,
+                            vx: Math.cos(angle) * spd,
+                            vy: Math.sin(angle) * spd - 2,
+                            size: Math.random() * 9 + 4,
+                            alpha: 0.9,
+                            color: 'rgba(160, 60, 255, 0.85)',
+                            type: 'spark',
+                            decay: 0.88,
+                            gravity: 0.05
+                        });
+                    }
+
+                    // Reposition next to player
                     const offset = 150;
                     if (player.facingLeft) {
                         this.x = player.x + player.width + offset;
@@ -326,15 +395,52 @@ export class MinoBoss {
                         this.x = player.x - this.width - offset;
                     }
                     this.facingLeft = !player.facingLeft;
+
+                    // Reset scale for appear animation
+                    this.scaleX = 0;
+                    this.scaleY = 0;
+
+                    // Arrival particle burst
+                    for (let i = 0; i < 22; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const spd = Math.random() * 10 + 4;
+                        this.game.particles.push({
+                            x: this.x + this.width / 2 + (Math.random() - 0.5) * 40,
+                            y: this.y + this.height / 2 + (Math.random() - 0.5) * 40,
+                            vx: Math.cos(angle) * spd,
+                            vy: Math.sin(angle) * spd - 3,
+                            size: Math.random() * 11 + 5,
+                            alpha: 1.0,
+                            color: 'rgba(200, 100, 255, 0.9)',
+                            type: 'spark',
+                            decay: 0.87,
+                            gravity: 0.04
+                        });
+                    }
+                    this.game.shake = Math.max(this.game.shake, 80);
+                    this.teleportTintTimer = 200; // tint flash on appear
                 }
             } else if (this.teleportPhase === 1) {
-                this.teleportAlpha += 0.05;
+                // Fade in + overshoot scale
+                this.teleportAlpha += 0.10 * speed;
+                // Overshoot: scale goes past 1.0 then settles
+                const targetScale = 1.25;
+                this.scaleX += (targetScale - this.scaleX) * 0.22 * speed;
+                this.scaleY += (targetScale - this.scaleY) * 0.22 * speed;
+
                 if (this.teleportAlpha >= 1) {
                     this.teleportAlpha = 1;
                     this.pendingAttackType = 'melee';
                     this._setState('ATTACK');
+                    // scaleX/Y will ease back to 1.0 via normal easing in update
                 }
             }
+
+            // Tint timer for purple flash on arrival
+            if (this.teleportTintTimer > 0) {
+                this.teleportTintTimer -= deltaTime;
+            }
+
             return;
         }
 
@@ -477,8 +583,8 @@ export class MinoBoss {
         this.velocityX *= 0.88;
         this.x += this.velocityX * deltaTime * 0.06;
 
-        // ── Boundary clamp: MinoBoss screen se bahar nahi jayega ──
-        const minX = -this.width * 0.3;
+        // ── Boundary clamp: MinoBoss screen se bahar nahi jayega (right edge only, left edge allows offscreen) ──
+        const minX = -this.width - 50;
         const maxX = this.game.width - this.width * 0.7;
         if (this.x < minX) {
             this.x = minX;
@@ -558,6 +664,11 @@ export class MinoBoss {
         if (this.flashTimer > 0) {
             context.drawImage(img, -this.width / 2, -this.height, this.width, this.height);
             window.drawTintedSprite(context, img, 0, 0, img.width, img.height, -this.width / 2, -this.height, this.width, this.height, 'rgba(255, 255, 255, 0.95)', 1.0);
+        } else if (this.teleportTintTimer > 0) {
+            // Purple flash on teleport arrival
+            const tintStrength = Math.min(0.85, this.teleportTintTimer / 200);
+            context.drawImage(img, -this.width / 2, -this.height, this.width, this.height);
+            window.drawTintedSprite(context, img, 0, 0, img.width, img.height, -this.width / 2, -this.height, this.width, this.height, `rgba(180, 60, 255, ${tintStrength})`, 1.0);
         } else if (this.state === 'HURT') {
             context.drawImage(img, -this.width / 2, -this.height, this.width, this.height);
             window.drawTintedSprite(context, img, 0, 0, img.width, img.height, -this.width / 2, -this.height, this.width, this.height, 'rgba(255, 0, 0, 0.45)', 1.0);
