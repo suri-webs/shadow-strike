@@ -819,98 +819,349 @@
     </div>
 
     <!-- Dropbox Card Selection Overlay -->
-    <div id="dropbox-overlay" style="
-        position: fixed; inset: 0; z-index: 10000;
-        background: rgba(8, 6, 12, 0.92);
-        backdrop-filter: blur(16px);
-        display: none; align-items: center; justify-content: center;
-        flex-direction: column;
-        font-family: 'Orbitron', 'Segoe UI', sans-serif;
-        color: #fff;
-    ">
-        <h2 style="
-            font-size: 32px; font-weight: 900; letter-spacing: 4px;
-            color: #00e5ff; text-shadow: 0 0 20px rgba(0, 229, 255, 0.6);
-            margin-bottom: 12px; text-transform: uppercase; text-align: center;
-        ">CHOOSE YOUR REWARD</h2>
-        <p
-            style="font-family: 'Rajdhani', sans-serif; font-size: 18px; color: rgba(255,255,255,0.6); margin-bottom: 45px; text-align: center; max-width: 650px; padding: 0 20px;">
-            Select one reward card. Holds to charge specials. Trigger with [T] or tap the special touch button.
-        </p>
-        <div style="display: flex; gap: 35px; max-width: 1000px; justify-content: center; flex-wrap: wrap;">
-            <!-- Card 1: Coins -->
-            <div id="card-coins" class="dropbox-card" style="
-                width: 240px; padding: 25px; background: rgba(15, 12, 22, 0.85);
-                border: 1.5px solid rgba(255, 255, 255, 0.1); border-radius: 16px;
-                text-align: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-            ">
-                <img src="asset/dropboxs/coin.png"
-                    style="width: 85px; height: 85px; object-fit: contain; margin-bottom: 20px; filter: drop-shadow(0 4px 10px rgba(255, 215, 0, 0.2));" />
-                <h3
-                    style="font-size: 19px; color: #ffd700; margin-bottom: 12px; letter-spacing: 1px; font-weight: 800;">
-                    GOLD COINS</h3>
-                <p
-                    style="font-family: 'Rajdhani', sans-serif; font-size: 15px; line-height: 1.4; color: rgba(255,255,255,0.75); margin: 0;">
-                    Get +500 Coins immediately. Use them to unlock powerful champions and upgrades.
-                </p>
-            </div>
-            <!-- Card 2: Kamehameha -->
-            <div id="card-kamehameha" class="dropbox-card" style="
-                width: 240px; padding: 25px; background: rgba(15, 12, 22, 0.85);
-                border: 1.5px solid rgba(255, 255, 255, 0.1); border-radius: 16px;
-                text-align: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-            ">
-                <img src="asset/dropboxs/kamehameha.png"
-                    style="width: 85px; height: 85px; object-fit: contain; margin-bottom: 20px; filter: drop-shadow(0 4px 10px rgba(0, 229, 255, 0.2));" />
-                <h3
-                    style="font-size: 19px; color: #00e5ff; margin-bottom: 12px; letter-spacing: 1px; font-weight: 800;">
-                    KAMEHAMEHA</h3>
-                <p
-                    style="font-family: 'Rajdhani', sans-serif; font-size: 15px; line-height: 1.4; color: rgba(255,255,255,0.75); margin: 0;">
-                    Dragon Ball energy beam. Locks position and shreds 35% boss HP. (1 Use - Hold T)
-                </p>
-            </div>
-            <!-- Card 3: Rasengan -->
-            <div id="card-rasengan" class="dropbox-card" style="
-                width: 240px; padding: 25px; background: rgba(15, 12, 22, 0.85);
-                border: 1.5px solid rgba(255, 255, 255, 0.1); border-radius: 16px;
-                text-align: center; cursor: pointer; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-                box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-            ">
-                <img src="asset/dropboxs/rasengan.png"
-                    style="width: 85px; height: 85px; object-fit: contain; margin-bottom: 20px; filter: drop-shadow(0 4px 10px rgba(234, 128, 252, 0.2));" />
-                <h3
-                    style="font-size: 19px; color: #ea80fc; margin-bottom: 12px; letter-spacing: 1px; font-weight: 800;">
-                    RASENGAN</h3>
-                <p
-                    style="font-family: 'Rajdhani', sans-serif; font-size: 15px; line-height: 1.4; color: rgba(255,255,255,0.75); margin: 0;">
-                    Naruto chakra slam. Leap-targets enemies and shreds 35% boss HP. (1 Use - Hold T)
-                </p>
+    <div id="dropbox-overlay">
+        <div class="dropbox-wrapper">
+            <h2 class="dropbox-title">CHOOSE YOUR REWARD</h2>
+            <p class="dropbox-desc">
+                Select one reward card. Holds to charge specials. Trigger with [T] or tap the special touch button.
+            </p>
+            <div class="dropbox-cards-container">
+                <!-- Card 1: Coins -->
+                <div id="card-coins" class="dropbox-card">
+                    <img src="asset/dropboxs/coin.png" />
+                    <div class="dropbox-card-info">
+                        <h3>GOLD COINS</h3>
+                        <p>
+                            Get +500 Coins immediately. Use them to unlock powerful champions and upgrades.
+                        </p>
+                    </div>
+                </div>
+                <!-- Card 2: Kamehameha -->
+                <div id="card-kamehameha" class="dropbox-card">
+                    <img src="asset/dropboxs/kamehameha.png" />
+                    <div class="dropbox-card-info">
+                        <h3>KAMEHAMEHA</h3>
+                        <p>
+                            Dragon Ball energy beam. Locks position and shreds 35% boss HP. (1 Use - Hold T)
+                        </p>
+                    </div>
+                </div>
+                <!-- Card 3: Rasengan -->
+                <div id="card-rasengan" class="dropbox-card">
+                    <img src="asset/dropboxs/rasengan.png" />
+                    <div class="dropbox-card-info">
+                        <h3>RASENGAN</h3>
+                        <p>
+                            Naruto chakra slam. Leap-targets enemies and shreds 35% boss HP. (1 Use - Hold T)
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <style>
+        /* Dropbox Overlay Styles */
+        #dropbox-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: rgba(8, 6, 12, 0.93);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            display: none; /* Toggled to flex in JS */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            padding: 40px 20px;
+            box-sizing: border-box;
+            font-family: 'Orbitron', 'Segoe UI', sans-serif;
+            color: #fff;
+        }
+
+        /* Container wrapper that centers content cleanly and enables scrolling without top truncation */
+        .dropbox-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+            width: 100%;
+            max-width: 1000px;
+            box-sizing: border-box;
+        }
+
+        .dropbox-title {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: #00e5ff;
+            text-shadow: 0 0 20px rgba(0, 229, 255, 0.6);
+            margin: 0 0 12px 0;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .dropbox-desc {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0 0 45px 0;
+            text-align: center;
+            max-width: 650px;
+            padding: 0 20px;
+            line-height: 1.5;
+        }
+
+        .dropbox-cards-container {
+            display: flex;
+            gap: 35px;
+            width: 100%;
+            justify-content: center;
+            flex-wrap: wrap;
+            box-sizing: border-box;
+        }
+
+        .dropbox-card {
+            width: 240px;
+            padding: 25px;
+            background: rgba(15, 12, 22, 0.85);
+            border: 1.5px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .dropbox-card img {
+            width: 85px;
+            height: 85px;
+            object-fit: contain;
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .dropbox-card-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            width: 100%;
+        }
+
+        .dropbox-card h3 {
+            font-size: 19px;
+            margin: 0 0 12px 0;
+            letter-spacing: 1px;
+            font-weight: 800;
+        }
+
+        .dropbox-card p {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 15px;
+            line-height: 1.4;
+            color: rgba(255, 255, 255, 0.75);
+            margin: 0;
+        }
+
         .dropbox-card:hover {
             transform: translateY(-8px);
-            background: rgba(25, 20, 36, 0.95) !important;
+            background: rgba(25, 20, 36, 0.95);
+        }
+
+        .dropbox-card:hover img {
+            transform: scale(1.1);
+        }
+
+        #card-coins h3 {
+            color: #ffd700;
+        }
+
+        #card-coins img {
+            filter: drop-shadow(0 4px 10px rgba(255, 215, 0, 0.2));
         }
 
         #card-coins:hover {
-            border-color: #ffd700 !important;
-            box-shadow: 0 0 25px rgba(255, 215, 0, 0.3) !important;
+            border-color: #ffd700;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.35);
+        }
+
+        #card-kamehameha h3 {
+            color: #00e5ff;
+        }
+
+        #card-kamehameha img {
+            filter: drop-shadow(0 4px 10px rgba(0, 229, 255, 0.2));
         }
 
         #card-kamehameha:hover {
-            border-color: #00e5ff !important;
-            box-shadow: 0 0 25px rgba(0, 229, 255, 0.3) !important;
+            border-color: #00e5ff;
+            box-shadow: 0 0 25px rgba(0, 229, 255, 0.35);
+        }
+
+        #card-rasengan h3 {
+            color: #ea80fc;
+        }
+
+        #card-rasengan img {
+            filter: drop-shadow(0 4px 10px rgba(234, 128, 252, 0.2));
         }
 
         #card-rasengan:hover {
-            border-color: #ea80fc !important;
-            box-shadow: 0 0 25px rgba(234, 128, 252, 0.3) !important;
+            border-color: #ea80fc;
+            box-shadow: 0 0 25px rgba(234, 128, 252, 0.35);
+        }
+
+        /* Responsive Media Queries */
+        
+        /* For mid-size screens or smaller heights */
+        @media (max-width: 900px) {
+            .dropbox-cards-container {
+                gap: 20px;
+            }
+            .dropbox-card {
+                width: 220px;
+                padding: 20px;
+            }
+            .dropbox-card img {
+                width: 75px;
+                height: 75px;
+                margin-bottom: 15px;
+            }
+            .dropbox-title {
+                font-size: 28px;
+            }
+            .dropbox-desc {
+                margin-bottom: 30px;
+                font-size: 16px;
+            }
+        }
+
+        /* Mobile layout & vertical constraints */
+        @media (max-width: 768px) {
+            #dropbox-overlay {
+                padding: 25px 15px;
+            }
+            .dropbox-title {
+                font-size: 24px;
+                letter-spacing: 2px;
+                margin-bottom: 8px;
+            }
+            .dropbox-desc {
+                font-size: 14px;
+                margin-bottom: 24px;
+            }
+            .dropbox-cards-container {
+                flex-direction: row;
+                justify-content: center;
+                gap: 15px;
+            }
+            .dropbox-card {
+                width: calc(33.333% - 10px);
+                min-width: 170px;
+                padding: 15px 10px;
+                border-radius: 12px;
+            }
+            .dropbox-card img {
+                width: 55px;
+                height: 55px;
+                margin-bottom: 10px;
+            }
+            .dropbox-card h3 {
+                font-size: 15px;
+                margin-bottom: 6px;
+            }
+            .dropbox-card p {
+                font-size: 12px;
+                line-height: 1.3;
+            }
+        }
+
+        /* Handheld small devices or very short landscape screens */
+        @media (max-height: 580px) {
+            #dropbox-overlay {
+                padding: 15px 10px;
+            }
+            .dropbox-title {
+                font-size: 20px;
+                margin-bottom: 4px;
+            }
+            .dropbox-desc {
+                font-size: 13px;
+                margin-bottom: 15px;
+            }
+            .dropbox-cards-container {
+                gap: 12px;
+            }
+            .dropbox-card {
+                width: 280px; /* Wider card to fit row layout */
+                padding: 12px;
+                flex-direction: row;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 12px;
+            }
+            .dropbox-card img {
+                width: 45px;
+                height: 45px;
+                margin-bottom: 0;
+            }
+            .dropbox-card-info {
+                align-items: flex-start;
+                text-align: left;
+            }
+            .dropbox-card h3 {
+                font-size: 14px;
+                margin-bottom: 2px;
+            }
+            .dropbox-card p {
+                font-size: 11px;
+                line-height: 1.25;
+            }
+            .dropbox-card:hover {
+                transform: translateY(-4px);
+            }
+        }
+
+        /* Extremely small screens (portrait/narrow) */
+        @media (max-width: 480px) {
+            .dropbox-cards-container {
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+                gap: 15px;
+            }
+            .dropbox-card {
+                width: 100%;
+                max-width: 320px;
+                flex-direction: row;
+                align-items: center;
+                justify-content: flex-start;
+                gap: 15px;
+                padding: 12px 15px;
+            }
+            .dropbox-card img {
+                width: 50px;
+                height: 50px;
+                margin-bottom: 0;
+            }
+            .dropbox-card-info {
+                align-items: flex-start;
+                text-align: left;
+            }
+            .dropbox-card h3 {
+                font-size: 15px;
+                margin-bottom: 2px;
+            }
+            .dropbox-card p {
+                font-size: 12px;
+            }
         }
     </style>
 

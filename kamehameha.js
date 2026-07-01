@@ -3,25 +3,25 @@ export class KamehamehaBeam {
         this.game = game;
         this.player = game.player;
         this.facingLeft = facingLeft;
-        
+
         // Initial coordinates (will lock to player's hands)
         this.x = x;
         this.y = y;
-        
+
         this.chargeTimer = 0;
         this.chargeDuration = 1200; // 1.2s charge phase
-        
+
         this.fireTimer = 0;
         this.fireDuration = 1500; // 1.5s fire phase
-        
+
         this.state = 'charging'; // 'charging' | 'firing'
         this.orbRadius = 5;
         this.maxOrbRadius = 40;
-        
+
         this.damage = 28; // Standard tick damage for regular enemies
         this.damageInterval = 100;
         this.damageTimer = 0;
-        
+
         this.markedForDeletion = false;
         this.particles = [];
 
@@ -87,7 +87,7 @@ export class KamehamehaBeam {
             // Once fully charged, transition to firing and consume the special move use!
             if (this.chargeTimer >= this.chargeDuration) {
                 this.state = 'firing';
-                
+
                 // Consume the special move charge now
                 this.game.specialMoveUses = 0;
                 this.game.activeSpecialMove = null;
@@ -101,7 +101,7 @@ export class KamehamehaBeam {
             }
         } else if (this.state === 'firing') {
             this.fireTimer += deltaTime;
-            
+
             // Screen shake while firing
             this.game.shake = Math.max(this.game.shake, 10);
 
@@ -227,7 +227,7 @@ export class KamehamehaBeam {
             const beamLength = this.game.width * 0.8;
             const direction = this.facingLeft ? -1 : 1;
             const endX = startX + direction * beamLength;
-            
+
             // Pulsing beam height
             const beamHeight = 65 + Math.sin(Date.now() * 0.06) * 8;
 
