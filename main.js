@@ -48,9 +48,9 @@ window.addEventListener('load', function () {
     const LEVEL_CONFIG = {
         1: {
             waves: [
-                { type: 'skeleton_white', count: 10 },
-                { type: 'flying', count: 10 },
-                { type: 'mixed_level1', count: 12 },
+                { type: 'skeleton_white', count: 3 },
+                { type: 'flying', count: 3 },
+                { type: 'mixed_level1', count: 4 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 3000,
@@ -59,9 +59,9 @@ window.addEventListener('load', function () {
         },
         2: {
             waves: [
-                { type: 'demon', count: 8 },
-                { type: 'skeleton_yellow', count: 10 },
-                { type: 'mixed_level2', count: 14 },
+                { type: 'demon', count: 3 },
+                { type: 'skeleton_yellow', count: 4 },
+                { type: 'mixed_level2', count: 6 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 2500,
@@ -70,9 +70,9 @@ window.addEventListener('load', function () {
         },
         3: {
             waves: [
-                { type: 'skeleton_white', count: 10 },
-                { type: 'arcane_archer', count: 13 },
-                { type: 'mixed_level3', count: 15 },
+                { type: 'skeleton_white', count: 4 },
+                { type: 'arcane_archer', count: 2 },
+                { type: 'mixed_level3', count: 6 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 2000,
@@ -81,9 +81,9 @@ window.addEventListener('load', function () {
         },
         4: {
             waves: [
-                { type: 'skeleton_yellow', count: 13 },
-                { type: 'arcane_archer', count: 14 },
-                { type: 'mixed_level3', count: 16 },
+                { type: 'skeleton_yellow', count: 4 },
+                { type: 'arcane_archer', count: 4 },
+                { type: 'mixed_level3', count: 8 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1800,
@@ -92,9 +92,9 @@ window.addEventListener('load', function () {
         },
         5: {
             waves: [
-                { type: 'demon', count: 15 },
-                { type: 'arcane_archer', count: 19 },
-                { type: 'mixed_level3', count: 16 },
+                { type: 'demon', count: 7 },
+                { type: 'arcane_archer', count: 6 },
+                { type: 'mixed_level3', count: 10 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1600,
@@ -103,9 +103,9 @@ window.addEventListener('load', function () {
         },
         6: {
             waves: [
-                { type: 'skeleton_yellow', count: 17 },
-                { type: 'mixed_level2', count: 15 },
-                { type: 'mixed_level3', count: 18 },
+                { type: 'skeleton_yellow', count: 6 },
+                { type: 'mixed_level2', count: 5 },
+                { type: 'mixed_level3', count: 6 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1500,
@@ -114,9 +114,9 @@ window.addEventListener('load', function () {
         },
         7: {
             waves: [
-                { type: 'flying', count: 19 },
-                { type: 'arcane_archer', count: 19 },
-                { type: 'mixed_level3', count: 15 },
+                { type: 'flying', count: 3 },
+                { type: 'arcane_archer', count: 6 },
+                { type: 'mixed_level3', count: 7 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1400,
@@ -125,9 +125,9 @@ window.addEventListener('load', function () {
         },
         8: {
             waves: [
-                { type: 'skeleton_white', count: 20 },
-                { type: 'demon', count: 21 },
-                { type: 'mixed_level3', count: 8 },
+                { type: 'skeleton_white', count: 7 },
+                { type: 'demon', count: 6 },
+                { type: 'mixed_level3', count: 5 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1300,
@@ -136,9 +136,9 @@ window.addEventListener('load', function () {
         },
         9: {
             waves: [
-                { type: 'skeleton_yellow', count: 22 },
-                { type: 'arcane_archer', count: 23 },
-                { type: 'mixed_level3', count: 12 },
+                { type: 'skeleton_yellow', count: 5 },
+                { type: 'arcane_archer', count: 7 },
+                { type: 'mixed_level3', count: 8 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1200,
@@ -147,9 +147,9 @@ window.addEventListener('load', function () {
         },
         10: {
             waves: [
-                { type: 'skeleton_yellow', count: 23 },
-                { type: 'arcane_archer', count: 23 },
-                { type: 'mixed_level3', count: 22 },
+                { type: 'skeleton_yellow', count: 11 },
+                { type: 'arcane_archer', count: 8 },
+                { type: 'mixed_level3', count: 13 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1000,
@@ -158,8 +158,8 @@ window.addEventListener('load', function () {
         },
         11: {
             waves: [
-                { type: 'skeleton_white', count: 5 },
-                { type: 'flying', count: 4 },
+                { type: 'skeleton_white', count: 7 },
+                { type: 'flying', count: 8 },
                 { type: 'mixed_level1', count: 5 },
                 { type: 'boss', count: 1 },
             ],
@@ -169,9 +169,9 @@ window.addEventListener('load', function () {
         },
         12: {
             waves: [
-                { type: 'demon', count: 4 },
-                { type: 'skeleton_yellow', count: 4 },
-                { type: 'mixed_level2', count: 5 },
+                { type: 'demon', count: 9 },
+                { type: 'skeleton_yellow', count: 10 },
+                { type: 'mixed_level2', count: 11 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 2000,
@@ -180,9 +180,9 @@ window.addEventListener('load', function () {
         },
         13: {
             waves: [
-                { type: 'skeleton_white', count: 5 },
-                { type: 'arcane_archer', count: 4 },
-                { type: 'mixed_level3', count: 6 },
+                { type: 'skeleton_white', count: 11 },
+                { type: 'arcane_archer', count: 9 },
+                { type: 'mixed_level3', count: 12 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1800,
@@ -191,9 +191,9 @@ window.addEventListener('load', function () {
         },
         14: {
             waves: [
-                { type: 'skeleton_yellow', count: 6 },
-                { type: 'arcane_archer', count: 5 },
-                { type: 'mixed_level3', count: 7 },
+                { type: 'skeleton_yellow', count: 16 },
+                { type: 'arcane_archer', count: 12 },
+                { type: 'mixed_level3', count: 10 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1600,
@@ -202,9 +202,9 @@ window.addEventListener('load', function () {
         },
         15: {
             waves: [
-                { type: 'demon', count: 5 },
-                { type: 'arcane_archer', count: 5 },
-                { type: 'mixed_level3', count: 7 },
+                { type: 'demon', count: 15 },
+                { type: 'arcane_archer', count: 15 },
+                { type: 'mixed_level3', count: 17 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1400,
@@ -213,9 +213,9 @@ window.addEventListener('load', function () {
         },
         16: {
             waves: [
-                { type: 'skeleton_yellow', count: 6 },
-                { type: 'mixed_level2', count: 6 },
-                { type: 'mixed_level3', count: 7 },
+                { type: 'skeleton_yellow', count: 16 },
+                { type: 'mixed_level2', count: 16 },
+                { type: 'mixed_level3', count: 17 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1300,
@@ -224,9 +224,9 @@ window.addEventListener('load', function () {
         },
         17: {
             waves: [
-                { type: 'flying', count: 7 },
-                { type: 'arcane_archer', count: 6 },
-                { type: 'mixed_level3', count: 8 },
+                { type: 'flying', count: 12 },
+                { type: 'arcane_archer', count: 9 },
+                { type: 'mixed_level3', count: 13 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1200,
@@ -235,9 +235,9 @@ window.addEventListener('load', function () {
         },
         18: {
             waves: [
-                { type: 'skeleton_white', count: 7 },
-                { type: 'demon', count: 6 },
-                { type: 'mixed_level3', count: 9 },
+                { type: 'skeleton_white', count: 17 },
+                { type: 'demon', count: 21 },
+                { type: 'mixed_level3', count: 13 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1100,
@@ -246,9 +246,9 @@ window.addEventListener('load', function () {
         },
         19: {
             waves: [
-                { type: 'skeleton_yellow', count: 7 },
-                { type: 'arcane_archer', count: 7 },
-                { type: 'mixed_level3', count: 10 },
+                { type: 'skeleton_yellow', count: 17 },
+                { type: 'arcane_archer', count: 17 },
+                { type: 'mixed_level3', count: 14 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1000,
@@ -257,7 +257,7 @@ window.addEventListener('load', function () {
         },
         20: {
             waves: [
-                { type: 'mixed_level3', count: 10 },
+                { type: 'mixed_level3', count: 25 },
                 { type: 'boss', count: 1 }, // Amarjeet final-final encounter
             ],
             enemyInterval: 800,
