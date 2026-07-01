@@ -25,10 +25,14 @@ export class AudioManager {
             game_start: 'asset/music/freesound_community-game-start-6104.mp3',
             game_over: 'asset/music/game-over.mp3',
             oni_voice: 'asset/music/phatphrogstudio-oni-demon-voice-demonic-laughter-477923.mp3',
+            kamehameha_voice: 'asset/music/kame-hame-ha.mp3',
+            rasengan_voice: 'asset/music/naruto-rasenganshippuden.mp3',
             come_closer: 'asset/music/come-closer.mp3',
             wind_attack: 'asset/music/wind-attack.mp3',
             flame_slash: 'asset/music/flame-slash.mp3',
             player_hurt: 'asset/music/player-hurt-sound.mp3',
+            shaia_hurt: 'asset/music/freesound_community-female-hurt-2-94301.mp3',
+            shaia_attack: 'asset/music/freesound_gamestudio-female-character-attack-vocal-6-408474.mp3',
             sprint: 'asset/music/sprint.mp3',
             jump: 'asset/music/jump.mp3',
             boss_intro: 'asset/music/freesound_community-boss-intro-02-72039.mp3',
@@ -113,7 +117,7 @@ export class AudioManager {
 
         let volume = this.sfxVolume;
         // Scale player SFX down to 30% to keep them from overpowering BGM
-        const playerSFX = ['punch', 'wind_attack', 'flame_slash', 'sprint', 'jump'];
+        const playerSFX = ['punch', 'wind_attack', 'flame_slash', 'sprint', 'jump', 'shaia_hurt', 'shaia_attack'];
         if (playerSFX.includes(type)) {
             volume *= 0.3;
         }

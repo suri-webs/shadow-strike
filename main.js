@@ -6,6 +6,9 @@ import { MinoBoss } from "./minoBoss.js";
 import { InputHandler } from "./input.js";
 import { FlyingEnemy } from "./flyingEnemy.js";
 import { Portal } from "./portal.js";
+import { Dropbox } from "./dropbox.js";
+import { KamehamehaBeam } from "./kamehameha.js";
+import { RasenganVortex } from "./rasengan.js";
 import { AudioManager } from "./audio.js";
 
 const sharedTintCanvas = document.createElement('canvas');
@@ -905,6 +908,18 @@ window.addEventListener('load', function () {
             this.particles = [];
             this.coinPickups = [];
             this.coinHUDFlash = 0;
+            this.hpPickups = [];
+            this.hpTimer = 0;
+            this.dropbox = null;
+            this.dropboxSpawned = false;
+            this.dropboxTimer = 0;
+            this.activeSpecialMove = null;
+            this.specialMoveUses = 0;
+
+            const dboxOverlay = document.getElementById('dropbox-overlay');
+            if (dboxOverlay) dboxOverlay.style.display = 'none';
+            const sBtn = document.getElementById('vbtn-special');
+            if (sBtn) sBtn.style.display = 'none';
 
             this.waveIndex = 0;
             this.waveDef = [...cfg.waves];
@@ -1388,6 +1403,143 @@ window.addEventListener('load', function () {
             });
         }
 
+        spawnHpPickup(fromX, fromY) {
+            const groundY = this.height - this.groundMargin - 10;
+            const hudX = 166;
+            const hudY = 49;
+            const sx = fromX;
+            const sy = fromY;
+            const vx = (Math.random() - 0.5) * 3.5;
+            const vy = -(Math.random() * 3.5 + 2);
+
+            this.hpPickups.push({
+                x: sx, y: sy,
+                vx, vy,
+                gravity: 0.55,
+                bounced: false,
+                groundY,
+                sx: 0, sy: 0,
+                cpx: 0, cpy: 0,
+                hudX, hudY,
+                phase: 1,
+                value: 20,
+                flyDelay: 120,
+                flyDelayTimer: 0,
+                t: 0,
+                flySpeed: 0.024 + Math.random() * 0.008,
+                size: 9 + Math.random() * 3,
+                alpha: 1,
+                life: 5000,
+                done: false,
+            });
+        }
+
+        drawHpPickups(context) {
+            if (!this.hpPickups || this.hpPickups.length === 0) return;
+            this.hpPickups.forEach(c => {
+                if (c.done) return;
+                context.save();
+                context.globalAlpha = Math.max(0, Math.min(1, c.alpha));
+
+                // Outer glow
+                context.shadowColor = '#ff2b55';
+                context.shadowBlur = 12;
+
+                // Heart body gradient
+                const grad = context.createRadialGradient(c.x, c.y - c.size * 0.2, 0, c.x, c.y - c.size * 0.2, c.size * 1.2);
+                grad.addColorStop(0, '#ff9ebb');
+                grad.addColorStop(0.4, '#ff2b55');
+                grad.addColorStop(1, '#990022');
+
+                context.beginPath();
+                const topY = c.y - c.size * 0.2;
+                context.moveTo(c.x, topY);
+                // Top-left arc
+                context.bezierCurveTo(c.x - c.size * 0.6, topY - c.size * 0.6, c.x - c.size * 1.3, topY + c.size * 0.1, c.x, c.y + c.size * 0.9);
+                // Top-right arc
+                context.bezierCurveTo(c.x + c.size * 1.3, topY + c.size * 0.1, c.x + c.size * 0.6, topY - c.size * 0.6, c.x, topY);
+                context.fillStyle = grad;
+                context.fill();
+
+                // Inner shine
+                context.shadowBlur = 0;
+                context.beginPath();
+                context.arc(c.x - c.size * 0.3, c.y - c.size * 0.3, c.size * 0.2, 0, Math.PI * 2);
+                context.fillStyle = 'rgba(255,255,255,0.6)';
+                context.fill();
+
+                context.restore();
+            });
+        }
+
+        showDropboxCards() {
+            this.paused = true;
+            const overlay = document.getElementById('dropbox-overlay');
+            if (!overlay) return;
+            overlay.style.display = 'flex';
+
+            const cardCoins = document.getElementById('card-coins');
+            const cardKam = document.getElementById('card-kamehameha');
+            const cardRas = document.getElementById('card-rasengan');
+
+            const closeCardOverlay = () => {
+                overlay.style.display = 'none';
+                this.paused = false;
+                if (this.dropbox) this.dropbox.markedForDeletion = true;
+            };
+
+            if (cardCoins) {
+                cardCoins.onclick = () => {
+                    this.coins += 500;
+                    localStorage.setItem('gameCoins', this.coins.toString());
+                    this.coinHUDFlash = Math.max(this.coinHUDFlash, 350);
+                    if (this.audio) {
+                        this.audio.playSFX('coin_collect');
+                    }
+                    this._addFloatingText(this.player.x + this.player.width / 2, this.player.y - 10, '+500 COINS', '#ffd700');
+                    closeCardOverlay();
+                };
+            }
+
+            if (cardKam) {
+                cardKam.onclick = () => {
+                    this.activeSpecialMove = 'kamehameha';
+                    this.specialMoveUses = 1;
+                    this._addFloatingText(this.player.x + this.player.width / 2, this.player.y - 10, 'KAMEHAMEHA UNLOCKED', '#00e5ff');
+
+                    const specialBtn = document.getElementById('vbtn-special');
+                    const specialLabel = document.getElementById('vbtn-special-label');
+                    if (specialBtn && specialLabel) {
+                        specialBtn.style.display = 'flex';
+                        specialBtn.style.background = 'linear-gradient(135deg, #00b0ff 0%, #120e1c 100%)';
+                        specialBtn.style.borderColor = '#00e5ff';
+                        specialBtn.style.boxShadow = '0 0 15px rgba(0, 229, 255, 0.4)';
+                        specialLabel.innerText = 'KAMEHAMEHA';
+                    }
+                    closeCardOverlay();
+                };
+            }
+
+            if (cardRas) {
+                cardRas.onclick = () => {
+                    this.activeSpecialMove = 'rasengan';
+                    this.specialMoveUses = 1;
+                    this._addFloatingText(this.player.x + this.player.width / 2, this.player.y - 10, 'RASENGAN UNLOCKED', '#ea80fc');
+
+                    const specialBtn = document.getElementById('vbtn-special');
+                    const specialLabel = document.getElementById('vbtn-special-label');
+                    if (specialBtn && specialLabel) {
+                        specialBtn.style.display = 'flex';
+                        specialBtn.style.background = 'linear-gradient(135deg, #7b1fa2 0%, #120e1c 100%)';
+                        specialBtn.style.borderColor = '#ea80fc';
+                        specialBtn.style.boxShadow = '0 0 15px rgba(234, 128, 252, 0.4)';
+                        specialLabel.innerText = 'RASENGAN';
+                    }
+                    closeCardOverlay();
+                };
+            }
+        }
+
         update(deltaTime) {
             if (this.paused) return;
             if (this.storyDialogueManager && this.storyDialogueManager.active) {
@@ -1413,6 +1565,30 @@ window.addEventListener('load', function () {
                     }
                 } else {
                     return;
+                }
+            }
+
+            // Spawn HP drop every 20 seconds (20000 milliseconds)
+            if (!this.levelComplete && !this.gameOver) {
+                this.hpTimer += deltaTime;
+                if (this.hpTimer >= 20000) {
+                    this.hpTimer = 0;
+                    const minX = Math.max(50, this.player.x - 100);
+                    const maxX = Math.min(this.width - 50, this.player.x + 400);
+                    const rx = minX + Math.random() * (maxX - minX);
+                    this.spawnHpPickup(rx, -20);
+                }
+            }
+
+            // Spawn Dropbox after 8 seconds (8000 milliseconds) in each level
+            if (!this.levelComplete && !this.gameOver && this.gameStarted) {
+                if (!this.dropboxSpawned) {
+                    this.dropboxTimer += deltaTime;
+                    if (this.dropboxTimer >= 8000) {
+                        this.dropboxSpawned = true;
+                        const spawnX = Math.min(this.width - 150, Math.max(150, this.player.x + 300));
+                        this.dropbox = new Dropbox(this, spawnX, -100);
+                    }
                 }
             }
 
@@ -1523,6 +1699,87 @@ window.addEventListener('load', function () {
             });
             this.coinPickups = this.coinPickups.filter(c => !c.done && c.x > -100);
 
+            // Update HP pickup animations
+            this.hpPickups.forEach(c => {
+                if (c.done) return;
+
+                if (c.phase === 1) {
+                    // Phase 1: fall with gravity
+                    const dt = deltaTime / 16.6;
+                    c.vy += c.gravity * dt;
+                    c.x += c.vx * dt - scrollSpeed;
+                    c.y += c.vy * dt;
+
+                    // Check ground landing
+                    if (c.y >= c.groundY) {
+                        c.y = c.groundY;
+                        if (!c.bounced) {
+                            c.bounced = true;
+                            c.vy = -Math.abs(c.vy) * 0.45; // bounce
+                            c.vx *= 0.6;
+                        } else {
+                            // Second bounce: settle and wait for collection
+                            c.vy = 0;
+                            c.vx = 0;
+                            c.phase = 2;
+                        }
+                    }
+                } else if (c.phase === 2) {
+                    // Phase 2: wait on ground (scrolls with background)
+                    c.x -= scrollSpeed;
+                }
+
+                // 5 seconds lifetime decay while on the ground or falling
+                if (c.phase === 1 || c.phase === 2) {
+                    c.life -= deltaTime;
+                    if (c.life <= 1000) {
+                        c.alpha = Math.max(0, c.life / 1000); // fade out in the last 1 second
+                    }
+                    if (c.life <= 0) {
+                        c.done = true;
+                    }
+                }
+
+                // Proximity pickup detection for Phase 1 & Phase 2
+                if (c.phase === 1 || c.phase === 2) {
+                    const playerLeft = this.player.x;
+                    const playerRight = this.player.x + this.player.width;
+                    const playerTop = this.player.y;
+                    const playerBottom = this.player.y + this.player.height;
+
+                    // Box collision with 45px buffer
+                    const inRange = c.x >= playerLeft - 45 && c.x <= playerRight + 45 &&
+                        c.y >= playerTop - 45 && c.y <= playerBottom + 45;
+
+                    if (inRange) {
+                        c.phase = 3;
+                        c.sx = c.x;
+                        c.sy = c.y;
+                        c.cpx = c.x * 0.5 + c.hudX * 0.5 + (Math.random() - 0.5) * 120;
+                        c.cpy = Math.min(c.y, c.hudY) - 120 - Math.random() * 80;
+                        if (this.audio) {
+                            this.audio.playSFX('coin_collect');
+                        }
+                    }
+                } else if (c.phase === 3) {
+                    // Phase 3: wait then fly to HUD via bezier
+                    c.flyDelayTimer += deltaTime;
+                    if (c.flyDelayTimer < c.flyDelay) return;
+
+                    c.t = Math.min(1, c.t + c.flySpeed * (deltaTime / 16.6));
+                    const mt = 1 - c.t;
+                    c.x = mt * mt * c.sx + 2 * mt * c.t * c.cpx + c.t * c.t * c.hudX;
+                    c.y = mt * mt * c.sy + 2 * mt * c.t * c.cpy + c.t * c.t * c.hudY;
+                    // Fade out in last 20%
+                    if (c.t > 0.8) c.alpha = 1 - (c.t - 0.8) / 0.2;
+                    if (c.t >= 1) {
+                        c.done = true;
+                        this.currentHP = Math.min(this.maxHP, this.currentHP + c.value);
+                    }
+                }
+            });
+            this.hpPickups = this.hpPickups.filter(c => !c.done && c.x > -100);
+
             if (this.levelComplete || this.gameOver) {
                 if (this.gameOver) {
                     this.audio.stopBGM();
@@ -1537,6 +1794,26 @@ window.addEventListener('load', function () {
 
             this.playerHit = false;
             this.background.update();
+
+            // Trigger special drop attack if T is pressed and available
+            if (this.input.keys.includes('t') && this.activeSpecialMove && this.specialMoveUses > 0) {
+                if (this.activeSpecialMove === 'kamehameha') {
+                    // Spawn beam if not already spawning (holding T charges it)
+                    if (!this.player.windProjectiles.some(p => p instanceof KamehamehaBeam)) {
+                        const startX = this.player.x + (this.player.facingLeft ? -80 : this.player.width + 10);
+                        const startY = this.player.y + this.player.height * 0.25;
+                        this.player.windProjectiles.push(new KamehamehaBeam(this, startX, startY, this.player.facingLeft));
+                    }
+                } else if (this.activeSpecialMove === 'rasengan') {
+                    // Spawn rasengan if not already spawning (holding T charges it)
+                    if (!this.player.windProjectiles.some(p => p instanceof RasenganVortex)) {
+                        const startX = this.player.x + (this.player.facingLeft ? -100 : this.player.width + 10);
+                        const startY = this.player.y + this.player.height * 0.25;
+                        this.player.windProjectiles.push(new RasenganVortex(this, startX, startY, this.player.facingLeft));
+                    }
+                }
+            }
+
             this.player.update(this.input.keys, deltaTime);
 
             if (this.hitCooldown > 0) this.hitCooldown -= deltaTime;
@@ -1642,6 +1919,7 @@ window.addEventListener('load', function () {
                         const coinsEarned = Math.max(1, Math.floor(pts / 10));
                         this._addFloatingText(e.x + e.width / 2, e.y - 10, '+' + pts, this.multiplier > 1 ? '#ffd700' : '#ffffff');
                         this.spawnCoinPickup(e.x + e.width / 2, e.y + e.height * 0.4, coinsEarned);
+
                     }
                 });
 
@@ -1651,6 +1929,13 @@ window.addEventListener('load', function () {
                     this.portal.update(deltaTime);
                     if (this.portal.markedForDeletion) {
                         this.portal = null;
+                    }
+                }
+
+                if (this.dropbox) {
+                    this.dropbox.update(deltaTime);
+                    if (this.dropbox.markedForDeletion) {
+                        this.dropbox = null;
                     }
                 }
             }
@@ -1708,6 +1993,7 @@ window.addEventListener('load', function () {
 
             this.background.draw(context);
             if (this.portal) this.portal.draw(context);
+            if (this.dropbox) this.dropbox.draw(context);
             this.player.draw(context);
             this.enemies.forEach(e => e.draw(context));
 
@@ -1895,6 +2181,7 @@ window.addEventListener('load', function () {
             context.restore();
             // Draw coin pickups in pure screen-space (outside shake transform)
             this.drawCoinPickups(context);
+            this.drawHpPickups(context);
         }
 
         _drawStartScreen(context) {
@@ -2540,6 +2827,30 @@ window.addEventListener('load', function () {
                 context.strokeStyle = '#ffd700';
                 context.lineWidth = 2;
                 rr(context, cx, cy, 140, 32, 8); context.stroke();
+                context.restore();
+            }
+
+            // Draw Special Move Display Panel if active
+            if (this.activeSpecialMove && this.specialMoveUses > 0) {
+                const sx = cx + 140 + 8;
+                const sy = cy;
+                const moveColor = this.activeSpecialMove === 'kamehameha' ? '#00e5ff' : '#ea80fc';
+                const moveIcon = this.activeSpecialMove === 'kamehameha' ? '🌀' : '🔮';
+                const moveLabel = this.activeSpecialMove.toUpperCase();
+
+                context.save();
+                context.shadowColor = moveColor;
+                context.shadowBlur = 6;
+                context.fillStyle = 'rgba(12, 10, 20, 0.9)';
+                rr(context, sx, sy, 195, 32, 8); context.fill();
+                context.strokeStyle = moveColor + '88';
+                context.lineWidth = 1.2;
+                rr(context, sx, sy, 195, 32, 8); context.stroke();
+
+                context.font = '800 11px "Poppins"';
+                context.fillStyle = moveColor;
+                context.textAlign = 'left';
+                context.fillText(moveIcon + ' ' + moveLabel + ' [T]', sx + 12, sy + 20);
                 context.restore();
             }
 
@@ -3553,6 +3864,8 @@ window.addEventListener('load', function () {
                 'vbtn-dash': { left: 74, top: 80 },
                 'vbtn-jump': { left: 82, top: 72 },
                 'vbtn-attack': { left: 90, top: 80 },
+                'vbtn-special': { left: 86, top: 68 },
+                'vbtn-interact': { left: 80, top: 76 },
                 'settings-btn': { left: 21.5, top: 6 },
                 'fullscreen-btn': { left: 25.2, top: 6 }
             };
@@ -3674,6 +3987,12 @@ window.addEventListener('load', function () {
         virtualControlsContainer.classList.add('active');
         virtualControlsContainer.classList.add('layout-customizing');
 
+        // Show special and interact buttons during customization so they are visible and editable!
+        const specialBtn = document.getElementById('vbtn-special');
+        if (specialBtn) specialBtn.style.display = 'flex';
+        const interactBtn = document.getElementById('vbtn-interact');
+        if (interactBtn) interactBtn.style.display = 'flex';
+
         const buttons = [
             ...virtualControlsContainer.querySelectorAll('.vbtn'),
             settingsBtn,
@@ -3722,6 +4041,18 @@ window.addEventListener('load', function () {
             selectedElement.classList.remove('selected-el');
             selectedElement = null;
         }
+
+        // Hide F and T buttons on exit customization unless active in game
+        const specialBtn = document.getElementById('vbtn-special');
+        if (specialBtn) {
+            const hasSpecial = game && game.activeSpecialMove && game.specialMoveUses > 0;
+            specialBtn.style.display = hasSpecial ? 'flex' : 'none';
+        }
+        const interactBtn = document.getElementById('vbtn-interact');
+        if (interactBtn) {
+            interactBtn.style.display = 'none'; // toggled dynamically in game loop
+        }
+
         const show = localStorage.getItem('shadowStrike_osControls') === 'true';
         if (!show) {
             virtualControlsContainer.classList.remove('active');
@@ -4502,6 +4833,8 @@ window.addEventListener('load', function () {
         }
         if (game.particles) game.particles.forEach(p => add(p));
         if (game.coinPickups) game.coinPickups.forEach(c => add(c));
+        if (game.hpPickups) game.hpPickups.forEach(c => add(c));
+        if (game.dropbox) add(game.dropbox);
         if (game.floatingTexts) game.floatingTexts.forEach(t => add(t));
         if (game.damageTexts) game.damageTexts.forEach(t => add(t));
         if (game.portal) add(game.portal);

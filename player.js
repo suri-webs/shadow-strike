@@ -64,11 +64,11 @@ export class Player {
             this.rColor = '#d50000'; // Red
             this.sprintFilter = 'sepia(1) hue-rotate(80deg) saturate(5) brightness(1.2)'; // Green
             this.dashSpeed = 26;
-            this.bottomMargin = -45;
+            this.bottomMargin = -5;
         } else if (this.characterType === 'shaia') {
             this.width = 210;
             this.height = 210;
-            this.maxSpeed = 3.2;
+            this.maxSpeed = 4.2;
             this.maxHP = 90;
             this.weight = 0.14;
             this.shieldColor = '204, 85, 255';
@@ -309,6 +309,10 @@ export class Player {
     }
 
     update(input, deltaTime) {
+        if (this.rasenganActive) {
+            input = [];
+        }
+
         // If boss is introducing/roaring (introLocked is active), block player attacks
         if (this.game.enemies.some(e => e.isBoss && e.introLocked)) {
             input = input.filter(key => key !== 'MouseLeft' && key !== 'q' && key !== 'Q' && key !== 'r' && key !== 'R');
@@ -610,6 +614,9 @@ export class Player {
         }
 
         if (this.currentState.state === 'DAMAGE') move = 0;
+        if (this.rasenganActive) {
+            move = this.rasenganVx || 0;
+        }
 
         const inAir = !this.onGround();
         const leftLimit = (this.isDashing || inAir) ? 0 : 50;
@@ -624,7 +631,7 @@ export class Player {
         }
 
         this.x = Math.max(leftLimit, Math.min(this.x, rightLimit));
-        this.game.speed = move > 0 ? this.maxSpeed : 0;
+        this.game.speed = move;
 
         this.y += this.vy;
 
@@ -723,7 +730,7 @@ export class Player {
             if (this.game.audio) this.game.audio.playSFX('punch');
         } else if (this.characterType === 'shaia') {
             this.windProjectiles.push(new StaticVoltProjectile(this.game, startX, startY, this.facingLeft));
-            if (this.game.audio) this.game.audio.playSFX('sprint');
+            if (this.game.audio) this.game.audio.playSFX('shaia_attack');
         } else if (this.characterType === 'archdemon') {
             this.windProjectiles.push(new HellfireProjectile(this.game, startX, startY, this.facingLeft));
             if (this.game.audio) this.game.audio.playSFX('flame_slash');
@@ -746,6 +753,7 @@ export class Player {
             this.slashProjectiles.push(new FissureSpikesProjectile(this.game, startX, startY, this.facingLeft));
         } else if (this.characterType === 'shaia') {
             this.slashProjectiles.push(new ThunderStrikeProjectile(this.game, startX, startY, this.facingLeft));
+            if (this.game.audio) this.game.audio.playSFX('shaia_attack');
         } else if (this.characterType === 'archdemon') {
             this.slashProjectiles.push(new DragonShadowProjectile(this.game, startX, startY, this.facingLeft));
             if (this.game.audio) this.game.audio.playSFX('flame_slash');

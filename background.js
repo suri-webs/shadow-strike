@@ -49,7 +49,9 @@ export class Background {
         const threshold = this.game.width * 0.5;
         const playerX = this.game.player.x;
         const spd = this.game.speed;
-        return (Math.abs(spd) > 0 && playerX > threshold) ? spd : 0;
+        if (spd > 0 && playerX > threshold) return spd;
+        if (spd < 0 && playerX <= 55) return spd;
+        return 0;
     }
 
     update() {
@@ -81,7 +83,10 @@ export class Level2Background {
     _scrollSpeed() {
         if (this.game.enemies.some(e => e.isBoss && e.introLocked)) return 0;
         const s = this.game.speed;
-        return (Math.abs(s) > 0 && this.game.player.x > this.game.width * 0.5) ? s : 0;
+        const threshold = this.game.width * 0.5;
+        if (s > 0 && this.game.player.x > threshold) return s;
+        if (s < 0 && this.game.player.x <= 55) return s;
+        return 0;
     }
 
     update() {
@@ -130,7 +135,10 @@ export class Level3Background {
     _scrollSpeed() {
         if (this.game.enemies.some(e => e.isBoss && e.introLocked)) return 0;
         const s = this.game.speed;
-        return (Math.abs(s) > 0 && this.game.player.x > this.W * 0.5) ? s : 0;
+        const threshold = this.W * 0.5;
+        if (s > 0 && this.game.player.x > threshold) return s;
+        if (s < 0 && this.game.player.x <= 55) return s;
+        return 0;
     }
 
     update() {
@@ -226,7 +234,10 @@ export class Level4Background {
     _scrollSpeed() {
         if (this.game.enemies.some(e => e.isBoss && e.introLocked)) return 0;
         const s = this.game.speed;
-        return (Math.abs(s) > 0 && this.game.player.x > this.W * 0.5) ? s : 0;
+        const threshold = this.W * 0.5;
+        if (s > 0 && this.game.player.x > threshold) return s;
+        if (s < 0 && this.game.player.x <= 55) return s;
+        return 0;
     }
 
     update() {
@@ -326,7 +337,10 @@ export class Level5Background {
     _scrollSpeed() {
         if (this.game.enemies.some(e => e.isBoss && e.introLocked)) return 0;
         const s = this.game.speed;
-        return (Math.abs(s) > 0 && this.game.player.x > this.W * 0.5) ? s : 0;
+        const threshold = this.W * 0.5;
+        if (s > 0 && this.game.player.x > threshold) return s;
+        if (s < 0 && this.game.player.x <= 55) return s;
+        return 0;
     }
 
     update() {

@@ -221,7 +221,11 @@ export class Attack extends State {
         this.player.game.speed = 0;
 
         if (this.player.game.audio) {
-            this.player.game.audio.playSFX('punch');
+            if (this.player.characterType === 'shaia') {
+                this.player.game.audio.playSFX('shaia_attack');
+            } else {
+                this.player.game.audio.playSFX('punch');
+            }
         }
 
         if (this.player.fireNormalAttack) {
@@ -352,7 +356,11 @@ export class Damage extends State {
         this.player.game.speed = 0;
 
         if (this.player.game.audio) {
-            this.player.game.audio.playSFX('player_hurt');
+            if (this.player.characterType === 'shaia') {
+                this.player.game.audio.playSFX('shaia_hurt');
+            } else {
+                this.player.game.audio.playSFX('player_hurt');
+            }
         }
     }
 

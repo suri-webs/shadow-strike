@@ -57,6 +57,25 @@ export class InputHandler {
                 return;
             }
 
+            // T — special drop attack, held to charge
+            if (keyLower === 't') {
+                e.preventDefault();
+                if (!this.keys.includes('t')) {
+                    this.keys.push('t');
+                }
+                return;
+            }
+
+            // F — interact key
+            if (keyLower === 'f') {
+                e.preventDefault();
+                if (!this.keys.includes('f')) {
+                    this.keys.push('f');
+                    this._oneShot.add('f');
+                }
+                return;
+            }
+
             // E — one-shot ability (shield activate), keep until next update clears it
             if (keyLower === 'e') {
                 e.preventDefault();
@@ -114,6 +133,12 @@ export class InputHandler {
                 if (index > -1) this.keys.splice(index, 1);
                 return;
             }
+
+            if (keyLower === 't') {
+                const index = this.keys.indexOf('t');
+                if (index > -1) this.keys.splice(index, 1);
+                return;
+            }
         });
 
         window.addEventListener('mousedown', e => {
@@ -155,7 +180,7 @@ export class InputHandler {
      * @param {string} key
      */
     pressVirtualKey(key) {
-        if (key === 'r' || key === 'e' || key === 'Space' || key === 'MouseLeft') {
+        if (key === 'r' || key === 'e' || key === 'f' || key === 'Space' || key === 'MouseLeft') {
             if (!this.keys.includes(key)) {
                 this.keys.push(key);
                 this._oneShot.add(key);
