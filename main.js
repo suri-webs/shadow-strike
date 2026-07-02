@@ -1490,7 +1490,7 @@ window.addEventListener('load', function () {
 
             if (cardCoins) {
                 cardCoins.onclick = () => {
-                    this.coins += 500;
+                    this.coins += 50;
                     localStorage.setItem('gameCoins', this.coins.toString());
                     this.coinHUDFlash = Math.max(this.coinHUDFlash, 350);
                     if (this.audio) {
