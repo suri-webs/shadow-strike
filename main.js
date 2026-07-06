@@ -1284,10 +1284,7 @@ window.addEventListener('load', function () {
         }
 
         spawnDissolveParticles(enemy) {
-            // Cap total particles pool to avoid lag
-            const MAX_PARTICLES = 150;
-            if (this.particles.length >= MAX_PARTICLES) return;
-            const count = enemy.isBoss ? 30 : Math.min(15, 10 + Math.floor(Math.random() * 6));
+            const count = enemy.isBoss ? 45 : 20 + Math.floor(Math.random() * 10);
             let colors = ['rgba(240,240,240,0.85)', 'rgba(190,190,190,0.7)'];
             let isGolden = false;
             let isVolcanic = false;
@@ -5913,10 +5910,8 @@ window.addEventListener('load', function () {
 
 
         // Run updates at a fixed logical frequency (60Hz)
-        // Cap to 3 ticks max per frame to prevent spiral-of-death lag
         let gameUpdated = false;
-        let maxTicks = 3;
-        while (accumulator >= timestep && maxTicks-- > 0) {
+        while (accumulator >= timestep) {
             // Save previous positions of all moving objects before we update
             const objects = gatherInterpolatableObjects(game);
             objects.forEach(entry => {
@@ -5932,8 +5927,6 @@ window.addEventListener('load', function () {
             accumulator -= timestep;
             gameUpdated = true;
         }
-        // Discard leftover time if we hit the tick cap
-        if (accumulator >= timestep) accumulator = accumulator % timestep;
 
         // Throttle player coordinates broadcast to 60Hz (once per render frame) to avoid socket network flooding
         if (gameUpdated && game.isMultiplayer && game.socket && game.player) {
@@ -5955,8 +5948,8 @@ window.addEventListener('load', function () {
 
         // Apply interpolated positions for smooth drawing at any refresh rate
         const alpha = accumulator / timestep;
-        const renderObjects = gatherInterpolatableObjects(game);
-        renderObjects.forEach(entry => {
+        const objects = gatherInterpolatableObjects(game);
+        objects.forEach(entry => {
             const { obj, props } = entry;
             props.forEach(prop => {
                 const prev = obj['_prev_' + prop] !== undefined ? obj['_prev_' + prop] : obj[prop];
