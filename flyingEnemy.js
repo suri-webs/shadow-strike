@@ -1,5 +1,5 @@
 class FireProjectile {
-    constructor(game, startX, startY) {
+    constructor(game, startX, startY, targetPlayer) {
         this.game = game;
         this.markedForDeletion = false;
         this.damageDone = false;
@@ -9,7 +9,9 @@ class FireProjectile {
         this.x = startX;
         this.y = startY;
 
-        const player = game.player;
+        // FIX #1: use the actual target player passed in (multiplayer-aware),
+        // falling back to game.player only if none was provided.
+        const player = targetPlayer || game.player;
         const tx = player.x + player.width / 2 - startX;
         const ty = player.y + player.height / 2 - startY;
         const dist = Math.sqrt(tx * tx + ty * ty) || 1;
@@ -274,7 +276,23 @@ export class FlyingEnemy {
             this.scaleX = 1 / this.scaleY;
         }
 
+        // FIX #3: split out DEATH handling for non-host clients so dead enemies
+        // actually get removed instead of looping their death frame forever.
         if (this.game.isMultiplayer && !this.game.isHost) {
+            if (this.state === 'DEATH') {
+                this.frameTimer += deltaTime;
+                if (this.frameTimer > this.frameInterval) {
+                    this.frameTimer = 0;
+                    this.frameX++;
+                    if (this.frameX >= this.frameCounts.DEATH) {
+                        this.markedForDeletion = true;
+                    }
+                }
+                this.projectiles.forEach(p => p.update(deltaTime));
+                this.projectiles = this.projectiles.filter(p => !p.markedForDeletion);
+                return;
+            }
+
             this.frameTimer += deltaTime;
             if (this.frameTimer > this.frameInterval) {
                 this.frameTimer = 0;
@@ -300,16 +318,21 @@ export class FlyingEnemy {
             if (this.frameTimer > this.frameInterval) {
                 this.frameTimer = 0;
                 this.frameX++;
-                if (this.frameX > this.frameCounts.DEATH) {
+                // FIX #2: was `>` which let frameX reach frameCounts.DEATH + 1 (7),
+                // one past the last valid sprite slice (0-6). Use `>=` instead.
+                if (this.frameX >= this.frameCounts.DEATH) {
                     this.markedForDeletion = true;
                 }
             }
             return;
         }
 
-        const player = this.game.getTargetPlayer
-            ? this.game.getTargetPlayer(this.x + this.width / 2)
-            : this.game.player;
+        // FIX #4: guard against getTargetPlayer returning null/undefined
+        // (e.g. all other players dead / list temporarily empty).
+        const player = (this.game.getTargetPlayer && this.game.getTargetPlayer(this.x + this.width / 2))
+            || this.game.player;
+        if (!player) return;
+
         const enemyCX = this.x + this.width / 2;
         const playerCX = player.x + player.width / 2;
         const diff = enemyCX - playerCX;
@@ -388,11 +411,15 @@ export class FlyingEnemy {
                         const fireX = this.facingLeft ? this.x + this.width * 0.82 : this.x + this.width * 0.18;
                         const fireY = this.y + this.height * 0.62;
 
+                        // FIX #1: pass the actual target player through so the
+                        // fireball homes in on whoever this enemy is aiming at,
+                        // not just game.player.
                         this.projectiles.push(
                             new FireProjectile(
                                 this.game,
                                 fireX,
-                                fireY
+                                fireY,
+                                player
                             )
                         );
                     }

@@ -44,6 +44,13 @@ window.drawTintedSprite = function (ctx, img, srcX, srcY, srcW, srcH, destX, des
     ctx.restore();
 };
 
+// ── Safe HTML escaping helper (used for chat / toast text rendering) ──
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
 window.addEventListener('load', function () {
 
     const canvas = document.getElementById('canvas1');
@@ -1127,7 +1134,8 @@ window.addEventListener('load', function () {
                     // Boss ko introLocked mode mein spawn karo
                     newBoss.introLocked = true;
                     newBoss.introTimer = 0;
-                    newBoss.introDuration = 100; // 2 sec khada raho, phir roar
+                    // FIX: comment said "2 sec khada raho" but value was 100ms — bumped to a real 2000ms
+                    newBoss.introDuration = 2000; // 2 sec khada raho, phir roar
                     newBoss.introRoarPlayed = false;
                     this.enemies.push(newBoss);
                 };
@@ -1307,12 +1315,12 @@ window.addEventListener('load', function () {
             const localHit = (() => {
                 const pl = this.player;
                 if (!pl || pl.isDead) return false;
-                const pLeft   = pl.x + pl.width  * 0.25;
-                const pRight  = pl.x + pl.width  * 0.75;
-                const pTop    = pl.y;
+                const pLeft = pl.x + pl.width * 0.25;
+                const pRight = pl.x + pl.width * 0.75;
+                const pTop = pl.y;
                 const pBottom = pl.y + pl.height;
-                const cx = Math.max(pLeft,  Math.min(projX, pRight));
-                const cy = Math.max(pTop,   Math.min(projY, pBottom));
+                const cx = Math.max(pLeft, Math.min(projX, pRight));
+                const cy = Math.max(pTop, Math.min(projY, pBottom));
                 const dist = Math.hypot(projX - cx, projY - cy);
                 if (dist < radius) {
                     this.hurtPlayer(damage, isBossKill);
@@ -1651,11 +1659,15 @@ window.addEventListener('load', function () {
 
         update(deltaTime) {
             if (this.paused) return;
-            if (this.isMultiplayer) {
-                this.updateMultiplayerEntities(deltaTime);
-            }
+
             if (this.storyDialogueManager && this.storyDialogueManager.active) {
                 this.storyDialogueManager.update(deltaTime);
+                // FIX: multiplayer remote players still need to keep interpolating
+                // even while a dialogue/cutscene is active, otherwise they visibly
+                // freeze mid-motion for everyone else during cutscenes.
+                if (this.isMultiplayer) {
+                    this.updateMultiplayerEntities(deltaTime);
+                }
                 if (!this.isMultiplayer) {
                     return;
                 }
@@ -1710,6 +1722,17 @@ window.addEventListener('load', function () {
             if (this.enemies.some(e => e.isBoss && e.introLocked)) {
                 this.scrollSpeed = 0;
             }
+
+            // FIX: this call used to happen at the very top of update(), before
+            // this.scrollSpeed was computed for the current frame — meaning remote
+            // players were always offset using LAST frame's scroll value, causing a
+            // visible one-frame desync/jitter (especially noticeable whenever scroll
+            // suddenly changes, e.g. boss intro lock). Moved here so it always uses
+            // the freshly computed scrollSpeed.
+            if (this.isMultiplayer) {
+                this.updateMultiplayerEntities(deltaTime);
+            }
+
             const scrollSpeed = this.scrollSpeed;
             this.cameraX += scrollSpeed;
 
@@ -3623,7 +3646,7 @@ window.addEventListener('load', function () {
                     context.stroke();
                 } else if (player.characterType === 'archdemon') {
                     context.beginPath();
-                    context.arc(0, 0, 10, 0, Math.PI * 1.35);
+                    context.arc(0, 0, 10, -Math.PI * 0.45, Math.PI * 1.35);
                     context.stroke();
                     context.beginPath();
                     context.arc(0, 0, 6, Math.PI * 0.7, Math.PI * 2);
@@ -3881,6 +3904,10 @@ window.addEventListener('load', function () {
         document.body.appendChild(container);
     })();
 
+    // FIX (XSS): build the toast entirely with safe DOM APIs / textContent
+    // instead of interpolating the message straight into innerHTML. A
+    // malicious/error message containing HTML could otherwise execute in
+    // every viewer's browser.
     function showToast(message, type = 'error', duration = 3500) {
         const container = document.getElementById('toast-container');
         if (!container) return;
@@ -3894,15 +3921,30 @@ window.addEventListener('load', function () {
 
         const toast = document.createElement('div');
         toast.className = `toast toast-${type}`;
-        toast.innerHTML = `
-            <span class="toast-icon">${icons[type] || icons.error}</span>
-            <span class="toast-msg">${message}</span>
-            <button class="toast-close" title="Dismiss">✕</button>
-            <div class="toast-progress"></div>
-        `;
+
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'toast-icon';
+        iconSpan.textContent = icons[type] || icons.error;
+
+        const msgSpan = document.createElement('span');
+        msgSpan.className = 'toast-msg';
+        msgSpan.textContent = message;
+
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'toast-close';
+        closeBtn.title = 'Dismiss';
+        closeBtn.textContent = '✕';
+
+        const progressDiv = document.createElement('div');
+        progressDiv.className = 'toast-progress';
+
+        toast.appendChild(iconSpan);
+        toast.appendChild(msgSpan);
+        toast.appendChild(closeBtn);
+        toast.appendChild(progressDiv);
 
         // Close button
-        toast.querySelector('.toast-close').addEventListener('click', () => dismissToast(toast));
+        closeBtn.addEventListener('click', () => dismissToast(toast));
 
         container.appendChild(toast);
 
@@ -4086,7 +4128,7 @@ window.addEventListener('load', function () {
                     const item = document.createElement('div');
                     item.className = `room-member-item ${m.isReady ? 'ready' : ''}`;
                     item.innerHTML = `
-                        <span style="font-weight:700;">${m.username.toUpperCase()} (${m.characterType.toUpperCase()}) ${m.playerId === room.hostId ? '👑' : ''}</span>
+                        <span style="font-weight:700;">${escapeHtml(m.username.toUpperCase())} (${escapeHtml(m.characterType.toUpperCase())}) ${m.playerId === room.hostId ? '👑' : ''}</span>
                         <span class="ready-badge ${m.isReady ? 'is-ready' : 'not-ready'}">${m.isReady ? 'READY' : 'NOT READY'}</span>
                     `;
                     roomMembersList.appendChild(item);
@@ -4106,10 +4148,29 @@ window.addEventListener('load', function () {
             });
 
             // Chat Messages handler
+            // FIX (XSS): previously built with innerHTML and raw `sender`/`message`
+            // values from other players — this let any player inject executable
+            // HTML into everyone else's chat window. Now built with safe DOM
+            // nodes + textContent so any HTML in the message is shown as plain text.
             game.socket.on('chatMessage', ({ sender, message, time }) => {
                 const msgEl = document.createElement('div');
                 msgEl.className = 'chat-msg';
-                msgEl.innerHTML = `<span class="sender">${sender}:</span><span>${message}</span><span class="time">${time}</span>`;
+
+                const senderSpan = document.createElement('span');
+                senderSpan.className = 'sender';
+                senderSpan.textContent = sender + ':';
+
+                const msgSpan = document.createElement('span');
+                msgSpan.textContent = message;
+
+                const timeSpan = document.createElement('span');
+                timeSpan.className = 'time';
+                timeSpan.textContent = time;
+
+                msgEl.appendChild(senderSpan);
+                msgEl.appendChild(msgSpan);
+                msgEl.appendChild(timeSpan);
+
                 lobbyChatMessages.appendChild(msgEl);
                 lobbyChatMessages.scrollTop = lobbyChatMessages.scrollHeight;
             });
@@ -4276,15 +4337,15 @@ window.addEventListener('load', function () {
                                         particles: particles,
                                         history: history,
                                         rotation: rotation + 0.15,
-                                        update: function(dt) {
+                                        update: function (dt) {
                                             const localPlayer = this.game.player;
                                             if (localPlayer && !localPlayer.isDead && this.game.hitCooldown <= 0) {
-                                                const pLeft   = localPlayer.x + localPlayer.width  * 0.25;
-                                                const pRight  = localPlayer.x + localPlayer.width  * 0.75;
-                                                const pTop    = localPlayer.y;
+                                                const pLeft = localPlayer.x + localPlayer.width * 0.25;
+                                                const pRight = localPlayer.x + localPlayer.width * 0.75;
+                                                const pTop = localPlayer.y;
                                                 const pBottom = localPlayer.y + localPlayer.height;
-                                                const cx = Math.max(pLeft,  Math.min(this.x, pRight));
-                                                const cy = Math.max(pTop,   Math.min(this.y, pBottom));
+                                                const cx = Math.max(pLeft, Math.min(this.x, pRight));
+                                                const cy = Math.max(pTop, Math.min(this.y, pBottom));
                                                 const dist = Math.hypot(this.x - cx, this.y - cy);
                                                 if (dist < this.radius) {
                                                     this.game.hurtPlayer(this.damage, this.type.includes('Boss') || this.type.includes('Giant'));
@@ -4371,7 +4432,7 @@ window.addEventListener('load', function () {
                                                     const dy = this.vy / speed;
                                                     const px = this.x - dx * 10 + (-dy) * offsetDist;
                                                     const py = this.y - dy * 10 + dx * offsetDist;
-                                                    
+
                                                     this.particles.push({
                                                         x: px,
                                                         y: py,
@@ -4432,7 +4493,7 @@ window.addEventListener('load', function () {
                                                 this.particles = this.particles.filter(p => p.alpha > 0);
                                             }
                                         },
-                                        draw: function(ctx) {
+                                        draw: function (ctx) {
                                             if (this.type === 'FireProjectile') {
                                                 ctx.save();
                                                 this.particles.forEach(p => {
@@ -4486,13 +4547,13 @@ window.addEventListener('load', function () {
                                                     this.particles.forEach(p => {
                                                         ctx.beginPath();
                                                         ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                                                        ctx.fillStyle = p.colorType === 'red_fire' 
-                                                            ? `rgba(255, 60, 0, ${p.alpha})` 
+                                                        ctx.fillStyle = p.colorType === 'red_fire'
+                                                            ? `rgba(255, 60, 0, ${p.alpha})`
                                                             : `rgba(255, 200, 0, ${p.alpha})`;
                                                         ctx.fill();
                                                     });
                                                     ctx.restore();
-                                                    
+
                                                     ctx.save();
                                                     ctx.translate(this.x, this.y);
                                                     ctx.shadowColor = '#ff3d00';
@@ -4515,7 +4576,7 @@ window.addEventListener('load', function () {
                                                 this.particles.forEach(p => {
                                                     ctx.beginPath();
                                                     ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                                                    ctx.fillStyle = (this.game.level === 5) 
+                                                    ctx.fillStyle = (this.game.level === 5)
                                                         ? p.color.replace('0, 210, 255', '0, 230, 100')
                                                         : p.color;
                                                     ctx.fill();
@@ -4528,9 +4589,9 @@ window.addEventListener('load', function () {
                                                     ctx.translate(pos.x, pos.y);
                                                     ctx.rotate(pos.angle);
                                                     ctx.beginPath();
-                                                    ctx.moveTo(0, -90/2);
-                                                    ctx.quadraticCurveTo(35, 0, 0, 90/2);
-                                                    ctx.quadraticCurveTo(35 * 0.3, 0, 0, -90/2);
+                                                    ctx.moveTo(0, -90 / 2);
+                                                    ctx.quadraticCurveTo(35, 0, 0, 90 / 2);
+                                                    ctx.quadraticCurveTo(35 * 0.3, 0, 0, -90 / 2);
                                                     ctx.closePath();
                                                     ctx.fillStyle = (this.game.level === 5)
                                                         ? `rgba(0, 230, 100, ${trailAlpha})`
@@ -4543,22 +4604,22 @@ window.addEventListener('load', function () {
                                                 ctx.translate(this.x, this.y);
                                                 ctx.rotate(angle);
                                                 ctx.beginPath();
-                                                ctx.moveTo(0, -90/2);
-                                                ctx.quadraticCurveTo(35, 0, 0, 90/2);
-                                                ctx.quadraticCurveTo(35 * 0.3, 0, 0, -90/2);
+                                                ctx.moveTo(0, -90 / 2);
+                                                ctx.quadraticCurveTo(35, 0, 0, 90 / 2);
+                                                ctx.quadraticCurveTo(35 * 0.3, 0, 0, -90 / 2);
                                                 ctx.closePath();
                                                 const grad = ctx.createLinearGradient(0, 0, 35, 0);
                                                 if (this.game.level === 5) {
-                                                    grad.addColorStop(0, 'rgba(0, 230, 100, 0)');      
+                                                    grad.addColorStop(0, 'rgba(0, 230, 100, 0)');
                                                     grad.addColorStop(0.3, 'rgba(0, 230, 100, 0.6)');
                                                     grad.addColorStop(0.7, 'rgba(180, 255, 200, 0.95)');
-                                                    grad.addColorStop(1, '#ffffff');                   
+                                                    grad.addColorStop(1, '#ffffff');
                                                     ctx.shadowColor = '#00ff33';
                                                 } else {
-                                                    grad.addColorStop(0, 'rgba(0, 80, 255, 0)');      
+                                                    grad.addColorStop(0, 'rgba(0, 80, 255, 0)');
                                                     grad.addColorStop(0.3, 'rgba(0, 180, 255, 0.6)');
                                                     grad.addColorStop(0.7, 'rgba(160, 245, 255, 0.95)');
-                                                    grad.addColorStop(1, '#ffffff');                   
+                                                    grad.addColorStop(1, '#ffffff');
                                                     ctx.shadowColor = '#00c8ff';
                                                 }
                                                 ctx.shadowBlur = 18;
@@ -4568,8 +4629,8 @@ window.addEventListener('load', function () {
                                                 ctx.strokeStyle = 'rgba(230, 255, 255, 0.6)';
                                                 ctx.lineWidth = 1.5;
                                                 ctx.beginPath();
-                                                ctx.moveTo(0, -90/2);
-                                                ctx.quadraticCurveTo(35, 0, 0, 90/2);
+                                                ctx.moveTo(0, -90 / 2);
+                                                ctx.quadraticCurveTo(35, 0, 0, 90 / 2);
                                                 ctx.stroke();
                                                 ctx.restore();
                                             } else if (this.type === 'StoneProjectile') {
