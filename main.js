@@ -1565,9 +1565,11 @@ window.addEventListener('load', function () {
             if (this.isMultiplayer) {
                 this.updateMultiplayerEntities(deltaTime);
             }
-            if (!this.isMultiplayer && this.storyDialogueManager && this.storyDialogueManager.active) {
+            if (this.storyDialogueManager && this.storyDialogueManager.active) {
                 this.storyDialogueManager.update(deltaTime);
-                return;
+                if (!this.isMultiplayer) {
+                    return;
+                }
             }
             if (!this.gameStarted && !this.startTransition) return;
 
@@ -4021,6 +4023,9 @@ window.addEventListener('load', function () {
                     game.mode = data.mode || 'coop';
                 }
                 game._init();
+                if (game.storyDialogueManager) {
+                    game.storyDialogueManager.startLevelIntro(game.level);
+                }
             });
 
             // Game state Tick sync

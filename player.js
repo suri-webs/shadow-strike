@@ -312,6 +312,9 @@ export class Player {
         if (this.rasenganActive) {
             input = [];
         }
+        if (this.game.storyDialogueManager && this.game.storyDialogueManager.active) {
+            input = [];
+        }
 
         // If boss is introducing/roaring (introLocked is active), block player attacks
         if (this.game.enemies.some(e => e.isBoss && e.introLocked)) {
