@@ -87,5 +87,5 @@ Deploy the static client app to Vercel or Netlify.
 3. Click **Deploy**. Vercel will bundle the ES Modules and assets into a globally distributed CDN.
 4. **Link Backend**:
    - The game client automatically detects if it's running on `localhost`. If so, it points to local port `3000`.
-   - If running in production, it points to `https://shadow-strike-server.up.railway.app`.
+   - If running in production, it points to `https://twod-game-server-p8ly.onrender.com/`.
    - To change this production server URL, open `main.js` and modify `SERVER_URL` to match your newly deployed server endpoint.
