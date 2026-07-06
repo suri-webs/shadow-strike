@@ -1284,7 +1284,10 @@ window.addEventListener('load', function () {
         }
 
         spawnDissolveParticles(enemy) {
-            const count = enemy.isBoss ? 45 : 20 + Math.floor(Math.random() * 10);
+            // Cap total particles pool to avoid lag
+            const MAX_PARTICLES = 150;
+            if (this.particles.length >= MAX_PARTICLES) return;
+            const count = enemy.isBoss ? 30 : Math.min(15, 10 + Math.floor(Math.random() * 6));
             let colors = ['rgba(240,240,240,0.85)', 'rgba(190,190,190,0.7)'];
             let isGolden = false;
             let isVolcanic = false;
@@ -1565,7 +1568,7 @@ window.addEventListener('load', function () {
             if (this.isMultiplayer) {
                 this.updateMultiplayerEntities(deltaTime);
             }
-            if (!this.isMultiplayer && this.storyDialogueManager && this.storyDialogueManager.active) {
+            if (this.storyDialogueManager && this.storyDialogueManager.active) {
                 this.storyDialogueManager.update(deltaTime);
                 return;
             }
@@ -4025,12 +4028,15 @@ window.addEventListener('load', function () {
             game.socket.on('gameStarted', (data) => {
                 lobbyOverlay.classList.remove('active');
                 game.isMultiplayer = true;
-                game.gameStarted = true;
                 game.paused = false;
                 if (data) {
                     game.level = data.level || 1;
                     game.mode = data.mode || 'coop';
                 }
+                // Use startTransition so story dialogue triggers naturally
+                game.startTransition = true;
+                game.startTransitionTimer = 0;
+                game.gameStarted = false;
                 game._init();
             });
 
@@ -5922,8 +5928,10 @@ window.addEventListener('load', function () {
 
 
         // Run updates at a fixed logical frequency (60Hz)
+        // Cap to 3 ticks max per frame to prevent spiral-of-death lag on slow machines
         let gameUpdated = false;
-        while (accumulator >= timestep) {
+        let maxTicks = 3;
+        while (accumulator >= timestep && maxTicks-- > 0) {
             // Save previous positions of all moving objects before we update
             const objects = gatherInterpolatableObjects(game);
             objects.forEach(entry => {
@@ -5939,6 +5947,8 @@ window.addEventListener('load', function () {
             accumulator -= timestep;
             gameUpdated = true;
         }
+        // Discard leftover time if we hit the tick cap (prevents runaway catch-up)
+        if (accumulator >= timestep) accumulator = accumulator % timestep;
 
         // Throttle player coordinates broadcast to 60Hz (once per render frame) to avoid socket network flooding
         if (gameUpdated && game.isMultiplayer && game.socket && game.player) {
@@ -5959,9 +5969,10 @@ window.addEventListener('load', function () {
         }
 
         // Apply interpolated positions for smooth drawing at any refresh rate
+        // Re-use the same objects list built during the last update tick (cached)
         const alpha = accumulator / timestep;
-        const objects = gatherInterpolatableObjects(game);
-        objects.forEach(entry => {
+        const renderObjects = gatherInterpolatableObjects(game);
+        renderObjects.forEach(entry => {
             const { obj, props } = entry;
             props.forEach(prop => {
                 const prev = obj['_prev_' + prop] !== undefined ? obj['_prev_' + prop] : obj[prop];
