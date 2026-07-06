@@ -3781,6 +3781,56 @@ window.addEventListener('load', function () {
         ? 'http://localhost:3000'
         : 'https://twod-game-server-rndp.onrender.com'; // Replace with production URL on deploy
 
+    // ── Toast Notification System ──
+    (function initToastSystem() {
+        if (document.getElementById('toast-container')) return;
+        const container = document.createElement('div');
+        container.id = 'toast-container';
+        document.body.appendChild(container);
+    })();
+
+    function showToast(message, type = 'error', duration = 3500) {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+
+        const icons = {
+            error:   '⛔',
+            success: '✅',
+            warning: '⚠️',
+            info:    'ℹ️'
+        };
+
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerHTML = `
+            <span class="toast-icon">${icons[type] || icons.error}</span>
+            <span class="toast-msg">${message}</span>
+            <button class="toast-close" title="Dismiss">✕</button>
+            <div class="toast-progress"></div>
+        `;
+
+        // Close button
+        toast.querySelector('.toast-close').addEventListener('click', () => dismissToast(toast));
+
+        container.appendChild(toast);
+
+        // Trigger slide-in
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => toast.classList.add('toast-show'));
+        });
+
+        // Auto dismiss
+        const timer = setTimeout(() => dismissToast(toast), duration);
+        toast._toastTimer = timer;
+    }
+
+    function dismissToast(toast) {
+        clearTimeout(toast._toastTimer);
+        toast.classList.remove('toast-show');
+        toast.classList.add('toast-hide');
+        setTimeout(() => toast.remove(), 350);
+    }
+
     async function makeRequest(route, method, body) {
         try {
             const headers = { 'Content-Type': 'application/json' };
@@ -4042,6 +4092,11 @@ window.addEventListener('load', function () {
 
         // Multiplayer Action — hide main menu, open lobby
         mpBtn.onclick = () => {
+            // Auto-connect guest socket if not already connected (fixes join room for guests)
+            if (!game.socket) {
+                const savedToken = localStorage.getItem('shadowStrikeToken');
+                connectSocket(savedToken || null);
+            }
             mainMenu.classList.remove('active');
             lobbySelectionView.style.display = 'block';
             lobbyRoomView.style.display = 'none';
@@ -4100,7 +4155,7 @@ window.addEventListener('load', function () {
                 authEmailInput.value = '';
                 authPasswordInput.value = '';
             } else {
-                alert(data.error || 'Authentication failed.');
+                showToast(data.error || 'Authentication failed.', 'error');
             }
             authSubmitBtn.innerText = isSignupMode ? 'Sign Up' : 'Log In';
         };
@@ -4131,7 +4186,10 @@ window.addEventListener('load', function () {
 
         // Create Room Action
         btnCreateRoom.onclick = () => {
-            if (!game.socket) return;
+            if (!game.socket || !game.socket.connected) {
+                showToast('Connecting to server... Please wait and try again.', 'warning');
+                return;
+            }
             const mode = createModeSelect.value;
             const maxPlayers = createSizeSelect.value;
             const level = createLevelSelect.value;
@@ -4142,16 +4200,19 @@ window.addEventListener('load', function () {
                     lobbyRoomView.style.display = 'grid';
                     lobbyChatMessages.innerHTML = '';
                 } else {
-                    alert(res.error || 'Failed to create room.');
+                    showToast(res.error || 'Failed to create room.', 'error');
                 }
             });
         };
 
         // Join Room Action
         btnJoinRoom.onclick = () => {
-            if (!game.socket) return;
+            if (!game.socket || !game.socket.connected) {
+                showToast('Connecting to server... Please wait and try again.', 'warning');
+                return;
+            }
             const code = joinCodeInput.value.trim().toUpperCase();
-            if (code.length !== 6) return alert('Room Code must be 6 characters.');
+            if (code.length !== 6) { showToast('Room Code must be 6 characters.', 'warning'); return; }
 
             game.socket.emit('joinRoom', { code }, (res) => {
                 if (res.success) {
@@ -4160,7 +4221,7 @@ window.addEventListener('load', function () {
                     lobbyChatMessages.innerHTML = '';
                     joinCodeInput.value = '';
                 } else {
-                    alert(res.error || 'Room joining failed.');
+                    showToast(res.error || 'Room joining failed.', 'error');
                 }
             });
         };
@@ -4180,7 +4241,7 @@ window.addEventListener('load', function () {
             if (!game.socket || !currentRoomCode) return;
             game.socket.emit('startGame', { code: currentRoomCode }, (res) => {
                 if (!res.success) {
-                    alert(res.error);
+                    showToast(res.error || 'Failed to start match.', 'error');
                 }
             });
         };
