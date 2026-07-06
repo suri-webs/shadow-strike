@@ -854,6 +854,7 @@ window.addEventListener('load', function () {
             this.loot = [];
             this.pvpWinnerId = null;
             this.serverState = null;
+            this.cameraX = 0;
 
             this._init();
 
@@ -899,6 +900,7 @@ window.addEventListener('load', function () {
             if (this.playerId) {
                 this.player.id = this.playerId;
             }
+            this.cameraX = 0;
 
             // Update virtual gamepad theme colors matching selected player character
             const vContainer = document.getElementById('virtual-controls');
@@ -1622,6 +1624,7 @@ window.addEventListener('load', function () {
                 this.scrollSpeed = 0;
             }
             const scrollSpeed = this.scrollSpeed;
+            this.cameraX += scrollSpeed;
 
             this.floatingTexts.forEach(t => { t.x -= scrollSpeed; t.y += t.vy; t.life -= deltaTime * 0.001; });
             this.floatingTexts = this.floatingTexts.filter(t => t.life > 0);
@@ -1972,7 +1975,7 @@ window.addEventListener('load', function () {
                     if (p.id === this.playerId) return;
 
                     // If the camera scrolls, offset remote player target coordinates to stay synchronized
-                    if (this.scrollSpeed > 0) {
+                    if (this.scrollSpeed !== 0) {
                         p.x -= this.scrollSpeed;
                         if (p.targetX !== undefined) p.targetX -= this.scrollSpeed;
                     }
@@ -4062,12 +4065,12 @@ window.addEventListener('load', function () {
                         pInstance = new Player(game, sPlayer.characterType);
                         pInstance.id = id;
                         pInstance.username = sPlayer.username;
-                        pInstance.x = sPlayer.x;
+                        pInstance.x = sPlayer.x - game.cameraX;
                         pInstance.y = sPlayer.y;
                         pInstance.vy = sPlayer.vy;
                         game.players.set(id, pInstance);
                     }
-                    pInstance.targetX = sPlayer.x;
+                    pInstance.targetX = sPlayer.x - game.cameraX;
                     pInstance.targetY = sPlayer.y;
                     pInstance.vy = sPlayer.vy;
                     pInstance.currentHP = sPlayer.hp;
@@ -5913,7 +5916,7 @@ window.addEventListener('load', function () {
         // Throttle player coordinates broadcast to 60Hz (once per render frame) to avoid socket network flooding
         if (gameUpdated && game.isMultiplayer && game.socket && game.player) {
             const playerState = {
-                x: game.player.x,
+                x: game.player.x + game.cameraX,
                 y: game.player.y,
                 vy: game.player.vy,
                 animState: game.player.currentState.state,

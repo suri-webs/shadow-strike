@@ -45,7 +45,7 @@ export class Background {
     }
 
     _scrollSpeed() {
-        if (this.game.isMultiplayer || this.game.enemies.some(e => e.isBoss && e.introLocked)) return 0;
+        if (this.game.enemies.some(e => e.isBoss && e.introLocked)) return 0;
         const threshold = this.game.width * 0.5;
         const playerX = this.game.player.x;
         const spd = this.game.speed;
@@ -81,7 +81,7 @@ export class Level2Background {
     }
 
     _scrollSpeed() {
-        if (this.game.isMultiplayer || this.game.enemies.some(e => e.isBoss && e.introLocked)) return 0;
+        if (this.game.enemies.some(e => e.isBoss && e.introLocked)) return 0;
         const s = this.game.speed;
         const threshold = this.game.width * 0.5;
         if (s > 0 && this.game.player.x > threshold) return s;
@@ -133,7 +133,7 @@ export class Level3Background {
     }
 
     _scrollSpeed() {
-        if (this.game.isMultiplayer || this.game.enemies.some(e => e.isBoss && e.introLocked)) return 0;
+        if (this.game.enemies.some(e => e.isBoss && e.introLocked)) return 0;
         const s = this.game.speed;
         const threshold = this.W * 0.5;
         if (s > 0 && this.game.player.x > threshold) return s;
@@ -232,7 +232,7 @@ export class Level4Background {
     }
 
     _scrollSpeed() {
-        if (this.game.isMultiplayer || this.game.enemies.some(e => e.isBoss && e.introLocked)) return 0;
+        if (this.game.enemies.some(e => e.isBoss && e.introLocked)) return 0;
         const s = this.game.speed;
         const threshold = this.W * 0.5;
         if (s > 0 && this.game.player.x > threshold) return s;
@@ -335,7 +335,7 @@ export class Level5Background {
     }
 
     _scrollSpeed() {
-        if (this.game.isMultiplayer || this.game.enemies.some(e => e.isBoss && e.introLocked)) return 0;
+        if (this.game.enemies.some(e => e.isBoss && e.introLocked)) return 0;
         const s = this.game.speed;
         const threshold = this.W * 0.5;
         if (s > 0 && this.game.player.x > threshold) return s;
