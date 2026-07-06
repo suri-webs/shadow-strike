@@ -159,7 +159,13 @@ export class FlyingEnemy {
         this.width = 82;
         this.height = 82;
 
-        this.x = this.game.width + Math.random() * 200;
+        // In multiplayer the background doesn't scroll — spawn near player's right side
+        if (this.game.isMultiplayer) {
+            const spawnX = Math.min(this.game.width + 50, (this.game.player ? this.game.player.x : 400) + 700);
+            this.x = spawnX;
+        } else {
+            this.x = this.game.width + Math.random() * 200;
+        }
 
         // Keep enemy in the reachable mid-height zone (y 200–370)
         // so the player can hit it with jumps, melee and projectiles
@@ -192,7 +198,8 @@ export class FlyingEnemy {
         this.flashTimer = 0;
 
         this.markedForDeletion = false;
-        this.hasEnteredScreen = false;
+        // In multiplayer spawn near player — no screen-entry delay needed
+        this.hasEnteredScreen = this.game.isMultiplayer ? true : false;
 
         this.bobTimer = Math.random() * Math.PI * 4;
         this.bobSpeed = 0.0018;
@@ -259,6 +266,11 @@ export class FlyingEnemy {
         }
 
         if (!this.hasEnteredScreen && this.x <= this.game.width - this.width * 0.95) {
+            this.hasEnteredScreen = true;
+        }
+        // Multiplayer mein scroll nahi hota — flying enemy player ki taraf aata hai,
+        // toh jab bhi screen ke andar aa jaaye toh hasEnteredScreen true karo
+        if (!this.hasEnteredScreen && this.game.isMultiplayer && this.x < this.game.width) {
             this.hasEnteredScreen = true;
         }
 
