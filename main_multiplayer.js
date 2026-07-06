@@ -1562,7 +1562,10 @@ window.addEventListener('load', function () {
 
         update(deltaTime) {
             if (this.paused) return;
-            if (this.storyDialogueManager && this.storyDialogueManager.active) {
+            if (this.isMultiplayer) {
+                this.updateMultiplayerEntities(deltaTime);
+            }
+            if (!this.isMultiplayer && this.storyDialogueManager && this.storyDialogueManager.active) {
                 this.storyDialogueManager.update(deltaTime);
                 return;
             }
@@ -3907,13 +3910,24 @@ window.addEventListener('load', function () {
             updateUserUI(null);
         }
 
+        function openLobbyDirectly() {
+            if (!game.socket) {
+                const savedToken = localStorage.getItem('shadowStrikeToken');
+                connectSocket(savedToken || null);
+            }
+            mainMenu.classList.remove('active');
+            lobbySelectionView.style.display = 'block';
+            lobbyRoomView.style.display = 'none';
+            lobbyOverlay.classList.add('active');
+        }
+
         async function verifyTokenAndConnect() {
             const data = await makeRequest('/auth/me', 'GET');
             if (data && data.user) {
                 updateUserUI(data.user);
                 connectSocket(localStorage.getItem('shadowStrikeToken'));
-                // Token valid — hide login screen to reveal start screen
                 authOverlay.classList.remove('active');
+                openLobbyDirectly();
             } else {
                 localStorage.removeItem('shadowStrikeToken');
                 localStorage.removeItem('shadowStrikeUser');
@@ -4102,10 +4116,7 @@ window.addEventListener('load', function () {
 
         // Close buttons
         closeLobbyBtn.onclick = () => {
-            lobbyOverlay.classList.remove('active');
-            // Return to mode selection panel
-            const modeSel = document.getElementById('mode-selection-overlay');
-            if (modeSel) modeSel.classList.add('active');
+            window.location.href = 'index.html';
         };
         closeLeaderboardBtn.onclick = () => leaderboardOverlay.classList.remove('active');
 
@@ -4145,8 +4156,8 @@ window.addEventListener('load', function () {
                 localStorage.setItem('shadowStrikeUser', JSON.stringify(data.user));
                 updateUserUI(data.user);
                 connectSocket(data.token);
-                // Hide login screen to reveal start screen
                 authOverlay.classList.remove('active');
+                openLobbyDirectly();
 
                 authUsernameInput.value = '';
                 authEmailInput.value = '';
@@ -4162,6 +4173,7 @@ window.addEventListener('load', function () {
             authOverlay.classList.remove('active');
             connectSocket(null);
             updateUserUI(null);
+            openLobbyDirectly();
         };
 
         // Auth Action — LOG OUT: go back to login screen
