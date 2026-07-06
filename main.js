@@ -1562,7 +1562,10 @@ window.addEventListener('load', function () {
 
         update(deltaTime) {
             if (this.paused) return;
-            if (this.storyDialogueManager && this.storyDialogueManager.active) {
+            if (this.isMultiplayer) {
+                this.updateMultiplayerEntities(deltaTime);
+            }
+            if (!this.isMultiplayer && this.storyDialogueManager && this.storyDialogueManager.active) {
                 this.storyDialogueManager.update(deltaTime);
                 return;
             }
@@ -4854,33 +4857,7 @@ window.addEventListener('load', function () {
     // Initialize layout positions
     applyLayout();
 
-    // ── Right-Click & Developer Inspection Blocks ────────────────────
-    window.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-    }, false);
 
-    window.addEventListener('keydown', (e) => {
-        // F12 key
-        if (e.key === 'F12' || e.keyCode === 123) {
-            e.preventDefault();
-            return false;
-        }
-        // Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C, Ctrl+Shift+K
-        if (e.ctrlKey && e.shiftKey && (
-            e.key === 'I' || e.key === 'i' ||
-            e.key === 'J' || e.key === 'j' ||
-            e.key === 'C' || e.key === 'c' ||
-            e.key === 'K' || e.key === 'k'
-        )) {
-            e.preventDefault();
-            return false;
-        }
-        // Ctrl+U (View Source)
-        if (e.ctrlKey && (e.key === 'U' || e.key === 'u')) {
-            e.preventDefault();
-            return false;
-        }
-    }, false);
 
     // Customizer UI Element Selectors
     const customizeLayoutBtn = document.getElementById('customize-layout-btn');
