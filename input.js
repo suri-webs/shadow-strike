@@ -9,6 +9,13 @@ export class InputHandler {
         this._oneShot = new Set(); // keys that should be cleared after one game frame
 
         window.addEventListener('keydown', e => {
+            if (
+                e.target.tagName === 'INPUT' ||
+                e.target.tagName === 'TEXTAREA' ||
+                e.target.isContentEditable
+            ) {
+                return;
+            }
 
             if (e.repeat) return;
 
@@ -107,6 +114,14 @@ export class InputHandler {
         });
 
         window.addEventListener('keyup', e => {
+            if (
+                e.target.tagName === 'INPUT' ||
+                e.target.tagName === 'TEXTAREA' ||
+                e.target.isContentEditable
+            ) {
+                return;
+            }
+
             const keyLower = e.key.toLowerCase();
 
             // Remove held keys

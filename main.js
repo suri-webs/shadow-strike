@@ -1,3 +1,4 @@
+// io is loaded from CDN (socket.io.min.js) in index.html — available as global
 import { Player } from "./player.js";
 import { Background, Level2Background, Level3Background, Level4Background, Level5Background, Level6Background, Level7Background, Level8Background, Level9Background, Level10Background } from "./background.js";
 import { GroundEnemy } from "./groundEnemy.js";
@@ -774,6 +775,13 @@ window.addEventListener('load', function () {
 
         bindEvents() {
             window.addEventListener('keydown', (e) => {
+                if (
+                    e.target.tagName === 'INPUT' ||
+                    e.target.tagName === 'TEXTAREA' ||
+                    e.target.isContentEditable
+                ) {
+                    return;
+                }
                 if (this.active && (e.key === ' ' || e.key === 'Spacebar')) {
                     e.preventDefault();
                     this.nextStep();
@@ -836,6 +844,17 @@ window.addEventListener('load', function () {
             this.paused = false;
             this.storyDialogueManager = new StoryDialogueManager(this);
             this.storyDialogueManager.bindEvents();
+
+            // Multiplayer Properties
+            this.isMultiplayer = false;
+            this.playerId = null;
+            this.username = null;
+            this.players = new Map();
+            this.projectiles = [];
+            this.loot = [];
+            this.pvpWinnerId = null;
+            this.serverState = null;
+
             this._init();
 
         }
@@ -846,7 +865,6 @@ window.addEventListener('load', function () {
         set currentHP(value) {
             if (this.player && this.player.shieldActive && value < this._currentHP) {
                 this.spawnHitSparks(this.player.x + this.player.width / 2, this.player.y + this.player.height / 2, 'cyan');
-                this.shake = Math.max(this.shake, 12);
                 return;
             }
             this._currentHP = value;
@@ -878,6 +896,9 @@ window.addEventListener('load', function () {
             const cfg = LEVEL_CONFIG[this.level];
             this.background = new bgMap[cfg.bgClass](this);
             this.player = new Player(this, this.selectedCharacter);
+            if (this.playerId) {
+                this.player.id = this.playerId;
+            }
 
             // Update virtual gamepad theme colors matching selected player character
             const vContainer = document.getElementById('virtual-controls');
@@ -1247,7 +1268,6 @@ window.addEventListener('load', function () {
                     player.y + player.height / 2,
                     'cyan'
                 );
-                this.shake = Math.max(this.shake, 14);
                 if (this.audio) this.audio.playSFX('punch');
                 this.hitCooldown = this.hitCooldownMax;
                 return false;
@@ -1542,6 +1562,9 @@ window.addEventListener('load', function () {
 
         update(deltaTime) {
             if (this.paused) return;
+            if (this.isMultiplayer) {
+                this.updateMultiplayerEntities(deltaTime);
+            }
             if (this.storyDialogueManager && this.storyDialogueManager.active) {
                 this.storyDialogueManager.update(deltaTime);
                 return;
@@ -1593,7 +1616,7 @@ window.addEventListener('load', function () {
             }
 
             this.scrollSpeed = (this.background && typeof this.background._scrollSpeed === 'function') ? this.background._scrollSpeed() : 0;
-            if (this.enemies.some(e => e.isBoss && e.introLocked)) {
+            if (this.isMultiplayer || this.enemies.some(e => e.isBoss && e.introLocked)) {
                 this.scrollSpeed = 0;
             }
             const scrollSpeed = this.scrollSpeed;
@@ -1941,6 +1964,35 @@ window.addEventListener('load', function () {
             }
         }
 
+        updateMultiplayerEntities(deltaTime) {
+            if (this.players) {
+                this.players.forEach(p => {
+                    if (p.id === this.playerId) return;
+
+                    // If the camera scrolls, offset remote player target coordinates to stay synchronized
+                    if (this.scrollSpeed > 0) {
+                        p.x -= this.scrollSpeed;
+                        if (p.targetX !== undefined) p.targetX -= this.scrollSpeed;
+                    }
+
+                    const animDelta = this.isMultiplayer ? deltaTime * 0.7 : deltaTime;
+                    p.frameTimer += animDelta;
+                    if (p.frameTimer >= p.frameInterval) {
+                        p.frameTimer = 0;
+                        if (p.frameX < p.maxFrame) p.frameX++;
+                        else p.frameX = 0;
+                    }
+
+
+                    // Smooth interpolate remote players towards target coordinates
+                    if (p.targetX !== undefined) {
+                        p.x += (p.targetX - p.x) * 0.25;
+                        p.y += (p.targetY - p.y) * 0.25;
+                    }
+                });
+            }
+        }
+
         draw(context) {
             if (!this.gameStarted) {
                 this.background.draw(context);
@@ -1992,47 +2044,163 @@ window.addEventListener('load', function () {
             }
 
             this.background.draw(context);
+
+            // Draw PVP loot items
+            if (this.isMultiplayer && this.loot) {
+                this.loot.forEach(l => {
+                    if (l.pickedUp) return;
+                    context.save();
+                    context.shadowColor = l.type === 'weapon' ? '#00e5ff' : '#00ff80';
+                    context.shadowBlur = 12;
+                    context.fillStyle = l.type === 'weapon' ? 'rgba(0, 229, 255, 0.4)' : 'rgba(0, 255, 128, 0.4)';
+                    context.strokeStyle = l.type === 'weapon' ? '#00e5ff' : '#00ff80';
+                    context.lineWidth = 1.5;
+                    context.beginPath();
+                    context.roundRect(l.x - 15, l.y - 15, 30, 30, 4);
+                    context.fill();
+                    context.stroke();
+
+                    context.font = '900 9px "Orbitron"';
+                    context.fillStyle = '#fff';
+                    context.textAlign = 'center';
+                    context.fillText(l.type === 'weapon' ? 'WEAPON' : 'HEAL', l.x, l.y + 3);
+                    context.restore();
+                });
+            }
+
             if (this.portal) this.portal.draw(context);
             if (this.dropbox) this.dropbox.draw(context);
-            this.player.draw(context);
+
+            if (this.isMultiplayer && this.players) {
+                this.players.forEach(p => {
+                    p.draw(context);
+
+                    context.save();
+                    context.font = 'bold 12px "Orbitron", sans-serif';
+                    context.fillStyle = '#00e5ff';
+                    context.textAlign = 'center';
+                    context.shadowColor = 'rgba(0,0,0,0.8)';
+                    context.shadowBlur = 4;
+                    let displayName = p.username;
+                    if (p.id === this.playerId) {
+                        displayName = this.username || 'GUEST';
+                    }
+                    context.fillText(displayName ? displayName.toUpperCase() : 'GUEST', p.x + p.width / 2, p.y - 12);
+
+                    const barW = 50;
+                    const barH = 4;
+                    const bx = p.x + p.width / 2 - barW / 2;
+                    const by = p.y - 25;
+                    context.fillStyle = 'rgba(0,0,0,0.5)';
+                    context.fillRect(bx, by, barW, barH);
+                    context.fillStyle = p.id === this.playerId ? '#00ff80' : '#ff2244';
+                    context.fillRect(bx, by, barW * (p.currentHP / p.maxHP), barH);
+                    context.restore();
+                });
+            } else {
+                this.player.draw(context);
+
+                // Draw name above the player in Single-Player
+                context.save();
+                context.font = 'bold 12px "Orbitron", sans-serif';
+                context.fillStyle = '#00e5ff';
+                context.textAlign = 'center';
+                context.shadowColor = 'rgba(0,0,0,0.85)';
+                context.shadowBlur = 4;
+
+                let displayName = 'GUEST';
+                if (this.username) {
+                    displayName = this.username;
+                } else {
+                    const savedUser = localStorage.getItem('shadowStrikeUser');
+                    if (savedUser) {
+                        try {
+                            const parsed = JSON.parse(savedUser);
+                            if (parsed && parsed.username) displayName = parsed.username;
+                        } catch (e) { }
+                    }
+                }
+                context.fillText(displayName.toUpperCase(), this.player.x + this.player.width / 2, this.player.y - 12);
+                context.restore();
+            }
+
             this.enemies.forEach(e => e.draw(context));
 
+            // Draw PvP/Coop server-side projectiles
+            if (this.isMultiplayer && this.projectiles) {
+                this.projectiles.forEach(p => {
+                    context.save();
+                    if (p.type === 'kamehameha') {
+                        context.shadowColor = '#00e5ff';
+                        context.shadowBlur = 15;
+                        context.fillStyle = '#00e5ff';
+                        context.fillRect(p.x, p.y - 10, 120, 20);
+                    } else if (p.type === 'rasengan') {
+                        context.shadowColor = '#ea80fc';
+                        context.shadowBlur = 15;
+                        context.fillStyle = '#ea80fc';
+                        context.beginPath();
+                        context.arc(p.x, p.y, 20, 0, Math.PI * 2);
+                        context.fill();
+                    } else {
+                        context.shadowColor = '#ffa726';
+                        context.shadowBlur = 10;
+                        context.fillStyle = '#ffa726';
+                        context.beginPath();
+                        context.arc(p.x, p.y, 8, 0, Math.PI * 2);
+                        context.fill();
+                    }
+                    context.restore();
+                });
+            }
+
             if (this.particles.length > 0) {
-                context.save();
                 this.particles.forEach(p => {
                     const alpha = Math.max(0, Math.min(1, p.alpha));
+                    context.globalAlpha = alpha;
+
                     if (p.type === 'rect') {
-                        context.save();
-                        context.globalAlpha = alpha;
-                        context.beginPath();
-                        context.translate(p.x, p.y);
-                        context.rotate(p.angle || 0);
                         context.fillStyle = p.color;
-                        context.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
-                        context.restore();
+                        if (p.angle) {
+                            context.save();
+                            context.beginPath();
+                            context.translate(p.x, p.y);
+                            context.rotate(p.angle);
+                            context.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                            context.restore();
+                        } else {
+                            context.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+                        }
                     } else if (p.type === 'spark') {
-                        context.save();
-                        context.globalAlpha = alpha;
                         context.strokeStyle = p.color;
                         context.lineWidth = p.lineWidth || 2;
-                        context.beginPath();
-                        context.translate(p.x, p.y);
-                        context.rotate(p.angle || 0);
-                        context.moveTo(-p.size, 0);
-                        context.lineTo(p.size, 0);
-                        context.moveTo(0, -p.size * 0.45);
-                        context.lineTo(0, p.size * 0.45);
-                        context.stroke();
-                        context.restore();
+                        if (p.angle) {
+                            context.save();
+                            context.beginPath();
+                            context.translate(p.x, p.y);
+                            context.rotate(p.angle);
+                            context.moveTo(-p.size, 0);
+                            context.lineTo(p.size, 0);
+                            context.moveTo(0, -p.size * 0.45);
+                            context.lineTo(0, p.size * 0.45);
+                            context.stroke();
+                            context.restore();
+                        } else {
+                            context.beginPath();
+                            context.moveTo(p.x - p.size, p.y);
+                            context.lineTo(p.x + p.size, p.y);
+                            context.moveTo(p.x, p.y - p.size * 0.45);
+                            context.lineTo(p.x, p.y + p.size * 0.45);
+                            context.stroke();
+                        }
                     } else {
-                        context.globalAlpha = alpha;
                         context.beginPath();
                         context.arc(p.x, p.y, p.size, 0, Math.PI * 2);
                         context.fillStyle = p.color;
                         context.fill();
                     }
                 });
-                context.restore();
+                context.globalAlpha = 1.0;
             }
 
             this.floatingTexts.forEach(t => {
@@ -2178,6 +2346,41 @@ window.addEventListener('load', function () {
             if (this.levelComplete) { this._drawLevelComplete(context); context.restore(); return; }
             if (this.gameOver && this.gameOverTimer >= this.gameOverDelay) { this._drawGameOver(context); context.restore(); return; }
 
+            // Draw PvP roster list
+            if (this.isMultiplayer && this.serverState && this.serverState.mode === 'pvp') {
+                context.save();
+                context.font = 'bold 12px "Orbitron", sans-serif';
+                context.fillStyle = 'rgba(10, 8, 24, 0.8)';
+                context.strokeStyle = 'rgba(0,229,255,0.2)';
+                context.lineWidth = 1.5;
+                const sx = this.width - 240, sy = 80, sw = 220, sh = 120;
+                context.beginPath();
+                context.roundRect(sx, sy, sw, sh, 6);
+                context.fill();
+                context.stroke();
+
+                context.fillStyle = '#00e5ff';
+                context.fillText('ARENA PVP ROSTER', sx + 15, sy + 25);
+
+                let idx = 0;
+                if (this.players) {
+                    this.players.forEach(p => {
+                        const py = sy + 48 + idx * 20;
+                        context.fillStyle = p.isDead ? 'rgba(255,255,255,0.35)' : '#fff';
+                        context.font = p.id === this.playerId ? '900 11px "Orbitron"' : '11px "Poppins"';
+                        context.fillText(`${p.username}${p.isDead ? ' (DEAD)' : ''}`, sx + 15, py);
+
+                        context.save();
+                        context.textAlign = 'right';
+                        context.fillStyle = '#ffd700';
+                        context.fillText(`HP: ${Math.round(p.currentHP)}`, sx + sw - 15, py);
+                        context.restore();
+                        idx++;
+                    });
+                }
+                context.restore();
+            }
+
             context.restore();
             // Draw coin pickups in pure screen-space (outside shake transform)
             this.drawCoinPickups(context);
@@ -2275,6 +2478,10 @@ window.addEventListener('load', function () {
         }
 
         _drawLevelComplete(context) {
+            if (this.isMultiplayer) {
+                this._drawMultiplayerEnd(context, true);
+                return;
+            }
             const W = this.width, H = this.height;
             context.save();
 
@@ -2561,6 +2768,10 @@ window.addEventListener('load', function () {
         }
 
         _drawGameOver(context) {
+            if (this.isMultiplayer) {
+                this._drawMultiplayerEnd(context, false);
+                return;
+            }
             const W = this.width, H = this.height;
             context.save();
 
@@ -2640,6 +2851,90 @@ window.addEventListener('load', function () {
             context.fillText('click to restart', W / 2, btnY + btnH + 30);
 
             context.restore();
+        }
+
+        _drawMultiplayerEnd(context, success) {
+            const W = this.width, H = this.height;
+            context.save();
+            context.fillStyle = 'rgba(10, 8, 20, 0.88)';
+            context.fillRect(0, 0, W, H);
+
+            // Title
+            context.font = '900 48px "Orbitron", sans-serif';
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+
+            if (this.serverState && this.serverState.mode === 'pvp') {
+                context.fillStyle = '#ea80fc';
+                context.fillText('ARENA PVP MATCH ENDED', W / 2, H / 2 - 120);
+
+                // Draw winner
+                const winner = this.players.get(this.pvpWinnerId);
+                const winnerName = winner ? winner.username : (this.pvpWinnerId || 'NOBODY');
+                context.font = 'bold 24px "Orbitron", sans-serif';
+                context.fillStyle = '#ffd700';
+                context.fillText(`🏆 WINNER: ${winnerName.toUpperCase()} 🏆`, W / 2, H / 2 - 50);
+            } else {
+                context.fillStyle = success ? '#00ff80' : '#ff2244';
+                context.fillText(success ? 'MISSION COMPLETE' : 'SQUAD DEFEATED', W / 2, H / 2 - 120);
+
+                context.font = 'bold 20px "Orbitron", sans-serif';
+                context.fillStyle = '#fff';
+                context.fillText(success ? 'ALL PLAYERS COMPLETED THE RUN!' : 'ALL PLAYERS DIED IN THE FIELD.', W / 2, H / 2 - 50);
+            }
+
+            // Draw Scoreboard
+            context.font = 'bold 14px "Orbitron", sans-serif';
+            context.fillStyle = '#00e5ff';
+            context.fillText('SQUAD RESULTS', W / 2, H / 2 + 10);
+
+            let idx = 0;
+            if (this.players) {
+                this.players.forEach(p => {
+                    const py = H / 2 + 35 + idx * 25;
+                    context.font = '13px "Poppins"';
+                    context.fillStyle = p.id === this.playerId ? '#00ffd0' : '#ffffff';
+                    context.fillText(`${p.username}  —  Score: ${p.score}  —  Coins: ${p.coins}`, W / 2, py);
+                    idx++;
+                });
+            }
+
+            // Return to lobby button
+            const btnW = 280, btnH = 54, btnX = W / 2 - btnW / 2, btnY = H / 2 + 160;
+            context.fillStyle = 'rgba(230, 227, 227, 0.05)';
+            rr(context, btnX + 3, btnY + 3, btnW, btnH, 8); context.fill();
+
+            context.fillStyle = 'rgba(0, 229, 255, 0.15)';
+            context.strokeStyle = '#00e5ff';
+            context.lineWidth = 1.5;
+            rr(context, btnX, btnY, btnW, btnH, 8); context.fill();
+            rr(context, btnX, btnY, btnW, btnH, 8); context.stroke();
+
+            context.font = '800 16px "Orbitron"';
+            context.fillStyle = '#ffffff';
+            context.fillText('RETURN TO LOBBY', W / 2, btnY + btnH / 2 + 5);
+            context.restore();
+        }
+
+        exitMultiplayerMatch() {
+            // Leave current socket room
+            if (this.socket) {
+                this.socket.emit('leaveRoom');
+            }
+            this.isMultiplayer = false;
+            this.gameStarted = false;
+            this.levelComplete = false;
+            this.gameOver = false;
+            this.pvpWinnerId = null;
+
+            // Show settings panel as navigation hub
+            document.getElementById('settings-overlay').classList.add('active');
+            document.getElementById('html-lobby-overlay').classList.remove('active');
+            document.getElementById('lobby-room-view').style.display = 'none';
+            document.getElementById('lobby-selection-view').style.display = 'block';
+
+            // Reset local stats
+            this._init();
         }
 
         _drawButton(context, label, x, y, w, h, bg = '#1a0050', border = '#7744ff') {
@@ -3480,6 +3775,553 @@ window.addEventListener('load', function () {
     }
 
     const game = new Game(canvas.width, canvas.height);
+
+    // ── Setup Multiplayer and Auth UI ──
+    const SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+        ? 'http://localhost:3000'
+        : 'https://shadow-strike-server.up.railway.app'; // Replace with production URL on deploy
+
+    async function makeRequest(route, method, body) {
+        try {
+            const headers = { 'Content-Type': 'application/json' };
+            const token = localStorage.getItem('shadowStrikeToken');
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            const res = await fetch(`${SERVER_URL}${route}`, {
+                method,
+                headers,
+                body: body ? JSON.stringify(body) : undefined
+            });
+            return await res.json();
+        } catch (err) {
+            console.error('Request error:', err);
+            return { error: 'Connection failed.' };
+        }
+    }
+
+    function setupMultiplayerAndAuth(game) {
+        const mainMenu = document.getElementById('html-main-menu');
+        const authOverlay = document.getElementById('html-auth-overlay');
+        const lobbyOverlay = document.getElementById('html-lobby-overlay');
+        const leaderboardOverlay = document.getElementById('html-leaderboard-overlay');
+
+        const spBtn = document.getElementById('btn-sp');
+        const mpBtn = document.getElementById('btn-mp');
+        const authActionBtn = document.getElementById('btn-auth-action');
+        const menuUserStatus = document.getElementById('menu-user-status');
+
+        const closeLobbyBtn = document.getElementById('btn-close-lobby');
+        const closeLeaderboardBtn = document.getElementById('btn-close-leaderboard');
+
+        // Auth form
+        const authForm = document.getElementById('auth-form');
+        const authTitle = document.getElementById('auth-title');
+        const groupUsername = document.getElementById('group-username');
+        const labelEmailLogin = document.getElementById('label-email-login');
+        const authUsernameInput = document.getElementById('auth-username');
+        const authEmailInput = document.getElementById('auth-email');
+        const authPasswordInput = document.getElementById('auth-password');
+        const authSubmitBtn = document.getElementById('btn-auth-submit');
+        const authToggleLink = document.getElementById('auth-toggle-link');
+        const authGuestBtn = document.getElementById('btn-auth-guest');
+
+        // Lobby elements
+        const lobbySelectionView = document.getElementById('lobby-selection-view');
+        const lobbyRoomView = document.getElementById('lobby-room-view');
+        const btnCreateRoom = document.getElementById('btn-create-room');
+        const btnJoinRoom = document.getElementById('btn-join-room');
+        const createModeSelect = document.getElementById('lobby-create-mode');
+        const createSizeSelect = document.getElementById('lobby-create-size');
+        const createLevelSelect = document.getElementById('lobby-create-level');
+        const joinCodeInput = document.getElementById('lobby-join-code');
+
+        // Room View elements
+        const roomCodeDisplay = document.getElementById('room-code-display');
+        const roomModeDisplay = document.getElementById('room-mode-display');
+        const roomLevelDisplay = document.getElementById('room-level-display');
+        const roomMembersList = document.getElementById('room-members-list');
+        const lobbyChatMessages = document.getElementById('lobby-chat-messages');
+        const lobbyChatInput = document.getElementById('lobby-chat-input');
+        const btnSendChat = document.getElementById('btn-send-chat');
+        const lobbyCharSelect = document.getElementById('lobby-char-select');
+        const btnToggleReady = document.getElementById('btn-toggle-ready');
+        const btnStartMatch = document.getElementById('btn-start-match');
+        const btnLeaveRoom = document.getElementById('btn-leave-room');
+
+        let isSignupMode = false;
+        let currentRoomCode = null;
+
+        // Try to verify token on startup
+        const token = localStorage.getItem('shadowStrikeToken');
+        if (token) {
+            verifyTokenAndConnect();
+        } else {
+            updateUserUI(null);
+        }
+
+        async function verifyTokenAndConnect() {
+            const data = await makeRequest('/auth/me', 'GET');
+            if (data && data.user) {
+                updateUserUI(data.user);
+                connectSocket(localStorage.getItem('shadowStrikeToken'));
+                // Token valid — hide login screen to reveal start screen
+                authOverlay.classList.remove('active');
+            } else {
+                localStorage.removeItem('shadowStrikeToken');
+                localStorage.removeItem('shadowStrikeUser');
+                updateUserUI(null);
+            }
+        }
+
+        function updateUserUI(user) {
+            if (user) {
+                menuUserStatus.innerText = `LOGGED IN: ${user.username.toUpperCase()} (🪙 ${user.coins} COINS)`;
+                authActionBtn.innerText = 'LOG OUT';
+            } else {
+                menuUserStatus.innerText = 'PLAYING AS GUEST';
+                authActionBtn.innerText = 'LOG IN';
+            }
+            updateProfileUI(user);
+        }
+
+        function updateProfileUI(user) {
+            const profileUsername = document.getElementById('profile-username');
+            const profileStatus = document.getElementById('profile-status');
+            const profileCoins = document.getElementById('profile-coins');
+            const profileLevels = document.getElementById('profile-levels');
+            if (user) {
+                if (profileUsername) profileUsername.innerText = user.username.toUpperCase();
+                if (profileStatus) profileStatus.innerText = 'LOGGED IN';
+                if (profileCoins) profileCoins.innerText = user.coins ?? 0;
+                if (profileLevels) profileLevels.innerText = user.levelsCompleted ?? 0;
+            } else {
+                if (profileUsername) profileUsername.innerText = 'GUEST PLAYER';
+                if (profileStatus) profileStatus.innerText = 'PLAYING AS GUEST';
+                if (profileCoins) profileCoins.innerText = '0';
+                if (profileLevels) profileLevels.innerText = '0';
+            }
+        }
+
+        function connectSocket(authToken) {
+            if (game.socket) {
+                game.socket.disconnect();
+            }
+
+            game.socket = io(SERVER_URL, {
+                auth: { token: authToken }
+            });
+
+            game.socket.on('authSuccess', ({ playerId, username, isGuest }) => {
+                game.playerId = playerId;
+                game.username = username;
+                console.log(`Socket authentication successful. PlayerId: ${playerId}, Username: ${username}`);
+            });
+
+            // Room Update handler
+            game.socket.on('roomUpdate', (room) => {
+                currentRoomCode = room.code;
+                roomCodeDisplay.innerText = room.code;
+                roomModeDisplay.innerText = room.mode === 'coop' ? 'Co-op Adventure' : 'Arena PvP';
+                roomLevelDisplay.innerText = room.level;
+
+                // Render roster
+                roomMembersList.innerHTML = '';
+                let allReady = true;
+                room.members.forEach(m => {
+                    const item = document.createElement('div');
+                    item.className = `room-member-item ${m.isReady ? 'ready' : ''}`;
+                    item.innerHTML = `
+                        <span style="font-weight:700;">${m.username.toUpperCase()} (${m.characterType.toUpperCase()}) ${m.playerId === room.hostId ? '👑' : ''}</span>
+                        <span class="ready-badge ${m.isReady ? 'is-ready' : 'not-ready'}">${m.isReady ? 'READY' : 'NOT READY'}</span>
+                    `;
+                    roomMembersList.appendChild(item);
+
+                    if (m.playerId !== room.hostId && !m.isReady) {
+                        allReady = false;
+                    }
+                });
+
+                // Show start match button if host
+                if (room.hostId === game.playerId) {
+                    btnStartMatch.style.display = 'block';
+                    btnStartMatch.disabled = !allReady && room.members.length > 1;
+                } else {
+                    btnStartMatch.style.display = 'none';
+                }
+            });
+
+            // Chat Messages handler
+            game.socket.on('chatMessage', ({ sender, message, time }) => {
+                const msgEl = document.createElement('div');
+                msgEl.className = 'chat-msg';
+                msgEl.innerHTML = `<span class="sender">${sender}:</span><span>${message}</span><span class="time">${time}</span>`;
+                lobbyChatMessages.appendChild(msgEl);
+                lobbyChatMessages.scrollTop = lobbyChatMessages.scrollHeight;
+            });
+
+            // Match Start handler
+            game.socket.on('gameStarted', (data) => {
+                lobbyOverlay.classList.remove('active');
+                game.isMultiplayer = true;
+                game.gameStarted = true;
+                game.paused = false;
+                if (data) {
+                    game.level = data.level || 1;
+                    game.mode = data.mode || 'coop';
+                }
+                game._init();
+            });
+
+            // Game state Tick sync
+            game.socket.on('gameState', (state) => {
+                game.serverState = state;
+
+                // Rebuild players map
+                if (!game.players) game.players = new Map();
+
+                // Keep local player in game.players
+                if (game.player) {
+                    if (!game.player.id) {
+                        game.player.id = game.playerId;
+                    }
+                    if (!game.players.has(game.playerId)) {
+                        game.players.set(game.playerId, game.player);
+                    }
+                }
+
+                // Clear old players
+                for (const [id] of game.players.entries()) {
+                    if (id !== game.playerId && !state.players[id]) {
+                        game.players.delete(id);
+                    }
+                }
+
+                // Update remote players
+                for (const id in state.players) {
+                    if (id === game.playerId) continue;
+
+                    const sPlayer = state.players[id];
+                    let pInstance = game.players.get(id);
+                    if (!pInstance) {
+                        pInstance = new Player(game, sPlayer.characterType);
+                        pInstance.id = id;
+                        pInstance.username = sPlayer.username;
+                        pInstance.x = sPlayer.x;
+                        pInstance.y = sPlayer.y;
+                        pInstance.vy = sPlayer.vy;
+                        game.players.set(id, pInstance);
+                    }
+                    pInstance.targetX = sPlayer.x;
+                    pInstance.targetY = sPlayer.y;
+                    pInstance.vy = sPlayer.vy;
+                    pInstance.currentHP = sPlayer.hp;
+                    pInstance.maxHP = sPlayer.maxHp;
+                    pInstance.coins = sPlayer.coins;
+                    pInstance.isDashing = sPlayer.isDashing;
+                    pInstance.facingLeft = sPlayer.facingLeft;
+                    pInstance.isDead = sPlayer.isDead;
+                    pInstance.score = sPlayer.score;
+
+                    if (pInstance.currentState && pInstance.currentState.state !== sPlayer.animState) {
+                        pInstance.setState(sPlayer.animState);
+                    }
+                    pInstance.shieldActive = sPlayer.shieldActive;
+                }
+            });
+        }
+
+        // SP Action
+        spBtn.onclick = () => {
+            mainMenu.classList.remove('active');
+            // Trigger selection screen
+            const selectionOverlay = document.getElementById('char-selection-overlay');
+            if (selectionOverlay) selectionOverlay.classList.add('active');
+            updateCharacterSelectionUI();
+        };
+
+        // Multiplayer Action — hide main menu, open lobby
+        mpBtn.onclick = () => {
+            mainMenu.classList.remove('active');
+            lobbySelectionView.style.display = 'block';
+            lobbyRoomView.style.display = 'none';
+            lobbyOverlay.classList.add('active');
+        };
+
+        // Close buttons
+        closeLobbyBtn.onclick = () => {
+            lobbyOverlay.classList.remove('active');
+            // Return to mode selection panel
+            const modeSel = document.getElementById('mode-selection-overlay');
+            if (modeSel) modeSel.classList.add('active');
+        };
+        closeLeaderboardBtn.onclick = () => leaderboardOverlay.classList.remove('active');
+
+        // Auth Toggle Link
+        authToggleLink.onclick = () => {
+            isSignupMode = !isSignupMode;
+            if (isSignupMode) {
+                authTitle.innerText = 'Sign Up';
+                groupUsername.style.display = 'flex';
+                labelEmailLogin.innerText = 'Email';
+                authEmailInput.placeholder = 'Enter email';
+                authSubmitBtn.innerText = 'Sign Up';
+                authToggleLink.innerHTML = 'Already have an account? <span>Log In</span>';
+            } else {
+                authTitle.innerText = 'Log In';
+                groupUsername.style.display = 'none';
+                labelEmailLogin.innerText = 'Username or Email';
+                authEmailInput.placeholder = 'Enter username or email';
+                authSubmitBtn.innerText = 'Log In';
+                authToggleLink.innerHTML = 'Need an account? <span>Sign Up</span>';
+            }
+        };
+
+        // Auth Submit Form
+        authForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const route = isSignupMode ? '/auth/signup' : '/auth/login';
+            const body = isSignupMode
+                ? { username: authUsernameInput.value, email: authEmailInput.value, password: authPasswordInput.value }
+                : { loginId: authEmailInput.value, password: authPasswordInput.value };
+
+            authSubmitBtn.innerText = isSignupMode ? 'Registering...' : 'Authenticating...';
+            const data = await makeRequest(route, 'POST', body);
+
+            if (data && data.token) {
+                localStorage.setItem('shadowStrikeToken', data.token);
+                localStorage.setItem('shadowStrikeUser', JSON.stringify(data.user));
+                updateUserUI(data.user);
+                connectSocket(data.token);
+                // Hide login screen to reveal start screen
+                authOverlay.classList.remove('active');
+
+                authUsernameInput.value = '';
+                authEmailInput.value = '';
+                authPasswordInput.value = '';
+            } else {
+                alert(data.error || 'Authentication failed.');
+            }
+            authSubmitBtn.innerText = isSignupMode ? 'Sign Up' : 'Log In';
+        };
+
+        // Play as Guest — skip login, go to start screen
+        authGuestBtn.onclick = () => {
+            authOverlay.classList.remove('active');
+            connectSocket(null);
+            updateUserUI(null);
+        };
+
+        // Auth Action — LOG OUT: go back to login screen
+        authActionBtn.onclick = () => {
+            const token = localStorage.getItem('shadowStrikeToken');
+            if (token || game.socket) {
+                // Logged in → log out and show login screen
+                localStorage.removeItem('shadowStrikeToken');
+                localStorage.removeItem('shadowStrikeUser');
+                updateUserUI(null);
+                if (game.socket) {
+                    game.socket.disconnect();
+                    game.socket = null;
+                }
+                mainMenu.classList.remove('active');
+                authOverlay.classList.add('active');
+            }
+        };
+
+        // Create Room Action
+        btnCreateRoom.onclick = () => {
+            if (!game.socket) return;
+            const mode = createModeSelect.value;
+            const maxPlayers = createSizeSelect.value;
+            const level = createLevelSelect.value;
+
+            game.socket.emit('createRoom', { mode, maxPlayers, level }, (res) => {
+                if (res.success) {
+                    lobbySelectionView.style.display = 'none';
+                    lobbyRoomView.style.display = 'grid';
+                    lobbyChatMessages.innerHTML = '';
+                } else {
+                    alert(res.error || 'Failed to create room.');
+                }
+            });
+        };
+
+        // Join Room Action
+        btnJoinRoom.onclick = () => {
+            if (!game.socket) return;
+            const code = joinCodeInput.value.trim().toUpperCase();
+            if (code.length !== 6) return alert('Room Code must be 6 characters.');
+
+            game.socket.emit('joinRoom', { code }, (res) => {
+                if (res.success) {
+                    lobbySelectionView.style.display = 'none';
+                    lobbyRoomView.style.display = 'grid';
+                    lobbyChatMessages.innerHTML = '';
+                    joinCodeInput.value = '';
+                } else {
+                    alert(res.error || 'Room joining failed.');
+                }
+            });
+        };
+
+        // Roster Options Change
+        lobbyCharSelect.onchange = () => {
+            if (!game.socket || !currentRoomCode) return;
+            game.socket.emit('selectCharacter', { code: currentRoomCode, characterType: lobbyCharSelect.value });
+        };
+
+        btnToggleReady.onclick = () => {
+            if (!game.socket || !currentRoomCode) return;
+            game.socket.emit('toggleReady', { code: currentRoomCode });
+        };
+
+        btnStartMatch.onclick = () => {
+            if (!game.socket || !currentRoomCode) return;
+            game.socket.emit('startGame', { code: currentRoomCode }, (res) => {
+                if (!res.success) {
+                    alert(res.error);
+                }
+            });
+        };
+
+        // Chat Box send message
+        btnSendChat.onclick = () => {
+            sendChat();
+        };
+
+        lobbyChatInput.onkeydown = (e) => {
+            if (e.key === 'Enter') {
+                sendChat();
+            }
+        };
+
+        function sendChat() {
+            if (!game.socket || !currentRoomCode) return;
+            const msg = lobbyChatInput.value.trim();
+            if (msg.length === 0) return;
+
+            game.socket.emit('sendChatMessage', { code: currentRoomCode, message: msg });
+            lobbyChatInput.value = '';
+        }
+
+        // Leave Room Action
+        btnLeaveRoom.onclick = () => {
+            if (!game.socket) return;
+            game.socket.emit('leaveRoom');
+            lobbySelectionView.style.display = 'block';
+            lobbyRoomView.style.display = 'none';
+            currentRoomCode = null;
+        };
+
+        // Profile Modal Events
+        const profileBtn = document.getElementById('profile-btn');
+        const profileOverlay = document.getElementById('profile-overlay');
+        const closeProfileBtn = document.getElementById('close-profile');
+        const btnProfileLogout = document.getElementById('btn-profile-logout');
+
+        if (profileBtn && profileOverlay) {
+            profileBtn.onclick = (e) => {
+                e.stopPropagation();
+                // Close settings if open
+                const settingsOverlay = document.getElementById('settings-overlay');
+                if (settingsOverlay) settingsOverlay.classList.remove('active');
+                profileOverlay.classList.add('active');
+            };
+        }
+
+        if (closeProfileBtn && profileOverlay) {
+            closeProfileBtn.onclick = () => {
+                profileOverlay.classList.remove('active');
+            };
+        }
+
+        if (profileOverlay) {
+            profileOverlay.addEventListener('click', (e) => {
+                if (e.target === profileOverlay) {
+                    profileOverlay.classList.remove('active');
+                }
+            });
+        }
+
+        if (btnProfileLogout) {
+            btnProfileLogout.onclick = () => {
+                localStorage.removeItem('shadowStrikeToken');
+                localStorage.removeItem('shadowStrikeUser');
+                updateUserUI(null);
+                if (game.socket) {
+                    game.socket.disconnect();
+                    game.socket = null;
+                }
+                if (profileOverlay) profileOverlay.classList.remove('active');
+                authOverlay.classList.add('active');
+            };
+        }
+
+        // Mode Selection Overlay Events
+        const modeSelectionOverlay = document.getElementById('mode-selection-overlay');
+        const closeModeSelectionBtn = document.getElementById('close-mode-selection');
+        const btnModeSP = document.getElementById('btn-mode-sp');
+        const btnModeMP = document.getElementById('btn-mode-mp');
+
+        if (closeModeSelectionBtn && modeSelectionOverlay) {
+            closeModeSelectionBtn.onclick = () => {
+                modeSelectionOverlay.classList.remove('active');
+            };
+        }
+
+        if (modeSelectionOverlay) {
+            modeSelectionOverlay.addEventListener('click', (e) => {
+                if (e.target === modeSelectionOverlay) {
+                    modeSelectionOverlay.classList.remove('active');
+                }
+            });
+        }
+
+        if (btnModeSP && modeSelectionOverlay) {
+            btnModeSP.onclick = () => {
+                modeSelectionOverlay.classList.remove('active');
+                const charOv = document.getElementById('char-selection-overlay');
+                if (charOv) charOv.classList.add('active');
+                updateCharacterSelectionUI();
+            };
+        }
+
+        if (btnModeMP && modeSelectionOverlay) {
+            btnModeMP.onclick = () => {
+                modeSelectionOverlay.classList.remove('active');
+                lobbySelectionView.style.display = 'block';
+                lobbyRoomView.style.display = 'none';
+                lobbyOverlay.classList.add('active');
+            };
+        }
+
+        // Copy Room Code Action
+        const btnCopyCode = document.getElementById('btn-copy-code');
+        if (btnCopyCode) {
+            btnCopyCode.onclick = () => {
+                const code = roomCodeDisplay.innerText;
+                if (!code || code === 'XXXXXX') return;
+
+                navigator.clipboard.writeText(code).then(() => {
+                    const origText = btnCopyCode.innerText;
+                    btnCopyCode.innerText = '✓ COPIED';
+                    btnCopyCode.style.borderColor = '#2ecc71';
+                    btnCopyCode.style.color = '#2ecc71';
+                    setTimeout(() => {
+                        btnCopyCode.innerText = origText;
+                        btnCopyCode.style.borderColor = '#00e5ff';
+                        btnCopyCode.style.color = '#00e5ff';
+                    }, 1500);
+                }).catch(err => {
+                    console.error('Failed to copy room code:', err);
+                });
+            };
+        }
+    }
+
+    setupMultiplayerAndAuth(game);
+
     let lastTime = 0;
 
     let osControlsEnabled = localStorage.getItem('shadowStrike_osControls') === 'true';
@@ -3596,6 +4438,41 @@ window.addEventListener('load', function () {
                 resetProgressBtn.style.background = 'linear-gradient(135deg, #7b0000, #c0392b)';
                 resetProgressBtn.style.borderColor = '#e74c3c';
             }, 2000);
+        });
+    }
+
+    // ── Settings: Single Player, Multiplayer, Logout buttons ──────────
+    const settingsSPBtn = document.getElementById('btn-settings-sp');
+    if (settingsSPBtn) {
+        settingsSPBtn.addEventListener('click', () => {
+            settingsOverlay.classList.remove('active');
+            game.paused = false;
+            const charOv = document.getElementById('char-selection-overlay');
+            if (charOv) { charOv.classList.add('active'); updateCharacterSelectionUI(); }
+        });
+    }
+    const settingsMPBtn = document.getElementById('btn-settings-mp');
+    if (settingsMPBtn) {
+        settingsMPBtn.addEventListener('click', () => {
+            settingsOverlay.classList.remove('active');
+            game.paused = false;
+            const lobbyEl = document.getElementById('html-lobby-overlay');
+            const lobbySelView = document.getElementById('lobby-selection-view');
+            const lobbyRoomView = document.getElementById('lobby-room-view');
+            if (lobbySelView) lobbySelView.style.display = 'block';
+            if (lobbyRoomView) lobbyRoomView.style.display = 'none';
+            if (lobbyEl) lobbyEl.classList.add('active');
+        });
+    }
+    const settingsLogoutBtn = document.getElementById('btn-settings-logout');
+    if (settingsLogoutBtn) {
+        settingsLogoutBtn.addEventListener('click', () => {
+            settingsOverlay.classList.remove('active');
+            game.paused = false;
+            localStorage.removeItem('shadowStrikeToken');
+            localStorage.removeItem('shadowStrikeUser');
+            if (game.socket) { game.socket.disconnect(); game.socket = null; }
+            document.getElementById('html-auth-overlay').classList.add('active');
         });
     }
 
@@ -4271,19 +5148,28 @@ window.addEventListener('load', function () {
         const mx = (e.clientX - rect.left) * scaleX;
         const my = (e.clientY - rect.top) * scaleY;
 
+        if (game.isMultiplayer && (game.gameOver || game.levelComplete)) {
+            const bW = 280;
+            const bH = 54;
+            const bX = canvas.width / 2 - bW / 2;
+            const bY = canvas.height / 2 + 160;
+            if (mx >= bX && mx <= bX + bW && my >= bY && my <= bY + bH) {
+                game.exitMultiplayerMatch();
+            }
+            return;
+        }
+
         if (!game.gameStarted && !game.startTransition) {
-            // Check if click is within the START GAME button area
             const W = canvas.width, H = canvas.height;
             const btnW = 220, btnH = 50;
             const btnX = W / 2 - btnW / 2;
             const btnY = H / 2 - 52;
             const onButton = mx >= btnX && mx <= btnX + btnW && my >= btnY && my <= btnY + btnH;
+
             if (onButton) {
-                // Open character selection overlay
-                const overlay = document.getElementById('char-selection-overlay');
-                if (overlay) {
-                    overlay.classList.add('active');
-                    updateCharacterSelectionUI();
+                const modeSel = document.getElementById('mode-selection-overlay');
+                if (modeSel && !modeSel.classList.contains('active')) {
+                    modeSel.classList.add('active');
                 }
             }
             return;
@@ -4716,9 +5602,15 @@ window.addEventListener('load', function () {
                 charOverlay.classList.remove('active');
             }
             if (game.gameStarted) {
-                // If a game session was active, return to the paused settings overlay
+                // In-game: return to the paused settings overlay
                 if (settingsOverlay) {
                     settingsOverlay.classList.add('active');
+                }
+            } else {
+                // Pre-game: show mode selection panel
+                const modeSel = document.getElementById('mode-selection-overlay');
+                if (modeSel) {
+                    modeSel.classList.add('active');
                 }
             }
         });
@@ -4821,33 +5713,25 @@ window.addEventListener('load', function () {
             add(game.player);
             if (game.player.windProjectiles) game.player.windProjectiles.forEach(p => add(p));
             if (game.player.slashProjectiles) game.player.slashProjectiles.forEach(p => add(p));
-            if (game.player.particles) game.player.particles.forEach(p => add(p));
-            if (game.player.shadows) game.player.shadows.forEach(s => add(s));
+        }
+        if (game.isMultiplayer && game.players) {
+            game.players.forEach(p => {
+                if (p.id !== game.playerId) {
+                    add(p);
+                }
+            });
         }
         if (game.enemies) {
             game.enemies.forEach(enemy => {
                 add(enemy);
                 if (enemy.projectiles) enemy.projectiles.forEach(p => add(p));
-                if (enemy.shadows) enemy.shadows.forEach(s => add(s));
             });
         }
-        if (game.particles) game.particles.forEach(p => add(p));
         if (game.coinPickups) game.coinPickups.forEach(c => add(c));
         if (game.hpPickups) game.hpPickups.forEach(c => add(c));
         if (game.dropbox) add(game.dropbox);
-        if (game.floatingTexts) game.floatingTexts.forEach(t => add(t));
-        if (game.damageTexts) game.damageTexts.forEach(t => add(t));
         if (game.portal) add(game.portal);
 
-        if (game.background) {
-            if (game.background.backgroundLayers) {
-                game.background.backgroundLayers.forEach(l => add(l));
-            }
-            if (game.background.embers) game.background.embers.forEach(e => add(e));
-            if (game.background.mist) game.background.mist.forEach(e => add(e));
-            if (game.background.spores) game.background.spores.forEach(e => add(e));
-            if (game.background.groundX !== undefined) add(game.background, ['groundX']);
-        }
         return list;
     }
 
@@ -4894,6 +5778,16 @@ window.addEventListener('load', function () {
                     fullscreenFloatingBtn.style.height = '';
                     fullscreenFloatingBtn.style.transition = '';
                 }
+            }
+        }
+
+        // Update user profile floating button visibility dynamically in the game loop
+        const pBtn = document.getElementById('profile-btn');
+        if (pBtn) {
+            if (game.gameStarted || game.startTransition) {
+                pBtn.style.display = 'none';
+            } else {
+                pBtn.style.display = 'flex';
             }
         }
 
@@ -4958,6 +5852,7 @@ window.addEventListener('load', function () {
 
 
         // Run updates at a fixed logical frequency (60Hz)
+        let gameUpdated = false;
         while (accumulator >= timestep) {
             // Save previous positions of all moving objects before we update
             const objects = gatherInterpolatableObjects(game);
@@ -4972,6 +5867,25 @@ window.addEventListener('load', function () {
             // Clear one-shot keys at the end of each logical update tick
             game.input.clearOneShots();
             accumulator -= timestep;
+            gameUpdated = true;
+        }
+
+        // Throttle player coordinates broadcast to 60Hz (once per render frame) to avoid socket network flooding
+        if (gameUpdated && game.isMultiplayer && game.socket && game.player) {
+            const playerState = {
+                x: game.player.x,
+                y: game.player.y,
+                vy: game.player.vy,
+                animState: game.player.currentState.state,
+                facingLeft: game.player.facingLeft,
+                hp: game.currentHP,
+                maxHp: game.maxHP,
+                score: game.score,
+                coins: game.coins,
+                shieldActive: game.player.shieldActive || false,
+                isDead: game.player.isDead
+            };
+            game.socket.emit('playerStateUpdate', playerState);
         }
 
         // Apply interpolated positions for smooth drawing at any refresh rate

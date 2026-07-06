@@ -696,11 +696,12 @@ export class Player {
 
         if (this.y < 0) { this.y = 0; this.vy = 0; }
 
+        const animDelta = this.game.isMultiplayer ? deltaTime * 0.7 : deltaTime;
         if (this.frameTimer > this.frameInterval) {
             this.frameX = this.frameX < this.maxFrame ? this.frameX + 1 : 0;
             this.frameTimer = 0;
         } else {
-            this.frameTimer += deltaTime;
+            this.frameTimer += animDelta;
         }
 
         // Update and fade out dash shadow trails
@@ -1234,13 +1235,27 @@ export class Player {
     }
 
     setState(state) {
+        if (typeof state === 'string') {
+            const stringToNum = {
+                'STANDING': 0,
+                'IDLE': 0,
+                'RUNNING': 1,
+                'JUMPING': 2,
+                'FALLING': 3,
+                'ATTACK': 4,
+                'SPRINT': 5,
+                'DEATH': 6,
+                'DAMAGE': 7
+            };
+            state = stringToNum[state.toUpperCase()] ?? 0;
+        }
         this.currentState = this.states[state];
         this.currentState.enter();
 
         if (this.characterType === 'shaia' && this.currentState.state === 'ATTACK') {
             if (!this.onGround()) {
                 this.activeShaiaAttackCombo = 'JUMP';
-            } else if (this.speed !== 0 && (this.game.input.keys.includes('Shift'))) {
+            } else if (this.speed !== 0 && (this.game.input.keys && this.game.input.keys.includes('Shift'))) {
                 this.activeShaiaAttackCombo = 'RUN_KICK';
             } else {
                 const pool = ['COMBO1', 'COMBO2', 'COMBO3', 'COMBO4', 'COMBO5', 'CROUCH1', 'CROUCH2'];
