@@ -3779,7 +3779,7 @@ window.addEventListener('load', function () {
     // ── Setup Multiplayer and Auth UI ──
     const SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
         ? 'http://localhost:3000'
-        : 'https://twod-game-server-p8ly.onrender.com'; // Replace with production URL on deploy
+        : 'https://twod-game-server-rndp.onrender.com'; // Replace with production URL on deploy
 
     async function makeRequest(route, method, body) {
         try {
