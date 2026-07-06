@@ -116,12 +116,12 @@ export class BossEnemy {
         this.height = 320;
 
         this.x = game.width + 200;
+        this.hasEnteredScreen = false;
 
         this.baseY =
             game.height -
             this.height -
             game.groundMargin + 10;
-
         this.y = this.baseY;
 
         const hpMap = {
@@ -137,7 +137,6 @@ export class BossEnemy {
         this.currentHP = this.maxHP;
         this.phase = 1;
 
-        this.hasEnteredScreen = false;
         this.surpriseCooldown = 0;
         this.surpriseCooldownMax = 6000;
         this.teleportAlpha = 1;

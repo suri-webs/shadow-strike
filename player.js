@@ -620,10 +620,8 @@ export class Player {
 
         const inAir = !this.onGround();
         const leftLimit = (this.isDashing || inAir) ? 0 : 50;
-        // In multiplayer scrollSpeed=0 so background doesn't move — allow full field movement
-        const rightLimit = this.game.isMultiplayer
-            ? this.game.width - this.width - 30
-            : this.game.width * 0.90 - this.width;
+        // rightLimit same for both SP and MP since background now scrolls in MP too
+        const rightLimit = this.game.width * 0.90 - this.width;
 
         this.x += move;
 

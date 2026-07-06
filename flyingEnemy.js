@@ -159,13 +159,8 @@ export class FlyingEnemy {
         this.width = 82;
         this.height = 82;
 
-        // In multiplayer the background doesn't scroll — spawn near player's right side
-        if (this.game.isMultiplayer) {
-            const spawnX = Math.min(this.game.width + 50, (this.game.player ? this.game.player.x : 400) + 700);
-            this.x = spawnX;
-        } else {
-            this.x = this.game.width + Math.random() * 200;
-        }
+        // Standard spawn - background scrolls so enemies walk into view from right
+        this.x = this.game.width + Math.random() * 200;
 
         // Keep enemy in the reachable mid-height zone (y 200–370)
         // so the player can hit it with jumps, melee and projectiles

@@ -1565,7 +1565,7 @@ window.addEventListener('load', function () {
             if (this.isMultiplayer) {
                 this.updateMultiplayerEntities(deltaTime);
             }
-            if (this.storyDialogueManager && this.storyDialogueManager.active) {
+            if (!this.isMultiplayer && this.storyDialogueManager && this.storyDialogueManager.active) {
                 this.storyDialogueManager.update(deltaTime);
                 return;
             }
@@ -1616,7 +1616,7 @@ window.addEventListener('load', function () {
             }
 
             this.scrollSpeed = (this.background && typeof this.background._scrollSpeed === 'function') ? this.background._scrollSpeed() : 0;
-            if (this.isMultiplayer || this.enemies.some(e => e.isBoss && e.introLocked)) {
+            if (this.enemies.some(e => e.isBoss && e.introLocked)) {
                 this.scrollSpeed = 0;
             }
             const scrollSpeed = this.scrollSpeed;

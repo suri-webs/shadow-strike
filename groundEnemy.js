@@ -219,16 +219,8 @@ export class GroundEnemy {
         }
 
         this.currentHP = this.maxHP;
-        // In multiplayer the background doesn't scroll, so spawn enemies near the
-        // right edge of the visible area so they walk in quickly toward the player.
-        if (this.game.isMultiplayer) {
-            const spawnX = Math.min(this.game.width + 50, (this.game.player ? this.game.player.x : 400) + 700);
-            this.x = spawnX;
-            this.hasEnteredScreen = true; // already visible, no entry delay
-        } else {
-            this.x = this.game.width + 50;
-            this.hasEnteredScreen = false;
-        }
+        this.x = this.game.width + 50;
+        this.hasEnteredScreen = false;
         this.y = this.game.height - this.height - this.game.groundMargin + (this.yOffset || 0);
 
         this.state = 'WALK';
