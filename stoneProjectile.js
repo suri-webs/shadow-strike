@@ -53,19 +53,27 @@ export class StoneProjectile {
             this.markedForDeletion = true;
         }
 
-        const player = this.game.player;
-        const pLeft = player.x + player.width * 0.25;
-        const pRight = player.x + player.width * 0.75;
-        const pTop = player.y;
-        const pBottom = player.y + player.height;
+        // Multiplayer-aware collision
+        const playersToCheck = (this.game.isMultiplayer && this.game.players && this.game.players.size > 1)
+            ? [...this.game.players.values()]
+            : [this.game.player];
 
-        const closestX = Math.max(pLeft, Math.min(this.x, pRight));
-        const closestY = Math.max(pTop, Math.min(this.y, pBottom));
-        const dist = Math.hypot(this.x - closestX, this.y - closestY);
-
-        if (dist < this.radius) {
-            this.game.hurtPlayer(this.damage, true);
-            this.markedForDeletion = true;
+        for (const player of playersToCheck) {
+            if (!player || player.isDead) continue;
+            const pLeft = player.x + player.width * 0.25;
+            const pRight = player.x + player.width * 0.75;
+            const pTop = player.y;
+            const pBottom = player.y + player.height;
+            const closestX = Math.max(pLeft, Math.min(this.x, pRight));
+            const closestY = Math.max(pTop, Math.min(this.y, pBottom));
+            const dist = Math.hypot(this.x - closestX, this.y - closestY);
+            if (dist < this.radius) {
+                if (player === this.game.player) {
+                    this.game.hurtPlayer(this.damage, true);
+                }
+                this.markedForDeletion = true;
+                break;
+            }
         }
     }
 

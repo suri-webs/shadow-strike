@@ -1285,6 +1285,33 @@ window.addEventListener('load', function () {
             return true;
         }
 
+        // Hurt a specific player object (used in multiplayer to hurt nearest target)
+        hurtTargetPlayer(targetPlayer, damage, isBossKill = false) {
+            if (!targetPlayer || targetPlayer.isDead) return false;
+            if (targetPlayer === this.player) {
+                return this.hurtPlayer(damage, isBossKill);
+            }
+            return false;
+        }
+
+        // Check if a circular projectile hits any player; hurt the first one it touches
+        checkPlayerHit(projX, projY, radius, damage, isBossKill = false) {
+            const pl = this.player;
+            if (!pl || pl.isDead) return false;
+            const pLeft   = pl.x + pl.width  * 0.25;
+            const pRight  = pl.x + pl.width  * 0.75;
+            const pTop    = pl.y;
+            const pBottom = pl.y + pl.height;
+            const cx = Math.max(pLeft,  Math.min(projX, pRight));
+            const cy = Math.max(pTop,   Math.min(projY, pBottom));
+            const dist = Math.hypot(projX - cx, projY - cy);
+            if (dist < radius) {
+                this.hurtPlayer(damage, isBossKill);
+                return true;
+            }
+            return false;
+        }
+
         spawnDissolveParticles(enemy) {
             const count = enemy.isBoss ? 45 : 20 + Math.floor(Math.random() * 10);
             let colors = ['rgba(240,240,240,0.85)', 'rgba(190,190,190,0.7)'];
@@ -1357,6 +1384,55 @@ window.addEventListener('load', function () {
                     fadeSpeedMultiplier: enemy.isBoss ? 0.6 : 1.0
                 });
             }
+        }
+
+        // Returns nearest living player — in multiplayer this considers all players so enemies target any player
+        getTargetPlayer(enemyX) {
+            if (!this.isMultiplayer || !this.players || this.players.size <= 1) {
+                return this.player;
+            }
+            let nearest = this.player;
+            let minDist = Infinity;
+            this.players.forEach(p => {
+                if (p.isDead) return;
+                const dist = Math.abs((p.x + (p.width || 0) / 2) - enemyX);
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearest = p;
+                }
+            });
+            return nearest || this.player;
+        }
+
+        spawnEnemyFromType(type, x, y) {
+            let enemy;
+            if (type === 'flying') {
+                enemy = new FlyingEnemy(this);
+            } else if (type === 'skeleton_white' || type === 'demon' || type === 'skeleton_yellow' || type === 'arcane_archer') {
+                enemy = new GroundEnemy(this, type);
+            } else if (type === 'mino_boss' || type === 'mino' || type === 'minoboss') {
+                enemy = new MinoBoss(this);
+            } else {
+                const bossTypeMap = {
+                    'boss_level_1': 'boss_level_1',
+                    'mecha_stone': 'mecha_stone',
+                    'demon_lord': 'demon_lord',
+                    'impaler': 'impaler',
+                    'crystal_titan': 'crystal_titan',
+                    'storm_seraph': 'storm_seraph',
+                    'frost_wyrm': 'frost_wyrm',
+                    'abyss_knight': 'abyss_knight',
+                    'amarjeet': 'amarjeet',
+                    'boss': 'boss_level_1'
+                };
+                const bossType = bossTypeMap[type] || 'boss_level_1';
+                enemy = new BossEnemy(this, bossType);
+            }
+            if (enemy) {
+                enemy.x = x;
+                enemy.y = y;
+            }
+            return enemy;
         }
 
         spawnCoinPickup(fromX, fromY, count) {
@@ -1862,7 +1938,7 @@ window.addEventListener('load', function () {
 
             if (!this.player.isDead) {
                 const wave = this.currentWave;
-                if (wave && this.waveSpawnedCount < this._waveTotal()) {
+                if (wave && this.waveSpawnedCount < this._waveTotal() && (!this.isMultiplayer || this.isHost)) {
                     this.enemyTimer += deltaTime;
                     if (this.enemyTimer > this.enemyInterval) { this._spawnFromWave(); this.enemyTimer = 0; }
                 }
@@ -1870,13 +1946,13 @@ window.addEventListener('load', function () {
                 const allSpawned = this.waveSpawnedCount >= this._waveTotal();
                 const allDead = this.enemies.every(e => e.markedForDeletion);
                 const dialogueActive = this.storyDialogueManager && this.storyDialogueManager.active;
-                if (allSpawned && allDead && wave && !this.waveComplete && !dialogueActive) {
+                if (allSpawned && allDead && wave && !this.waveComplete && !dialogueActive && (!this.isMultiplayer || this.isHost)) {
                     this.waveComplete = true;
                     this.waveTransTimer = 0;
                     this.currentHP = Math.min(this.maxHP, this.currentHP + 8);
                 }
 
-                if (this.waveComplete) {
+                if (this.waveComplete && (!this.isMultiplayer || this.isHost)) {
                     this.waveTransTimer += deltaTime;
                     const transDelay = (this.waveIndex === this.waveDef.length - 1) ? 400 : this.waveTransDelay;
                     if (this.waveTransTimer > transDelay) {
@@ -3975,6 +4051,7 @@ window.addEventListener('load', function () {
 
             // Room Update handler
             game.socket.on('roomUpdate', (room) => {
+                game.isHost = (room.hostId === game.playerId);
                 currentRoomCode = room.code;
                 roomCodeDisplay.innerText = room.code;
                 roomModeDisplay.innerText = room.mode === 'coop' ? 'Co-op Adventure' : 'Arena PvP';
@@ -4085,6 +4162,67 @@ window.addEventListener('load', function () {
                         pInstance.setState(sPlayer.animState);
                     }
                     pInstance.shieldActive = sPlayer.shieldActive;
+                }
+
+                // Sync enemies and wave progression if not host
+                if (!game.isHost && state.enemies) {
+                    // Create a map of server enemies for quick lookup
+                    const serverEnemiesMap = new Map();
+                    state.enemies.forEach(se => serverEnemiesMap.set(se.id, se));
+
+                    // Remove local enemies that are no longer on the server
+                    game.enemies = game.enemies.filter(le => {
+                        return serverEnemiesMap.has(le.id);
+                    });
+
+                    // Update or spawn enemies
+                    state.enemies.forEach(se => {
+                        let le = game.enemies.find(e => e.id === se.id);
+                        const screenX = se.x - game.cameraX; // convert absolute to screen
+                        if (!le) {
+                            le = game.spawnEnemyFromType(se.type, screenX, se.y);
+                            if (le) {
+                                le.id = se.id;
+                                le.hasEnteredScreen = true;
+                                game.enemies.push(le);
+                            }
+                        }
+                        if (le) {
+                            le.x = screenX;
+                            le.y = se.y;
+                            le.currentHP = se.hp;
+                            le.hp = se.hp;
+                            le.facingLeft = se.facingLeft;
+                            if (se.hp <= 0) {
+                                if (le.state !== 'DEATH') {
+                                    le._setState('DEATH');
+                                }
+                            } else {
+                                if (le.currentState && le.currentState.state !== se.state) {
+                                    le._setState(se.state);
+                                } else if (le.state !== se.state) {
+                                    le.state = se.state;
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // Sync wave & portal states if not host
+                if (!game.isHost) {
+                    if (state.waveIndex !== undefined) game.waveIndex = state.waveIndex;
+                    if (state.waveSpawnedCount !== undefined) game.waveSpawnedCount = state.waveSpawnedCount;
+                    if (state.waveComplete !== undefined) game.waveComplete = state.waveComplete;
+
+                    // Portal spawning sync
+                    if (state.portal && !game.portal) {
+                        const portalScreenX = state.portal.x - game.cameraX;
+                        game.portal = new Portal(game, portalScreenX, state.portal.y);
+                        game.portalSpawned = true;
+                    } else if (!state.portal && game.portal) {
+                        game.portal = null;
+                        game.portalSpawned = false;
+                    }
                 }
             });
         }
@@ -5928,6 +6066,30 @@ window.addEventListener('load', function () {
                 shieldActive: game.player.shieldActive || false,
                 isDead: game.player.isDead
             };
+            if (game.isHost) {
+                playerState.enemies = game.enemies.map(e => {
+                    if (!e.id) e.id = Math.random().toString();
+                    return {
+                        id: e.id,
+                        type: e.enemyType || (e.isBoss ? 'boss' : 'skeleton_white'),
+                        x: e.x + game.cameraX,
+                        y: e.y,
+                        hp: e.currentHP !== undefined ? e.currentHP : e.hp,
+                        maxHp: e.maxHP !== undefined ? e.maxHP : e.maxHp,
+                        facingLeft: e.facingLeft,
+                        state: e.currentState ? e.currentState.state : (e.state || 'WALK'),
+                        isBoss: e.isBoss || false
+                    };
+                });
+                playerState.waveIndex = game.waveIndex;
+                playerState.waveSpawnedCount = game.waveSpawnedCount;
+                playerState.waveComplete = game.waveComplete;
+                playerState.portalSpawned = game.portalSpawned;
+                if (game.portal) {
+                    playerState.portalX = game.portal.x + game.cameraX;
+                    playerState.portalY = game.portal.y;
+                }
+            }
             game.socket.emit('playerStateUpdate', playerState);
         }
 

@@ -29,22 +29,32 @@ export class BossFireballProjectile {
             this.markedForDeletion = true;
         }
 
-        const player = this.game.player;
-        const pLeft = player.x + player.width * 0.25;
-        const pRight = player.x + player.width * 0.75;
-        const pTop = player.y;
-        const pBottom = player.y + player.height;
+        // Multiplayer-aware collision
+        const playersToCheck = (this.game.isMultiplayer && this.game.players && this.game.players.size > 1)
+            ? [...this.game.players.values()]
+            : [this.game.player];
 
-        const closestX = Math.max(pLeft, Math.min(this.x, pRight));
-        const closestY = Math.max(pTop, Math.min(this.y, pBottom));
-        const dist = Math.hypot(this.x - closestX, this.y - closestY);
-
-        if (dist < this.radius) {
-            this.game.hurtPlayer(this.damage, true);
-            this.markedForDeletion = true;
+        for (const player of playersToCheck) {
+            if (!player || player.isDead) continue;
+            const pLeft = player.x + player.width * 0.25;
+            const pRight = player.x + player.width * 0.75;
+            const pTop = player.y;
+            const pBottom = player.y + player.height;
+            const closestX = Math.max(pLeft, Math.min(this.x, pRight));
+            const closestY = Math.max(pTop, Math.min(this.y, pBottom));
+            const dist = Math.hypot(this.x - closestX, this.y - closestY);
+            if (dist < this.radius) {
+                if (player === this.game.player) {
+                    this.game.hurtPlayer(this.damage, true);
+                }
+                this.markedForDeletion = true;
+                break;
+            }
         }
 
+        // Black hole gravity only affects local player
         if (this.isBlackHole) {
+            const player = this.game.player;
             const pdx = this.x - (player.x + player.width / 2);
             const pdy = this.y - (player.y + player.height / 2);
             const pdist = Math.max(1, Math.hypot(pdx, pdy));
@@ -311,22 +321,32 @@ export class FirePillar {
         const isErupting = this.timer >= this.delay;
 
         if (isErupting) {
-            const player = this.game.player;
-            const px = player.x + player.width / 2;
-            const overlaps = Math.abs(px - this.x) < (this.width / 2 + player.width * 0.3);
-            if (overlaps && !this.hasDealtDamage && !player.isDead) {
-                if (this.game.hitCooldown <= 0) {
-                    this.game.currentHP = Math.max(0, this.game.currentHP - this.damage);
-                    this.game.playerHit = true;
-                    this.game.hitCooldown = this.game.hitCooldownMax;
-                    this.hasDealtDamage = true;
-                    player.takingDamage = true;
-                    if (this.game.currentHP <= 0) {
-                        player.killedByBoss = true;
+            const playersToCheck = (this.game.isMultiplayer && this.game.players && this.game.players.size > 1)
+                ? [...this.game.players.values()]
+                : [this.game.player];
+
+            for (const player of playersToCheck) {
+                if (!player || player.isDead) continue;
+                const px = player.x + player.width / 2;
+                const overlaps = Math.abs(px - this.x) < (this.width / 2 + player.width * 0.3);
+                if (overlaps && !this.hasDealtDamage) {
+                    if (player === this.game.player) {
+                        if (this.game.hitCooldown <= 0) {
+                            this.game.currentHP = Math.max(0, this.game.currentHP - this.damage);
+                            this.game.playerHit = true;
+                            this.game.hitCooldown = this.game.hitCooldownMax;
+                            this.hasDealtDamage = true;
+                            player.takingDamage = true;
+                            if (this.game.currentHP <= 0) {
+                                player.killedByBoss = true;
+                            }
+                        }
+                    } else {
+                        // Mark damage dealt so it doesn't double-hit other client simulations
+                        this.hasDealtDamage = true;
                     }
                 }
             }
-
             for (let i = 0; i < 3; i++) {
                 this.particles.push({
                     x: this.x + (Math.random() - 0.5) * this.width,
@@ -438,25 +458,34 @@ export class FlameThrowerParticle {
 
         this.radius = 16 + (this.maxRadius - 16) * ratio;
 
-        const player = this.game.player;
-        const pLeft = player.x + player.width * 0.25;
-        const pRight = player.x + player.width * 0.75;
-        const pTop = player.y;
-        const pBottom = player.y + player.height;
+        const playersToCheck = (this.game.isMultiplayer && this.game.players && this.game.players.size > 1)
+            ? [...this.game.players.values()]
+            : [this.game.player];
 
-        const closestX = Math.max(pLeft, Math.min(this.x, pRight));
-        const closestY = Math.max(pTop, Math.min(this.y, pBottom));
-        const dist = Math.hypot(this.x - closestX, this.y - closestY);
+        for (const player of playersToCheck) {
+            if (!player || player.isDead) continue;
+            const pLeft = player.x + player.width * 0.25;
+            const pRight = player.x + player.width * 0.75;
+            const pTop = player.y;
+            const pBottom = player.y + player.height;
 
-        if (dist < this.radius) {
-            if (this.game.hitCooldown <= 0) {
-                this.game.currentHP = Math.max(0, this.game.currentHP - this.damage);
-                this.game.playerHit = true;
-                this.game.hitCooldown = 250;
-                player.takingDamage = true;
-                if (this.game.currentHP <= 0) {
-                    player.killedByBoss = true;
+            const closestX = Math.max(pLeft, Math.min(this.x, pRight));
+            const closestY = Math.max(pTop, Math.min(this.y, pBottom));
+            const dist = Math.hypot(this.x - closestX, this.y - closestY);
+
+            if (dist < this.radius) {
+                if (player === this.game.player) {
+                    if (this.game.hitCooldown <= 0) {
+                        this.game.currentHP = Math.max(0, this.game.currentHP - this.damage);
+                        this.game.playerHit = true;
+                        this.game.hitCooldown = 250;
+                        player.takingDamage = true;
+                        if (this.game.currentHP <= 0) {
+                            player.killedByBoss = true;
+                        }
+                    }
                 }
+                break;
             }
         }
     }

@@ -110,6 +110,7 @@ export class BossEnemy {
 
         this.game = game;
         this.bossType = bossType;
+        this.enemyType = bossType;
         this.isBoss = true;
 
         this.width = 320;
@@ -380,7 +381,10 @@ export class BossEnemy {
     }
 
     _distToPlayer() {
-        const player = this.game.player;
+        // Nearest player in multiplayer
+        const player = this.game.getTargetPlayer
+            ? this.game.getTargetPlayer(this.x + this.width / 2)
+            : this.game.player;
         const bossCenter = this.x + this.width / 2;
         const playerCenter = player.x + player.width / 2;
         return Math.abs(bossCenter - playerCenter);
@@ -417,8 +421,10 @@ export class BossEnemy {
     }
 
     _meleeHitCheck() {
-        const player = this.game.player;
-        if (!player || player.isDead) return;
+        // In multiplayer, check against all players
+        const playersToCheck = (this.game.isMultiplayer && this.game.players && this.game.players.size > 1)
+            ? [...this.game.players.values()]
+            : [this.game.player];
 
         const hitX = this.facingLeft
             ? this.x - this.meleeRange + this.width * 0.3
@@ -427,20 +433,27 @@ export class BossEnemy {
         const hitY = this.y + this.height * 0.3;
         const hitH = this.height * 0.5;
 
-        const overlaps =
-            hitX < player.x + player.width &&
-            hitX + hitW > player.x &&
-            hitY < player.y + player.height &&
-            hitY + hitH > player.y;
+        for (const player of playersToCheck) {
+            if (!player || player.isDead) continue;
+            const overlaps =
+                hitX < player.x + player.width &&
+                hitX + hitW > player.x &&
+                hitY < player.y + player.height &&
+                hitY + hitH > player.y;
 
-        if (overlaps) {
-            const dmg = this.phase === 2 ? this.meleeDamagePhase2 : this.meleeDamage;
-            this.game.hurtPlayer(dmg, true);
+            if (overlaps && player === this.game.player) {
+                const dmg = this.phase === 2 ? this.meleeDamagePhase2 : this.meleeDamage;
+                this.game.hurtPlayer(dmg, true);
+                break;
+            }
         }
     }
 
     _fireBurst(dmg) {
-        const player = this.game.player;
+        // Aim at nearest player in multiplayer
+        const player = (this.game.getTargetPlayer)
+            ? this.game.getTargetPlayer(this.x + this.width / 2)
+            : this.game.player;
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height / 2;
         const dx = player.x + player.width / 2 - cx;
@@ -486,7 +499,9 @@ export class BossEnemy {
     }
 
     _fireFireball(dmg) {
-        const player = this.game.player;
+        const player = this.game.getTargetPlayer
+            ? this.game.getTargetPlayer(this.x + this.width / 2)
+            : this.game.player;
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height / 2;
         const dx = player.x + player.width / 2 - cx;
@@ -517,7 +532,9 @@ export class BossEnemy {
     }
 
     _fireGiantFireball() {
-        const player = this.game.player;
+        const player = this.game.getTargetPlayer
+            ? this.game.getTargetPlayer(this.x + this.width / 2)
+            : this.game.player;
         const scale = this.isAmarjeet ? (this.scale || 1) : 1;
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height - (this.height * scale) / 2;
@@ -549,7 +566,9 @@ export class BossEnemy {
     }
 
     _summonFirePillars() {
-        const player = this.game.player;
+        const player = this.game.getTargetPlayer
+            ? this.game.getTargetPlayer(this.x + this.width / 2)
+            : this.game.player;
         const px = player.x + player.width / 2;
         const groundY = this.game.height - this.game.groundMargin;
 
@@ -559,7 +578,9 @@ export class BossEnemy {
     }
 
     _fireSingleBlue() {
-        const player = this.game.player;
+        const player = this.game.getTargetPlayer
+            ? this.game.getTargetPlayer(this.x + this.width / 2)
+            : this.game.player;
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height / 2;
         const dx = player.x + player.width / 2 - cx;
@@ -583,7 +604,9 @@ export class BossEnemy {
     }
 
     _fireSingleDiamond() {
-        const player = this.game.player;
+        const player = this.game.getTargetPlayer
+            ? this.game.getTargetPlayer(this.x + this.width / 2)
+            : this.game.player;
         const cx = this.x + this.width / 2;
         const cy = this.y + this.height / 2;
         const dx = player.x + player.width / 2 - cx;
@@ -607,7 +630,9 @@ export class BossEnemy {
     }
 
     _fireFlameThrower() {
-        const player = this.game.player;
+        const player = this.game.getTargetPlayer
+            ? this.game.getTargetPlayer(this.x + this.width / 2)
+            : this.game.player;
         const cx = this.x + (this.facingLeft ? this.width * 0.2 : this.width * 0.8);
         const cy = this.y + this.height * 0.38;
         const dx = this.facingLeft ? -1 : 1;
@@ -646,6 +671,10 @@ export class BossEnemy {
 
         if (this.game && typeof this.game.spawnDamageText === 'function') {
             this.game.spawnDamageText(this.x + this.width / 2, this.y + this.height * 0.3, amount);
+        }
+
+        if (this.game && this.game.isMultiplayer && !this.game.isHost && this.game.socket) {
+            this.game.socket.emit('enemyDamage', { enemyId: this.id, damage: amount });
         }
 
         if (this.currentHP <= 0) {
@@ -742,6 +771,48 @@ export class BossEnemy {
         this.scaleX += (1 - this.scaleX) * easeSpd;
         this.scaleY += (1 - this.scaleY) * easeSpd;
 
+        if (this.game.isMultiplayer && !this.game.isHost) {
+            this.frameTimer += deltaTime;
+            if (this.frameTimer > this.frameInterval) {
+                this.frameTimer = 0;
+                const totalFrames = this.frameCounts[this.state] || 1;
+                this.frameX = (this.frameX + 1) % totalFrames;
+            }
+            // Guest client collision checking
+            const player = this.game.player;
+            if (player && !player.isDead && this.game.hitCooldown <= 0) {
+                // Melee hit check
+                if (this.state === 'ATTACK' && this.pendingAttackType === 'melee' && this.frameX === this.MELEE_FRAME && !this.hasMeleeHitGuest) {
+                    const hitX = this.facingLeft
+                        ? this.x - this.meleeRange + this.width * 0.3
+                        : this.x + this.width * 0.7;
+                    const hitW = this.meleeRange;
+                    const hitY = this.y + this.height * 0.3;
+                    const hitH = this.height * 0.5;
+
+                    const overlaps =
+                        hitX < player.x + player.width &&
+                        hitX + hitW > player.x &&
+                        hitY < player.y + player.height &&
+                        hitY + hitH > player.y;
+
+                    if (overlaps) {
+                        this.hasMeleeHitGuest = true;
+                        const dmg = this.phase === 2 ? this.meleeDamagePhase2 : this.meleeDamage;
+                        this.game.hurtPlayer(dmg, true);
+                    }
+                }
+                if (this.state !== 'ATTACK') {
+                    this.hasMeleeHitGuest = false;
+                }
+            }
+            if (this.bossType !== 'impaler') {
+                this.projectiles.forEach(p => p.update(deltaTime));
+                this.projectiles = this.projectiles.filter(p => !p.markedForDeletion);
+            }
+            return;
+        }
+
         if (this.phase === 2 && this.state !== 'DEATH' && Math.random() < 0.12) {
             const colorType = this.bossType === 'demon_lord' ? 'orange' : (this.bossType === 'impaler' ? 'green' : 'cyan');
             this.game.spawnHitSparks(this.x + this.width / 2 + (Math.random() - 0.5) * this.width * 0.4, this.y + this.height - 20, colorType);
@@ -800,7 +871,10 @@ export class BossEnemy {
         }
 
         if (this.state === 'TELEPORT') {
-            const player = this.game.player;
+            // Target nearest player in multiplayer
+            const player = this.game.getTargetPlayer
+                ? this.game.getTargetPlayer(this.x + this.width / 2)
+                : this.game.player;
             const speed = deltaTime / 16.6;
 
             if (this.teleportPhase === 0) {
@@ -910,7 +984,10 @@ export class BossEnemy {
             return;
         }
 
-        const player = this.game.player;
+        // Get nearest player for AI facing and movement (multiplayer-aware)
+        const player = this.game.getTargetPlayer
+            ? this.game.getTargetPlayer(this.x + this.width / 2)
+            : this.game.player;
 
         this.facingLeft = player.x + player.width / 2 < this.x + this.width / 2;
 

@@ -61,14 +61,23 @@ class FireProjectile {
         });
         this.particles = this.particles.filter(p => p.alpha > 0);
 
-        const player = this.game.player;
-        const hit =
-            this.x - this.radius < player.x + player.width &&
-            this.x + this.radius > player.x &&
-            this.y - this.radius < player.y + player.height &&
-            this.y + this.radius > player.y;
+        // Check collision against all players (multiplayer-aware)
+        const playersToCheck = (this.game.isMultiplayer && this.game.players && this.game.players.size > 1)
+            ? [...this.game.players.values()]
+            : [this.game.player];
 
-        if (hit && !this.damageDone) {
+        let hitPlayer = null;
+        for (const p of playersToCheck) {
+            if (!p || p.isDead) continue;
+            const hit =
+                this.x - this.radius < p.x + p.width &&
+                this.x + this.radius > p.x &&
+                this.y - this.radius < p.y + p.height &&
+                this.y + this.radius > p.y;
+            if (hit) { hitPlayer = p; break; }
+        }
+
+        if (hitPlayer && !this.damageDone) {
             this.exploding = true;
             this.damageDone = true;
 
@@ -86,7 +95,7 @@ class FireProjectile {
                 });
             }
 
-            if (this.game.hitCooldown <= 0 && !player.isDead) {
+            if (this.game.hitCooldown <= 0 && hitPlayer === this.game.player) {
                 this.game.hurtPlayer(10, false);
             }
         }
@@ -139,6 +148,7 @@ export class FlyingEnemy {
     constructor(game) {
 
         this.game = game;
+        this.enemyType = 'flying';
 
         this.images = {
             IDLE: document.getElementById('enemyIdle'),
@@ -229,6 +239,10 @@ export class FlyingEnemy {
             this.game.spawnDamageText(this.x + this.width / 2, this.y + this.height * 0.2, amount);
         }
 
+        if (this.game && this.game.isMultiplayer && !this.game.isHost && this.game.socket) {
+            this.game.socket.emit('enemyDamage', { enemyId: this.id, damage: amount });
+        }
+
         if (this.currentHP <= 0) {
             this.currentHP = 0;
             this.state = 'DEATH';
@@ -260,6 +274,18 @@ export class FlyingEnemy {
             this.scaleX = 1 / this.scaleY;
         }
 
+        if (this.game.isMultiplayer && !this.game.isHost) {
+            this.frameTimer += deltaTime;
+            if (this.frameTimer > this.frameInterval) {
+                this.frameTimer = 0;
+                const totalFrames = this.frameCounts[this.state] || 1;
+                this.frameX = (this.frameX + 1) % totalFrames;
+            }
+            this.projectiles.forEach(p => p.update(deltaTime));
+            this.projectiles = this.projectiles.filter(p => !p.markedForDeletion);
+            return;
+        }
+
         if (!this.hasEnteredScreen && this.x <= this.game.width - this.width * 0.95) {
             this.hasEnteredScreen = true;
         }
@@ -281,7 +307,9 @@ export class FlyingEnemy {
             return;
         }
 
-        const player = this.game.player;
+        const player = this.game.getTargetPlayer
+            ? this.game.getTargetPlayer(this.x + this.width / 2)
+            : this.game.player;
         const enemyCX = this.x + this.width / 2;
         const playerCX = player.x + player.width / 2;
         const diff = enemyCX - playerCX;

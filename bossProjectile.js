@@ -28,19 +28,29 @@ export class BossProjectile {
             this.markedForDeletion = true;
         }
 
-        const player = this.game.player;
-        const pLeft = player.x + player.width * 0.25;
-        const pRight = player.x + player.width * 0.75;
-        const pTop = player.y;
-        const pBottom = player.y + player.height;
+        // Multiplayer-aware player collision check
+        const playersToCheck = (this.game.isMultiplayer && this.game.players && this.game.players.size > 1)
+            ? [...this.game.players.values()]
+            : [this.game.player];
 
-        const closestX = Math.max(pLeft, Math.min(this.x, pRight));
-        const closestY = Math.max(pTop, Math.min(this.y, pBottom));
-        const dist = Math.hypot(this.x - closestX, this.y - closestY);
+        for (const player of playersToCheck) {
+            if (!player || player.isDead) continue;
+            const pLeft = player.x + player.width * 0.25;
+            const pRight = player.x + player.width * 0.75;
+            const pTop = player.y;
+            const pBottom = player.y + player.height;
 
-        if (dist < this.radius) {
-            this.game.hurtPlayer(this.damage, true);
-            this.markedForDeletion = true;
+            const closestX = Math.max(pLeft, Math.min(this.x, pRight));
+            const closestY = Math.max(pTop, Math.min(this.y, pBottom));
+            const dist = Math.hypot(this.x - closestX, this.y - closestY);
+
+            if (dist < this.radius) {
+                if (player === this.game.player) {
+                    this.game.hurtPlayer(this.damage, true);
+                }
+                this.markedForDeletion = true;
+                break;
+            }
         }
 
         // Frost and snow particles trail

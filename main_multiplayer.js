@@ -12,6 +12,9 @@ import { KamehamehaBeam } from "./kamehameha.js";
 import { RasenganVortex } from "./rasengan.js";
 import { AudioManager } from "./audio.js";
 
+const multiplayerArcherProjImage = new Image();
+multiplayerArcherProjImage.src = 'asset/Arcane archer/projectile.png';
+
 const sharedTintCanvas = document.createElement('canvas');
 const sharedTintCtx = sharedTintCanvas.getContext('2d');
 
@@ -1285,6 +1288,41 @@ window.addEventListener('load', function () {
             return true;
         }
 
+        // Hurt a specific player object (used in multiplayer to hurt nearest target)
+        hurtTargetPlayer(targetPlayer, damage, isBossKill = false) {
+            if (!targetPlayer || targetPlayer.isDead) return false;
+            // If the target is our local player, use standard hurtPlayer
+            if (targetPlayer === this.player) {
+                return this.hurtPlayer(damage, isBossKill);
+            }
+            // Remote player — send damage via server (if socket available)
+            // For now we skip remote HP sync and only damage local player through normal flow
+            return false;
+        }
+
+        // Check if a circular projectile hits any player; hurt the first one it touches
+        // Returns true if a player was hit
+        checkPlayerHit(projX, projY, radius, damage, isBossKill = false) {
+            // Always check local player first
+            const localHit = (() => {
+                const pl = this.player;
+                if (!pl || pl.isDead) return false;
+                const pLeft   = pl.x + pl.width  * 0.25;
+                const pRight  = pl.x + pl.width  * 0.75;
+                const pTop    = pl.y;
+                const pBottom = pl.y + pl.height;
+                const cx = Math.max(pLeft,  Math.min(projX, pRight));
+                const cy = Math.max(pTop,   Math.min(projY, pBottom));
+                const dist = Math.hypot(projX - cx, projY - cy);
+                if (dist < radius) {
+                    this.hurtPlayer(damage, isBossKill);
+                    return true;
+                }
+                return false;
+            })();
+            return localHit;
+        }
+
         spawnDissolveParticles(enemy) {
             const count = enemy.isBoss ? 45 : 20 + Math.floor(Math.random() * 10);
             let colors = ['rgba(240,240,240,0.85)', 'rgba(190,190,190,0.7)'];
@@ -1357,6 +1395,55 @@ window.addEventListener('load', function () {
                     fadeSpeedMultiplier: enemy.isBoss ? 0.6 : 1.0
                 });
             }
+        }
+
+        // Returns nearest living player — in multiplayer this considers all players so enemies target any player
+        getTargetPlayer(enemyX) {
+            if (!this.isMultiplayer || !this.players || this.players.size <= 1) {
+                return this.player;
+            }
+            let nearest = this.player;
+            let minDist = Infinity;
+            this.players.forEach(p => {
+                if (p.isDead) return;
+                const dist = Math.abs((p.x + (p.width || 0) / 2) - enemyX);
+                if (dist < minDist) {
+                    minDist = dist;
+                    nearest = p;
+                }
+            });
+            return nearest || this.player;
+        }
+
+        spawnEnemyFromType(type, x, y) {
+            let enemy;
+            if (type === 'flying') {
+                enemy = new FlyingEnemy(this);
+            } else if (type === 'skeleton_white' || type === 'demon' || type === 'skeleton_yellow' || type === 'arcane_archer') {
+                enemy = new GroundEnemy(this, type);
+            } else if (type === 'mino_boss' || type === 'mino' || type === 'minoboss') {
+                enemy = new MinoBoss(this);
+            } else {
+                const bossTypeMap = {
+                    'boss_level_1': 'boss_level_1',
+                    'mecha_stone': 'mecha_stone',
+                    'demon_lord': 'demon_lord',
+                    'impaler': 'impaler',
+                    'crystal_titan': 'crystal_titan',
+                    'storm_seraph': 'storm_seraph',
+                    'frost_wyrm': 'frost_wyrm',
+                    'abyss_knight': 'abyss_knight',
+                    'amarjeet': 'amarjeet',
+                    'boss': 'boss_level_1'
+                };
+                const bossType = bossTypeMap[type] || 'boss_level_1';
+                enemy = new BossEnemy(this, bossType);
+            }
+            if (enemy) {
+                enemy.x = x;
+                enemy.y = y;
+            }
+            return enemy;
         }
 
         spawnCoinPickup(fromX, fromY, count) {
@@ -1862,7 +1949,7 @@ window.addEventListener('load', function () {
 
             if (!this.player.isDead) {
                 const wave = this.currentWave;
-                if (wave && this.waveSpawnedCount < this._waveTotal()) {
+                if (wave && this.waveSpawnedCount < this._waveTotal() && (!this.isMultiplayer || this.isHost)) {
                     this.enemyTimer += deltaTime;
                     if (this.enemyTimer > this.enemyInterval) { this._spawnFromWave(); this.enemyTimer = 0; }
                 }
@@ -1870,13 +1957,13 @@ window.addEventListener('load', function () {
                 const allSpawned = this.waveSpawnedCount >= this._waveTotal();
                 const allDead = this.enemies.every(e => e.markedForDeletion);
                 const dialogueActive = this.storyDialogueManager && this.storyDialogueManager.active;
-                if (allSpawned && allDead && wave && !this.waveComplete && !dialogueActive) {
+                if (allSpawned && allDead && wave && !this.waveComplete && !dialogueActive && (!this.isMultiplayer || this.isHost)) {
                     this.waveComplete = true;
                     this.waveTransTimer = 0;
                     this.currentHP = Math.min(this.maxHP, this.currentHP + 8);
                 }
 
-                if (this.waveComplete) {
+                if (this.waveComplete && (!this.isMultiplayer || this.isHost)) {
                     this.waveTransTimer += deltaTime;
                     const transDelay = (this.waveIndex === this.waveDef.length - 1) ? 400 : this.waveTransDelay;
                     if (this.waveTransTimer > transDelay) {
@@ -3799,10 +3886,10 @@ window.addEventListener('load', function () {
         if (!container) return;
 
         const icons = {
-            error:   '⛔',
+            error: '⛔',
             success: '✅',
             warning: '⚠️',
-            info:    'ℹ️'
+            info: 'ℹ️'
         };
 
         const toast = document.createElement('div');
@@ -3986,6 +4073,7 @@ window.addEventListener('load', function () {
 
             // Room Update handler
             game.socket.on('roomUpdate', (room) => {
+                game.isHost = (room.hostId === game.playerId);
                 currentRoomCode = room.code;
                 roomCodeDisplay.innerText = room.code;
                 roomModeDisplay.innerText = room.mode === 'coop' ? 'Co-op Adventure' : 'Arena PvP';
@@ -4042,9 +4130,26 @@ window.addEventListener('load', function () {
                 }
             });
 
+            // Apply damage to enemies sent by guest clients (only host runs this authoritative logic)
+            game.socket.on('applyEnemyDamage', ({ enemyId, damage }) => {
+                if (game.isHost && game.enemies) {
+                    const enemy = game.enemies.find(e => String(e.id) === String(enemyId));
+                    if (enemy) {
+                        if (typeof enemy.takeDamage === 'function') {
+                            enemy.takeDamage(damage);
+                        } else {
+                            enemy.currentHP = Math.max(0, enemy.currentHP - damage);
+                        }
+                    }
+                }
+            });
+
             // Game state Tick sync
             game.socket.on('gameState', (state) => {
                 game.serverState = state;
+                if (state.projectiles) {
+                    game.projectiles = state.projectiles;
+                }
 
                 // Rebuild players map
                 if (!game.players) game.players = new Map();
@@ -4091,11 +4196,485 @@ window.addEventListener('load', function () {
                     pInstance.facingLeft = sPlayer.facingLeft;
                     pInstance.isDead = sPlayer.isDead;
                     pInstance.score = sPlayer.score;
+                    pInstance.frameX = sPlayer.frameX || 0;
 
                     if (pInstance.currentState && pInstance.currentState.state !== sPlayer.animState) {
                         pInstance.setState(sPlayer.animState);
                     }
                     pInstance.shieldActive = sPlayer.shieldActive;
+                }
+
+                // Sync enemies and wave progression if not host
+                if (!game.isHost && state.enemies) {
+                    // Create a map of server enemies for quick lookup
+                    const serverEnemiesMap = new Map();
+                    state.enemies.forEach(se => serverEnemiesMap.set(se.id, se));
+
+                    // Remove local enemies that are no longer on the server
+                    game.enemies = game.enemies.filter(le => {
+                        let stillExists = false;
+                        for (let key of serverEnemiesMap.keys()) {
+                            if (String(key) === String(le.id)) {
+                                stillExists = true;
+                                break;
+                            }
+                        }
+                        return stillExists;
+                    });
+
+                    // Update or spawn enemies
+                    state.enemies.forEach(se => {
+                        let le = game.enemies.find(e => String(e.id) === String(se.id));
+                        const screenX = se.x - game.cameraX; // convert absolute to screen
+                        if (!le) {
+                            le = game.spawnEnemyFromType(se.type, screenX, se.y);
+                            if (le) {
+                                le.id = se.id;
+                                le.hasEnteredScreen = true;
+                                game.enemies.push(le);
+                            }
+                        }
+                        if (le) {
+                            le.x = screenX;
+                            le.y = se.y;
+                            le.currentHP = se.hp;
+                            le.hp = se.hp;
+                            le.facingLeft = se.facingLeft;
+                            if (se.hp <= 0) {
+                                if (le.state !== 'DEATH') {
+                                    le._setState('DEATH');
+                                }
+                            } else {
+                                if (le.currentState && le.currentState.state !== se.state) {
+                                    le._setState(se.state);
+                                } else if (le.state !== se.state) {
+                                    le.state = se.state;
+                                }
+                            }
+                            // Sync enemy's projectiles
+                            if (se.projectiles) {
+                                const oldProjectiles = le.projectiles || [];
+                                le.projectiles = se.projectiles.map((sp, index) => {
+                                    const projX = sp.x - game.cameraX;
+                                    // Match with existing projectile to keep particles/trails
+                                    const oldProj = oldProjectiles.find(op => op.type === sp.type && Math.hypot(op.x - projX, op.y - sp.y) < 120) || oldProjectiles[index];
+                                    const particles = oldProj ? oldProj.particles || [] : [];
+                                    const history = oldProj ? oldProj.history || [] : [];
+                                    const rotation = oldProj ? oldProj.rotation || 0 : 0;
+
+                                    return {
+                                        game: game,
+                                        x: projX,
+                                        y: sp.y,
+                                        radius: sp.radius || 12,
+                                        damage: sp.damage || 10,
+                                        type: sp.type,
+                                        vx: sp.vx,
+                                        vy: sp.vy,
+                                        isBlackHole: sp.isBlackHole || false,
+                                        facingLeft: sp.facingLeft,
+                                        particles: particles,
+                                        history: history,
+                                        rotation: rotation + 0.15,
+                                        update: function(dt) {
+                                            const localPlayer = this.game.player;
+                                            if (localPlayer && !localPlayer.isDead && this.game.hitCooldown <= 0) {
+                                                const pLeft   = localPlayer.x + localPlayer.width  * 0.25;
+                                                const pRight  = localPlayer.x + localPlayer.width  * 0.75;
+                                                const pTop    = localPlayer.y;
+                                                const pBottom = localPlayer.y + localPlayer.height;
+                                                const cx = Math.max(pLeft,  Math.min(this.x, pRight));
+                                                const cy = Math.max(pTop,   Math.min(this.y, pBottom));
+                                                const dist = Math.hypot(this.x - cx, this.y - cy);
+                                                if (dist < this.radius) {
+                                                    this.game.hurtPlayer(this.damage, this.type.includes('Boss') || this.type.includes('Giant'));
+                                                }
+                                            }
+
+                                            // Particle trails local simulation
+                                            if (this.type === 'FireProjectile') {
+                                                if (Math.random() < 0.8) {
+                                                    this.particles.push({
+                                                        x: this.x + (Math.random() - 0.5) * 6,
+                                                        y: this.y + (Math.random() - 0.5) * 6,
+                                                        vx: -this.vx * 0.2 + (Math.random() - 0.5) * 1,
+                                                        vy: -this.vy * 0.2 + (Math.random() - 0.5) * 1,
+                                                        size: this.radius * (0.5 + Math.random() * 0.5),
+                                                        alpha: 0.8,
+                                                        colorType: Math.random() > 0.5 ? 'orange' : 'red'
+                                                    });
+                                                }
+                                                this.particles.forEach(p => {
+                                                    p.x += p.vx;
+                                                    p.y += p.vy;
+                                                    p.alpha -= 0.05;
+                                                    p.size *= 0.9;
+                                                });
+                                                this.particles = this.particles.filter(p => p.alpha > 0);
+                                            } else if (this.type === 'BossFireballProjectile' || this.type === 'BossGiantFireball') {
+                                                if (this.isBlackHole) {
+                                                    if (Math.random() < 0.45) {
+                                                        const angle = Math.random() * Math.PI * 2;
+                                                        const distance = 80 + Math.random() * 100;
+                                                        this.particles.push({
+                                                            x: this.x + Math.cos(angle) * distance,
+                                                            y: this.y + Math.sin(angle) * distance,
+                                                            size: 2 + Math.random() * 5,
+                                                            alpha: 1.0,
+                                                            colorType: 'black_hole_matter',
+                                                            angle: angle,
+                                                            distance: distance
+                                                        });
+                                                    }
+                                                    this.particles.forEach(p => {
+                                                        p.distance -= 2.8;
+                                                        p.angle += 0.06;
+                                                        p.x = this.x + Math.cos(p.angle) * p.distance;
+                                                        p.y = this.y + Math.sin(p.angle) * p.distance;
+                                                        p.alpha -= 0.012;
+                                                    });
+                                                    this.particles = this.particles.filter(p => p.alpha > 0 && p.distance > 10);
+                                                } else {
+                                                    const angle = Math.atan2(this.vy, this.vx);
+                                                    const backAngle = angle + Math.PI;
+                                                    for (let i = 0; i < 2; i++) {
+                                                        const spreadAngle = backAngle + (Math.random() - 0.5) * 0.8;
+                                                        const pSpeed = (Math.random() * 3) + 1.0;
+                                                        this.particles.push({
+                                                            x: this.x - (this.vx / Math.hypot(this.vx, this.vy) || 0) * 15 + (Math.random() - 0.5) * 15,
+                                                            y: this.y - (this.vy / Math.hypot(this.vx, this.vy) || 0) * 15 + (Math.random() - 0.5) * 15,
+                                                            vx: Math.cos(spreadAngle) * pSpeed + (Math.random() - 0.5) * 1.0,
+                                                            vy: Math.sin(spreadAngle) * pSpeed - (Math.random() * 0.8),
+                                                            size: this.radius * (0.4 + Math.random() * 0.6),
+                                                            alpha: 0.8,
+                                                            colorType: Math.random() > 0.4 ? 'red_fire' : 'yellow_flame'
+                                                        });
+                                                    }
+                                                    this.particles.forEach(p => {
+                                                        p.x += p.vx;
+                                                        p.y += p.vy;
+                                                        p.alpha -= 0.035;
+                                                        p.size *= 0.95;
+                                                    });
+                                                    this.particles = this.particles.filter(p => p.alpha > 0 && p.size > 0.2);
+                                                }
+                                            } else if (this.type === 'BossSlashProjectile') {
+                                                const angle = Math.atan2(this.vy, this.vx);
+                                                this.history.push({ x: this.x, y: this.y, angle: angle });
+                                                if (this.history.length > 5) this.history.shift();
+
+                                                const backAngle = angle + Math.PI;
+                                                const speed = Math.hypot(this.vx, this.vy) || 12;
+                                                for (let i = 0; i < 2; i++) {
+                                                    const offsetDist = (Math.random() - 0.5) * 90 * 0.7;
+                                                    const dx = this.vx / speed;
+                                                    const dy = this.vy / speed;
+                                                    const px = this.x - dx * 10 + (-dy) * offsetDist;
+                                                    const py = this.y - dy * 10 + dx * offsetDist;
+                                                    
+                                                    this.particles.push({
+                                                        x: px,
+                                                        y: py,
+                                                        vx: Math.cos(backAngle) * (speed * 0.3) + (Math.random() - 0.5) * 1.0,
+                                                        vy: Math.sin(backAngle) * (speed * 0.3) + (Math.random() - 0.5) * 1.0,
+                                                        size: 2 + Math.random() * 3,
+                                                        alpha: 0.8,
+                                                        color: Math.random() > 0.4 ? 'rgba(0, 210, 255, 0.6)' : 'rgba(255, 255, 255, 0.8)'
+                                                    });
+                                                }
+                                                this.particles.forEach(p => {
+                                                    p.x += p.vx;
+                                                    p.y += p.vy;
+                                                    p.alpha -= 0.03;
+                                                    p.size *= 0.95;
+                                                });
+                                                this.particles = this.particles.filter(p => p.alpha > 0 && p.size > 0.2);
+                                            } else if (this.type === 'StoneProjectile') {
+                                                const speed = Math.hypot(this.vx, this.vy) || 10;
+                                                const dx = this.vx / speed;
+                                                const dy = this.vy / speed;
+                                                if (Math.random() < 0.6) {
+                                                    const angle = Math.atan2(dy, dx) + Math.PI;
+                                                    const spreadAngle = angle + (Math.random() - 0.5) * 0.8;
+                                                    const pSpeed = (Math.random() * 2) + 1;
+                                                    this.particles.push({
+                                                        x: this.x - dx * 12 + (Math.random() - 0.5) * 10,
+                                                        y: this.y - dy * 12 + (Math.random() - 0.5) * 10,
+                                                        vx: Math.cos(spreadAngle) * pSpeed,
+                                                        vy: Math.sin(spreadAngle) * pSpeed,
+                                                        size: 2 + Math.random() * 4,
+                                                        alpha: 0.9
+                                                    });
+                                                }
+                                                this.particles.forEach(p => {
+                                                    p.x += p.vx;
+                                                    p.y += p.vy;
+                                                    p.alpha -= 0.04;
+                                                    p.size *= 0.93;
+                                                });
+                                                this.particles = this.particles.filter(p => p.alpha > 0);
+                                            } else if (this.type === 'ArcherProjectile') {
+                                                if (Math.random() < 0.35) {
+                                                    this.particles.push({
+                                                        x: this.x + (this.facingLeft ? 40 : 0),
+                                                        y: this.y + 4 + (Math.random() - 0.5) * 4,
+                                                        vx: (this.facingLeft ? 1 : -1) * (Math.random() * 0.5 + 0.1),
+                                                        vy: (Math.random() - 0.5) * 0.4,
+                                                        size: Math.random() * 3 + 1.5,
+                                                        alpha: 0.9
+                                                    });
+                                                }
+                                                this.particles.forEach(p => {
+                                                    p.x += p.vx;
+                                                    p.y += p.vy;
+                                                    p.alpha -= 0.035;
+                                                });
+                                                this.particles = this.particles.filter(p => p.alpha > 0);
+                                            }
+                                        },
+                                        draw: function(ctx) {
+                                            if (this.type === 'FireProjectile') {
+                                                ctx.save();
+                                                this.particles.forEach(p => {
+                                                    ctx.beginPath();
+                                                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                                                    if (p.colorType === 'yellow') {
+                                                        ctx.fillStyle = `rgba(255, 200, 0, ${p.alpha})`;
+                                                    } else if (p.colorType === 'orange') {
+                                                        ctx.fillStyle = `rgba(255, 100, 0, ${p.alpha})`;
+                                                    } else {
+                                                        ctx.fillStyle = `rgba(255, 30, 0, ${p.alpha})`;
+                                                    }
+                                                    ctx.fill();
+                                                });
+                                                ctx.restore();
+                                            } else if (this.type === 'BossFireballProjectile' || this.type === 'BossGiantFireball') {
+                                                if (this.isBlackHole) {
+                                                    if (this.particles.length > 0) {
+                                                        ctx.save();
+                                                        this.particles.forEach(p => {
+                                                            if (p.colorType === 'black_hole_matter') {
+                                                                ctx.beginPath();
+                                                                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                                                                ctx.fillStyle = `rgba(180, 0, 255, ${p.alpha})`;
+                                                                ctx.fill();
+                                                            }
+                                                        });
+                                                        ctx.restore();
+                                                    }
+                                                    ctx.save();
+                                                    ctx.translate(this.x, this.y);
+                                                    const outerRadius = this.radius * 4;
+                                                    const grad = ctx.createRadialGradient(0, 0, this.radius * 0.5, 0, 0, outerRadius);
+                                                    grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
+                                                    grad.addColorStop(0.25, 'rgba(180, 0, 255, 0.85)');
+                                                    grad.addColorStop(0.65, 'rgba(40, 0, 90, 0.45)');
+                                                    grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                                                    ctx.fillStyle = grad;
+                                                    ctx.beginPath();
+                                                    ctx.arc(0, 0, outerRadius, 0, Math.PI * 2);
+                                                    ctx.fill();
+                                                    ctx.beginPath();
+                                                    ctx.arc(0, 0, this.radius, 0, Math.PI * 2);
+                                                    ctx.fillStyle = '#050010';
+                                                    ctx.shadowColor = '#8a00e6';
+                                                    ctx.shadowBlur = 24;
+                                                    ctx.fill();
+                                                    ctx.restore();
+                                                } else {
+                                                    ctx.save();
+                                                    this.particles.forEach(p => {
+                                                        ctx.beginPath();
+                                                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                                                        ctx.fillStyle = p.colorType === 'red_fire' 
+                                                            ? `rgba(255, 60, 0, ${p.alpha})` 
+                                                            : `rgba(255, 200, 0, ${p.alpha})`;
+                                                        ctx.fill();
+                                                    });
+                                                    ctx.restore();
+                                                    
+                                                    ctx.save();
+                                                    ctx.translate(this.x, this.y);
+                                                    ctx.shadowColor = '#ff3d00';
+                                                    ctx.shadowBlur = 12;
+                                                    const sizeMultiplier = this.type === 'BossGiantFireball' ? 1.5 : 1.0;
+                                                    const fireGrad = ctx.createRadialGradient(0, 0, this.radius * 0.2 * sizeMultiplier, 0, 0, this.radius * sizeMultiplier);
+                                                    fireGrad.addColorStop(0, '#ffffff');
+                                                    fireGrad.addColorStop(0.2, '#ffd54f');
+                                                    fireGrad.addColorStop(0.5, '#ffa726');
+                                                    fireGrad.addColorStop(1, 'rgba(230, 81, 0, 0)');
+                                                    ctx.fillStyle = fireGrad;
+                                                    ctx.beginPath();
+                                                    ctx.arc(0, 0, this.radius * sizeMultiplier, 0, Math.PI * 2);
+                                                    ctx.fill();
+                                                    ctx.restore();
+                                                }
+                                            } else if (this.type === 'BossSlashProjectile') {
+                                                const angle = Math.atan2(this.vy, this.vx);
+                                                ctx.save();
+                                                this.particles.forEach(p => {
+                                                    ctx.beginPath();
+                                                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                                                    ctx.fillStyle = (this.game.level === 5) 
+                                                        ? p.color.replace('0, 210, 255', '0, 230, 100')
+                                                        : p.color;
+                                                    ctx.fill();
+                                                });
+                                                ctx.restore();
+
+                                                this.history.forEach((pos, idx) => {
+                                                    const trailAlpha = (idx / this.history.length) * 0.22;
+                                                    ctx.save();
+                                                    ctx.translate(pos.x, pos.y);
+                                                    ctx.rotate(pos.angle);
+                                                    ctx.beginPath();
+                                                    ctx.moveTo(0, -90/2);
+                                                    ctx.quadraticCurveTo(35, 0, 0, 90/2);
+                                                    ctx.quadraticCurveTo(35 * 0.3, 0, 0, -90/2);
+                                                    ctx.closePath();
+                                                    ctx.fillStyle = (this.game.level === 5)
+                                                        ? `rgba(0, 230, 100, ${trailAlpha})`
+                                                        : `rgba(0, 180, 255, ${trailAlpha})`;
+                                                    ctx.fill();
+                                                    ctx.restore();
+                                                });
+
+                                                ctx.save();
+                                                ctx.translate(this.x, this.y);
+                                                ctx.rotate(angle);
+                                                ctx.beginPath();
+                                                ctx.moveTo(0, -90/2);
+                                                ctx.quadraticCurveTo(35, 0, 0, 90/2);
+                                                ctx.quadraticCurveTo(35 * 0.3, 0, 0, -90/2);
+                                                ctx.closePath();
+                                                const grad = ctx.createLinearGradient(0, 0, 35, 0);
+                                                if (this.game.level === 5) {
+                                                    grad.addColorStop(0, 'rgba(0, 230, 100, 0)');      
+                                                    grad.addColorStop(0.3, 'rgba(0, 230, 100, 0.6)');
+                                                    grad.addColorStop(0.7, 'rgba(180, 255, 200, 0.95)');
+                                                    grad.addColorStop(1, '#ffffff');                   
+                                                    ctx.shadowColor = '#00ff33';
+                                                } else {
+                                                    grad.addColorStop(0, 'rgba(0, 80, 255, 0)');      
+                                                    grad.addColorStop(0.3, 'rgba(0, 180, 255, 0.6)');
+                                                    grad.addColorStop(0.7, 'rgba(160, 245, 255, 0.95)');
+                                                    grad.addColorStop(1, '#ffffff');                   
+                                                    ctx.shadowColor = '#00c8ff';
+                                                }
+                                                ctx.shadowBlur = 18;
+                                                ctx.fillStyle = grad;
+                                                ctx.fill();
+                                                ctx.shadowBlur = 0;
+                                                ctx.strokeStyle = 'rgba(230, 255, 255, 0.6)';
+                                                ctx.lineWidth = 1.5;
+                                                ctx.beginPath();
+                                                ctx.moveTo(0, -90/2);
+                                                ctx.quadraticCurveTo(35, 0, 0, 90/2);
+                                                ctx.stroke();
+                                                ctx.restore();
+                                            } else if (this.type === 'StoneProjectile') {
+                                                ctx.save();
+                                                this.particles.forEach(p => {
+                                                    ctx.beginPath();
+                                                    ctx.moveTo(p.x, p.y - p.size);
+                                                    ctx.lineTo(p.x + p.size, p.y);
+                                                    ctx.lineTo(p.x, p.y + p.size);
+                                                    ctx.lineTo(p.x - p.size, p.y);
+                                                    ctx.closePath();
+                                                    ctx.fillStyle = (this.game.level === 5)
+                                                        ? `rgba(105, 240, 174, ${p.alpha})`
+                                                        : `rgba(255, 215, 0, ${p.alpha})`;
+                                                    ctx.fill();
+                                                });
+                                                ctx.translate(this.x, this.y);
+                                                const flightAngle = Math.atan2(this.vy, this.vx);
+                                                ctx.rotate(flightAngle);
+                                                ctx.shadowColor = (this.game.level === 5) ? '#00c853' : '#ffab40';
+                                                ctx.shadowBlur = 18;
+                                                const diamondGrad = ctx.createLinearGradient(-this.radius * 1.5, 0, this.radius * 1.5, 0);
+                                                if (this.game.level === 5) {
+                                                    diamondGrad.addColorStop(0, '#b9f6ca');
+                                                    diamondGrad.addColorStop(0.5, '#69f0ae');
+                                                    diamondGrad.addColorStop(1, '#00c853');
+                                                } else {
+                                                    diamondGrad.addColorStop(0, '#ffd54f');
+                                                    diamondGrad.addColorStop(0.5, '#ffa726');
+                                                    diamondGrad.addColorStop(1, '#e65100');
+                                                }
+                                                ctx.beginPath();
+                                                ctx.moveTo(0, -this.radius);
+                                                ctx.lineTo(this.radius * 1.5, 0);
+                                                ctx.lineTo(0, this.radius);
+                                                ctx.lineTo(-this.radius * 1.5, 0);
+                                                ctx.closePath();
+                                                ctx.fillStyle = diamondGrad;
+                                                ctx.fill();
+                                                ctx.shadowBlur = 0;
+                                                ctx.beginPath();
+                                                ctx.moveTo(0, -this.radius * 0.4);
+                                                ctx.lineTo(this.radius * 0.7, 0);
+                                                ctx.lineTo(0, this.radius * 0.4);
+                                                ctx.lineTo(-this.radius * 0.7, 0);
+                                                ctx.closePath();
+                                                ctx.fillStyle = '#ffffff';
+                                                ctx.fill();
+                                                ctx.restore();
+                                            } else if (this.type === 'ArcherProjectile') {
+                                                ctx.save();
+                                                this.particles.forEach(p => {
+                                                    ctx.beginPath();
+                                                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                                                    ctx.fillStyle = `rgba(138, 43, 226, ${p.alpha})`; // purple energy trail
+                                                    ctx.fill();
+                                                });
+                                                ctx.restore();
+
+                                                if (multiplayerArcherProjImage.complete) {
+                                                    ctx.save();
+                                                    if (!this.facingLeft) {
+                                                        ctx.scale(-1, 1);
+                                                        ctx.drawImage(multiplayerArcherProjImage, -(this.x + 40), this.y, 40, 8);
+                                                    } else {
+                                                        ctx.drawImage(multiplayerArcherProjImage, this.x, this.y, 40, 8);
+                                                    }
+                                                    ctx.restore();
+                                                }
+                                            } else {
+                                                ctx.save();
+                                                ctx.beginPath();
+                                                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                                                ctx.fillStyle = '#00e5ff';
+                                                ctx.shadowColor = '#00e5ff';
+                                                ctx.shadowBlur = 8;
+                                                ctx.fill();
+                                                ctx.restore();
+                                            }
+                                        }
+                                    };
+                                });
+                            }
+                            if (se.attackType) {
+                                le.pendingAttackType = se.attackType;
+                            }
+                        }
+                    });
+                }
+
+                // Sync wave & portal states if not host
+                if (!game.isHost) {
+                    if (state.waveIndex !== undefined) game.waveIndex = state.waveIndex;
+                    if (state.waveSpawnedCount !== undefined) game.waveSpawnedCount = state.waveSpawnedCount;
+                    if (state.waveComplete !== undefined) game.waveComplete = state.waveComplete;
+
+                    // Portal spawning sync
+                    if (state.portal && !game.portal) {
+                        const portalScreenX = state.portal.x - game.cameraX;
+                        game.portal = new Portal(game, portalScreenX, state.portal.y);
+                        game.portalSpawned = true;
+                    } else if (!state.portal && game.portal) {
+                        game.portal = null;
+                        game.portalSpawned = false;
+                    }
                 }
             });
         }
@@ -5937,6 +6516,47 @@ window.addEventListener('load', function () {
                 shieldActive: game.player.shieldActive || false,
                 isDead: game.player.isDead
             };
+            if (game.isHost) {
+                playerState.enemies = game.enemies.map(e => {
+                    if (!e.id) e.id = Math.random().toString();
+                    const enemyData = {
+                        id: e.id,
+                        type: e.enemyType || (e.isBoss ? 'boss' : 'skeleton_white'),
+                        x: e.x + game.cameraX,
+                        y: e.y,
+                        hp: e.currentHP !== undefined ? e.currentHP : e.hp,
+                        maxHp: e.maxHP !== undefined ? e.maxHP : e.maxHp,
+                        facingLeft: e.facingLeft,
+                        state: e.currentState ? e.currentState.state : (e.state || 'WALK'),
+                        isBoss: e.isBoss || false
+                    };
+                    if (e.projectiles) {
+                        enemyData.projectiles = e.projectiles.map(p => ({
+                            x: p.x + game.cameraX,
+                            y: p.y,
+                            vx: p.vx || p.speedX || p.dx || 0,
+                            vy: p.vy || p.speedY || p.dy || 0,
+                            type: p.constructor.name,
+                            radius: p.radius || 12,
+                            damage: p.damage || 10,
+                            isBlackHole: p.isBlackHole || false,
+                            facingLeft: p.facingLeft !== undefined ? p.facingLeft : (p.dx < 0)
+                        }));
+                    }
+                    if (e.pendingAttackType) {
+                        enemyData.attackType = e.pendingAttackType;
+                    }
+                    return enemyData;
+                });
+                playerState.waveIndex = game.waveIndex;
+                playerState.waveSpawnedCount = game.waveSpawnedCount;
+                playerState.waveComplete = game.waveComplete;
+                playerState.portalSpawned = game.portalSpawned;
+                if (game.portal) {
+                    playerState.portalX = game.portal.x + game.cameraX;
+                    playerState.portalY = game.portal.y;
+                }
+            }
             game.socket.emit('playerStateUpdate', playerState);
         }
 

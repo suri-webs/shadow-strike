@@ -32,19 +32,28 @@ export class BossSlashProjectile {
             this.markedForDeletion = true;
         }
 
-        const player = this.game.player;
+        // Multiplayer-aware collision
+        const playersToCheck = (this.game.isMultiplayer && this.game.players && this.game.players.size > 1)
+            ? [...this.game.players.values()]
+            : [this.game.player];
+
         const hitboxW = 30;
         const hitboxH = this.height * 0.8;
-        const overlaps = (
-            this.x - hitboxW/2 < player.x + player.width * 0.8 &&
-            this.x + hitboxW/2 > player.x + player.width * 0.2 &&
-            this.y - hitboxH/2 < player.y + player.height &&
-            this.y + hitboxH/2 > player.y
-        );
-
-        if (overlaps) {
-            this.game.hurtPlayer(this.damage, true);
-            this.markedForDeletion = true;
+        for (const player of playersToCheck) {
+            if (!player || player.isDead) continue;
+            const overlaps = (
+                this.x - hitboxW/2 < player.x + player.width * 0.8 &&
+                this.x + hitboxW/2 > player.x + player.width * 0.2 &&
+                this.y - hitboxH/2 < player.y + player.height &&
+                this.y + hitboxH/2 > player.y
+            );
+            if (overlaps) {
+                if (player === this.game.player) {
+                    this.game.hurtPlayer(this.damage, true);
+                }
+                this.markedForDeletion = true;
+                break;
+            }
         }
 
         const angle = Math.atan2(this.dy, this.dx);

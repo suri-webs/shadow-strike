@@ -65,16 +65,27 @@ class ArcherProjectile {
             });
         }
 
-        const player = this.game.player;
-        const hit =
-            this.x < player.x + player.width &&
-            this.x + this.width > player.x &&
-            this.y < player.y + player.height &&
-            this.y + this.height > player.y;
+        // Check collision against all players (multiplayer-aware)
+        const playersToCheck = (this.game.isMultiplayer && this.game.players && this.game.players.size > 1)
+            ? [...this.game.players.values()]
+            : [this.game.player];
 
-        if (hit && !player.isDead && this.game.hitCooldown <= 0) {
-            this.game.hurtPlayer(this.damage, false);
-            this.markedForDeletion = true;
+        for (const player of playersToCheck) {
+            if (!player || player.isDead) continue;
+            const hit =
+                this.x < player.x + player.width &&
+                this.x + this.width > player.x &&
+                this.y < player.y + player.height &&
+                this.y + this.height > player.y;
+
+            if (hit && this.game.hitCooldown <= 0) {
+                // Only hurt local player (remote HP handled server-side)
+                if (player === this.game.player) {
+                    this.game.hurtPlayer(this.damage, false);
+                }
+                this.markedForDeletion = true;
+                break;
+            }
         }
     }
 
@@ -274,6 +285,10 @@ export class GroundEnemy {
             this.game.spawnDamageText(this.x + this.width / 2, this.y + this.height * 0.3, amount);
         }
 
+        if (this.game && this.game.isMultiplayer && !this.game.isHost && this.game.socket) {
+            this.game.socket.emit('enemyDamage', { enemyId: this.id, damage: amount });
+        }
+
         if (this.currentHP <= 0) {
             this.currentHP = 0;
             this._setState('DEATH');
@@ -297,6 +312,32 @@ export class GroundEnemy {
         const easeSpd = 0.12 * (deltaTime / 16.6);
         this.scaleX += (1 - this.scaleX) * easeSpd;
         this.scaleY += (1 - this.scaleY) * easeSpd;
+
+        if (this.game.isMultiplayer && !this.game.isHost) {
+            this.frameTimer += deltaTime;
+            if (this.frameTimer > this.frameInterval) {
+                this.frameTimer = 0;
+                const totalFrames = this.frameCounts[this.state] || 1;
+                this.frameX = (this.frameX + 1) % totalFrames;
+            }
+            // Check melee damage to local player on guest client
+            const player = this.game.player;
+            if (player && !player.isDead && this.game.hitCooldown <= 0) {
+                if (this.state === 'ATTACK' && this.frameX === this.DAMAGE_ON_FRAME && !this.hasMeleeHitGuest) {
+                    const dist = Math.abs((this.x + this.width / 2) - (player.x + player.width / 2));
+                    if (dist <= this.attackRange + 30) {
+                        this.hasMeleeHitGuest = true;
+                        this.game.hurtPlayer(this.attackDamage || 8, false);
+                    }
+                }
+                if (this.state !== 'ATTACK') {
+                    this.hasMeleeHitGuest = false;
+                }
+            }
+            this.projectiles.forEach(p => p.update(deltaTime));
+            this.projectiles = this.projectiles.filter(p => !p.markedForDeletion);
+            return;
+        }
 
         if (this.state === 'WALK') {
             this.scaleY = 1 + 0.035 * Math.sin(Date.now() * 0.012);
@@ -328,7 +369,9 @@ export class GroundEnemy {
             return;
         }
 
-        const player = this.game.player;
+        const player = this.game.getTargetPlayer
+            ? this.game.getTargetPlayer(this.x + this.width / 2)
+            : this.game.player;
         const dist = Math.abs(
             (this.x + this.width / 2) -
             (player.x + player.width / 2)
@@ -367,7 +410,12 @@ export class GroundEnemy {
                     } else {
 
                         if (dist <= this.attackRange + 30) {
-                            this.game.hurtPlayer(this.attackDamage, false);
+                            // Hurt the closest player (same one we are targeting)
+                            if (typeof this.game.hurtTargetPlayer === 'function') {
+                                this.game.hurtTargetPlayer(player, this.attackDamage);
+                            } else {
+                                this.game.hurtPlayer(this.attackDamage, false);
+                            }
                         }
                     }
                 }
