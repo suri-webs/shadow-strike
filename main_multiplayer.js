@@ -5301,13 +5301,19 @@ window.addEventListener('load', function () {
 
         if (btnModeSP && modeSelectionOverlay) {
             btnModeSP.onclick = () => {
-                window.location.href = './index.html';
+                modeSelectionOverlay.classList.remove('active');
+                const charOv = document.getElementById('char-selection-overlay');
+                if (charOv) charOv.classList.add('active');
+                updateCharacterSelectionUI();
             };
         }
 
         if (btnModeMP && modeSelectionOverlay) {
             btnModeMP.onclick = () => {
-                window.location.href = 'https://shadow-strike-s.vercel.app/multiplayer.html';
+                modeSelectionOverlay.classList.remove('active');
+                lobbySelectionView.style.display = 'block';
+                lobbyRoomView.style.display = 'none';
+                lobbyOverlay.classList.add('active');
             };
         }
 
@@ -5460,13 +5466,23 @@ window.addEventListener('load', function () {
     const settingsSPBtn = document.getElementById('btn-settings-sp');
     if (settingsSPBtn) {
         settingsSPBtn.addEventListener('click', () => {
-            window.location.href = './index.html';
+            settingsOverlay.classList.remove('active');
+            game.paused = false;
+            const charOv = document.getElementById('char-selection-overlay');
+            if (charOv) { charOv.classList.add('active'); updateCharacterSelectionUI(); }
         });
     }
     const settingsMPBtn = document.getElementById('btn-settings-mp');
     if (settingsMPBtn) {
         settingsMPBtn.addEventListener('click', () => {
-            window.location.href = 'https://shadow-strike-s.vercel.app/multiplayer.html';
+            settingsOverlay.classList.remove('active');
+            game.paused = false;
+            const lobbyEl = document.getElementById('html-lobby-overlay');
+            const lobbySelView = document.getElementById('lobby-selection-view');
+            const lobbyRoomView = document.getElementById('lobby-room-view');
+            if (lobbySelView) lobbySelView.style.display = 'block';
+            if (lobbyRoomView) lobbyRoomView.style.display = 'none';
+            if (lobbyEl) lobbyEl.classList.add('active');
         });
     }
     const settingsLogoutBtn = document.getElementById('btn-settings-logout');
