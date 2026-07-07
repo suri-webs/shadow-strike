@@ -1722,6 +1722,9 @@ window.addEventListener('load', function () {
             }
 
             this.scrollSpeed = (this.background && typeof this.background._scrollSpeed === 'function') ? this.background._scrollSpeed() : 0;
+            if (this.isMultiplayer && !this.isHost) {
+                this.scrollSpeed = this.serverState?.scrollSpeed !== undefined ? this.serverState.scrollSpeed : 0;
+            }
             if (this.enemies.some(e => e.isBoss && e.introLocked)) {
                 this.scrollSpeed = 0;
             }
@@ -5024,6 +5027,8 @@ window.addEventListener('load', function () {
                     if (state.waveIndex !== undefined) game.waveIndex = state.waveIndex;
                     if (state.waveSpawnedCount !== undefined) game.waveSpawnedCount = state.waveSpawnedCount;
                     if (state.waveComplete !== undefined) game.waveComplete = state.waveComplete;
+                    if (state.cameraX !== undefined) game.cameraX = state.cameraX;
+                    if (state.scrollSpeed !== undefined) game.scrollSpeed = state.scrollSpeed;
 
                     // Portal spawning sync
                     if (state.portal && !game.portal) {
