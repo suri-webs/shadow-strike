@@ -236,21 +236,7 @@ export class FlyingEnemy {
 
     takeDamage(amount) {
         if (this.state === 'DEATH') return;
-
-        if (this.game && this.game.isMultiplayer) {
-            if (this.game.socket) {
-                this.game.socket.emit('enemyHit', { enemyId: this.id, damage: amount });
-            }
-            this.flashTimer = 150;
-            this.scaleX = 1.25;
-            this.scaleY = 0.75;
-            if (typeof this.game.spawnDamageText === 'function') {
-                this.game.spawnDamageText(this.x + this.width / 2, this.y + this.height * 0.2, amount);
-            }
-            return;
-        }
-
-        if (!this.hasEnteredScreen) return;
+        if (!this.hasEnteredScreen && !this.game.isMultiplayer) return;
 
         this.currentHP -= amount;
         this.flashTimer = 150;
@@ -259,6 +245,12 @@ export class FlyingEnemy {
 
         if (this.game && typeof this.game.spawnDamageText === 'function') {
             this.game.spawnDamageText(this.x + this.width / 2, this.y + this.height * 0.2, amount);
+        }
+
+        if (this.game && this.game.isMultiplayer && !this.game.isHost && this.game.socket) {
+            const damageId = Math.random().toString(36).substring(2, 11);
+            this.game.socket.emit('enemyDamage', { enemyId: this.id, damage: amount, damageId });
+            this.game.socket.emit('applyEnemyDamage', { enemyId: this.id, damage: amount, damageId });
         }
 
         if (this.currentHP <= 0) {
@@ -273,6 +265,7 @@ export class FlyingEnemy {
             return;
         }
 
+        // Don't interrupt an attack in progress — enemy keeps firing even when hit
         if (this.state === 'ATTACK') return;
         this._setState('HURT');
         this.hurtTimer = 0;
@@ -291,20 +284,28 @@ export class FlyingEnemy {
             this.scaleX = 1 / this.scaleY;
         }
 
-        if (this.game.isMultiplayer) {
+        // FIX #3: split out DEATH handling for non-host clients so dead enemies
+        // actually get removed instead of looping their death frame forever.
+        if (this.game.isMultiplayer && !this.game.isHost) {
+            if (this.state === 'DEATH') {
+                this.frameTimer += deltaTime;
+                if (this.frameTimer > this.frameInterval) {
+                    this.frameTimer = 0;
+                    this.frameX++;
+                    if (this.frameX >= this.frameCounts.DEATH) {
+                        this.markedForDeletion = true;
+                    }
+                }
+                this.projectiles.forEach(p => p.update(deltaTime));
+                this.projectiles = this.projectiles.filter(p => !p.markedForDeletion);
+                return;
+            }
+
             this.frameTimer += deltaTime;
             if (this.frameTimer > this.frameInterval) {
                 this.frameTimer = 0;
                 const totalFrames = this.frameCounts[this.state] || 1;
-                if (this.state === 'DEATH') {
-                    if (this.frameX < totalFrames - 1) {
-                        this.frameX++;
-                    } else {
-                        this.markedForDeletion = true;
-                    }
-                } else {
-                    this.frameX = (this.frameX + 1) % totalFrames;
-                }
+                this.frameX = (this.frameX + 1) % totalFrames;
             }
             this.projectiles.forEach(p => p.update(deltaTime));
             this.projectiles = this.projectiles.filter(p => !p.markedForDeletion);
