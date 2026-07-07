@@ -277,7 +277,22 @@ export class GroundEnemy {
 
     takeDamage(amount) {
         if (this.state === 'DEATH') return;
-        if (!this.hasEnteredScreen && !this.game.isMultiplayer) return;
+
+        if (this.game && this.game.isMultiplayer) {
+            if (this.game.socket) {
+                this.game.socket.emit('enemyHit', { enemyId: this.id, damage: amount });
+            }
+            this.flashTimer = 150;
+            this.scaleX = 1.25;
+            this.scaleY = 0.75;
+            if (typeof this.game.spawnDamageText === 'function') {
+                this.game.spawnDamageText(this.x + this.width / 2, this.y + this.height * 0.3, amount);
+            }
+            return;
+        }
+
+        if (!this.hasEnteredScreen) return;
+
         this.currentHP -= amount;
         this.flashTimer = 150;
         this.scaleX = 1.25;
@@ -285,10 +300,6 @@ export class GroundEnemy {
 
         if (this.game && typeof this.game.spawnDamageText === 'function') {
             this.game.spawnDamageText(this.x + this.width / 2, this.y + this.height * 0.3, amount);
-        }
-
-        if (this.game && this.game.isMultiplayer && !this.game.isHost && this.game.socket) {
-            this.game.socket.emit('enemyDamage', { enemyId: this.id, damage: amount });
         }
 
         if (this.currentHP <= 0) {
@@ -301,7 +312,6 @@ export class GroundEnemy {
             return;
         }
 
-        // Don't interrupt an attack in progress — enemy keeps attacking even when hit
         if (this.state === 'ATTACK') return;
         this._setState('HURT');
         this.hurtTimer = 0;
@@ -315,14 +325,21 @@ export class GroundEnemy {
         this.scaleX += (1 - this.scaleX) * easeSpd;
         this.scaleY += (1 - this.scaleY) * easeSpd;
 
-        if (this.game.isMultiplayer && !this.game.isHost) {
+        if (this.game.isMultiplayer) {
             this.frameTimer += deltaTime;
             if (this.frameTimer > this.frameInterval) {
                 this.frameTimer = 0;
                 const totalFrames = this.frameCounts[this.state] || 1;
-                this.frameX = (this.frameX + 1) % totalFrames;
+                if (this.state === 'DEATH') {
+                    if (this.frameX < totalFrames - 1) {
+                        this.frameX++;
+                    } else {
+                        this.markedForDeletion = true;
+                    }
+                } else {
+                    this.frameX = (this.frameX + 1) % totalFrames;
+                }
             }
-            // Guest client collision checking (melee damage is handled authoritatively by host)
             this.projectiles.forEach(p => p.update(deltaTime));
             this.projectiles = this.projectiles.filter(p => !p.markedForDeletion);
             return;

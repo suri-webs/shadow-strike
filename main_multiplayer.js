@@ -1975,7 +1975,7 @@ window.addEventListener('load', function () {
 
             if (!this.player.isDead) {
                 const wave = this.currentWave;
-                if (wave && this.waveSpawnedCount < this._waveTotal() && (!this.isMultiplayer || this.isHost)) {
+                if (wave && this.waveSpawnedCount < this._waveTotal() && !this.isMultiplayer) {
                     this.enemyTimer += deltaTime;
                     if (this.enemyTimer > this.enemyInterval) { this._spawnFromWave(); this.enemyTimer = 0; }
                 }
@@ -1983,13 +1983,13 @@ window.addEventListener('load', function () {
                 const allSpawned = this.waveSpawnedCount >= this._waveTotal();
                 const allDead = this.enemies.every(e => e.markedForDeletion);
                 const dialogueActive = this.storyDialogueManager && this.storyDialogueManager.active;
-                if (allSpawned && allDead && wave && !this.waveComplete && !dialogueActive && (!this.isMultiplayer || this.isHost)) {
+                if (allSpawned && allDead && wave && !this.waveComplete && !dialogueActive && !this.isMultiplayer) {
                     this.waveComplete = true;
                     this.waveTransTimer = 0;
                     this.currentHP = Math.min(this.maxHP, this.currentHP + 8);
                 }
 
-                if (this.waveComplete && (!this.isMultiplayer || this.isHost)) {
+                if (this.waveComplete && !this.isMultiplayer) {
                     this.waveTransTimer += deltaTime;
                     const transDelay = (this.waveIndex === this.waveDef.length - 1) ? 400 : this.waveTransDelay;
                     if (this.waveTransTimer > transDelay) {
@@ -2036,8 +2036,20 @@ window.addEventListener('load', function () {
                             if (!enemy._hitByPlayerThisSwing) {
                                 enemy._hitByPlayerThisSwing = true;
                                 const dmg = this.player.characterType === 'archdemon' || this.player.characterType === 'jotem' ? 18 : 12;
-                                if (typeof enemy.takeDamage === 'function') enemy.takeDamage(dmg);
-                                else enemy.currentHP -= dmg;
+                                if (typeof enemy.takeDamage === 'function') {
+                                    enemy.takeDamage(dmg);
+                                } else {
+                                    if (this.isMultiplayer) {
+                                        this.socket.emit('enemyHit', { enemyId: enemy.id, damage: dmg });
+                                        enemy.flashTimer = 150;
+                                        if (enemy.scaleX !== undefined) { enemy.scaleX = 1.15; enemy.scaleY = 0.85; }
+                                        if (typeof this.spawnDamageText === 'function') {
+                                            this.spawnDamageText(enemy.x + enemy.width / 2, enemy.y + enemy.height * 0.3, dmg);
+                                        }
+                                    } else {
+                                        enemy.currentHP -= dmg;
+                                    }
+                                }
 
                                 this.spawnHitSparks(enemy.x + enemy.width / 2, enemy.y + enemy.height / 2, 'gold');
                                 this.shake = Math.max(this.shake, 8);
@@ -2051,16 +2063,17 @@ window.addEventListener('load', function () {
                 this.enemies.forEach(e => {
                     if (e.markedForDeletion && !e._scored) {
                         e._scored = true;
-                        this.combo++;
-                        this.comboTimer = 0;
-                        this.multiplier = Math.min(5, 1 + Math.floor(this.combo / 3));
-                        const pts = 10 * this.multiplier * (e.isBoss ? 10 : 1);
-                        this.score += pts;
+                        if (!this.isMultiplayer) {
+                            this.combo++;
+                            this.comboTimer = 0;
+                            this.multiplier = Math.min(5, 1 + Math.floor(this.combo / 3));
+                            const pts = 10 * this.multiplier * (e.isBoss ? 10 : 1);
+                            this.score += pts;
 
-                        const coinsEarned = Math.max(1, Math.floor(pts / 10));
-                        this._addFloatingText(e.x + e.width / 2, e.y - 10, '+' + pts, this.multiplier > 1 ? '#ffd700' : '#ffffff');
-                        this.spawnCoinPickup(e.x + e.width / 2, e.y + e.height * 0.4, coinsEarned);
-
+                            const coinsEarned = Math.max(1, Math.floor(pts / 10));
+                            this._addFloatingText(e.x + e.width / 2, e.y - 10, '+' + pts, this.multiplier > 1 ? '#ffd700' : '#ffffff');
+                            this.spawnCoinPickup(e.x + e.width / 2, e.y + e.height * 0.4, coinsEarned);
+                        }
                     }
                 });
 
@@ -4211,88 +4224,17 @@ window.addEventListener('load', function () {
                 }
             });
 
-            // Apply damage to enemies sent by guest clients (only host runs this authoritative logic)
-            game.socket.on('applyEnemyDamage', ({ enemyId, damage }) => {
-                if (game.isHost && game.enemies) {
-                    const enemy = game.enemies.find(e => String(e.id) === String(enemyId));
-                    if (enemy) {
-                        // --- FIX: Bypass invuln (BossEnemy has invuln that the host's own attacks
-                        //     continuously refresh, which blocks ALL guest damage while host is alive).
-                        //     We directly apply HP reduction and trigger visual effects instead of
-                        //     going through takeDamage() which is gated by invuln > 0. ---
-                        const isDead = enemy.state === 'DEATH' || enemy.markedForDeletion;
-                        if (!isDead) {
-                            const curHP = enemy.currentHP !== undefined ? enemy.currentHP : (enemy.maxHP || 100);
-                            const newHP = Math.max(0, curHP - damage);
-                            enemy.currentHP = newHP;
-                            if (enemy.hp !== undefined) enemy.hp = newHP;
+            // Handle gameStateUpdate and enemyStateUpdate by relaying to the standard gameState handler
+            game.socket.on('gameStateUpdate', (state) => {
+                const listeners = game.socket.listeners('gameState');
+                listeners.forEach(l => l(state));
+            });
 
-                            // Visual feedback: flash and squash like a real hit
-                            if (enemy.flashTimer !== undefined) enemy.flashTimer = 150;
-                            if (enemy.scaleX !== undefined) { enemy.scaleX = 1.15; enemy.scaleY = 0.85; }
-
-                            // Spawn damage text
-                            if (typeof game.spawnDamageText === 'function') {
-                                game.spawnDamageText(
-                                    enemy.x + (enemy.width || 80) / 2,
-                                    enemy.y + (enemy.height || 100) * 0.3,
-                                    damage
-                                );
-                            }
-                            game.spawnHitSparks && game.spawnHitSparks(
-                                enemy.x + (enemy.width || 80) / 2,
-                                enemy.y + (enemy.height || 100) / 2, 'gold'
-                            );
-                            game.shake = Math.max(game.shake || 0, 6);
-
-                            // Trigger DEATH or HURT state
-                            if (newHP <= 0) {
-                                if (typeof enemy._setState === 'function') enemy._setState('DEATH');
-                                else if (typeof enemy.setState === 'function') enemy.setState('DEATH');
-                            } else {
-                                // Only switch to HURT if not already in attack/hurt/death
-                                const curState = enemy.state || (enemy.currentState && enemy.currentState.state);
-                                if (curState !== 'ATTACK' && curState !== 'DEATH') {
-                                    if (typeof enemy._setState === 'function') enemy._setState('HURT');
-                                    if (enemy.hurtTimer !== undefined) enemy.hurtTimer = 0;
-                                    // Reset boss invuln so host's NEXT attack also registers cleanly
-                                    if (enemy.invuln !== undefined) enemy.invuln = 0;
-                                }
-                            }
-                        }
-
-                        // Immediately push updated enemy state to server so guest sees HP drop without waiting for next tick
-                        if (game.socket && game.player) {
-                            const updatedEnemies = game.enemies.map(e => {
-                                if (!e.id) e.id = Math.random().toString();
-                                return {
-                                    id: e.id,
-                                    type: e.enemyType || (e.isBoss ? 'boss' : 'skeleton_white'),
-                                    x: e.x + game.cameraX,
-                                    y: e.y,
-                                    hp: e.currentHP !== undefined ? e.currentHP : (e.hp || 0),
-                                    maxHp: e.maxHP !== undefined ? e.maxHP : (e.maxHp || 100),
-                                    facingLeft: e.facingLeft,
-                                    state: e.state || (e.currentState && e.currentState.state) || 'WALK',
-                                    isBoss: e.isBoss || false
-                                };
-                            });
-                            game.socket.emit('playerStateUpdate', {
-                                x: game.player.x + game.cameraX,
-                                y: game.player.y,
-                                vy: game.player.vy,
-                                animState: game.player.currentState ? game.player.currentState.state : 'IDLE',
-                                facingLeft: game.player.facingLeft,
-                                hp: game.currentHP,
-                                maxHp: game.maxHP,
-                                score: game.score,
-                                coins: game.coins,
-                                shieldActive: game.player.shieldActive || false,
-                                isDead: game.player.isDead,
-                                enemies: updatedEnemies
-                            });
-                        }
-                    }
+            game.socket.on('enemyStateUpdate', (enemies) => {
+                if (game.serverState) {
+                    const mockState = { ...game.serverState, enemies: enemies };
+                    const listeners = game.socket.listeners('gameState');
+                    listeners.forEach(l => l(mockState));
                 }
             });
 
@@ -4318,6 +4260,12 @@ window.addEventListener('load', function () {
                     // Sync local player HP if changed by server (e.g. damaged by enemies/boss on host)
                     if (state.players && state.players[game.playerId]) {
                         const sLocalPlayer = state.players[game.playerId];
+                        if (sLocalPlayer.score !== undefined) {
+                            game.score = sLocalPlayer.score;
+                        }
+                        if (sLocalPlayer.coins !== undefined) {
+                            game.coins = sLocalPlayer.coins;
+                        }
                         if (sLocalPlayer.hp !== undefined && sLocalPlayer.hp !== game.currentHP) {
                             const oldHP = game.currentHP;
                             game.currentHP = sLocalPlayer.hp;
@@ -4432,8 +4380,8 @@ window.addEventListener('load', function () {
                 }
 
 
-                // Sync enemies and wave progression if not host
-                if (!game.isHost && state.enemies) {
+                // Sync enemies and wave progression in multiplayer
+                if (game.isMultiplayer && state.enemies) {
                     // Create a map of server enemies for quick lookup
                     const serverEnemiesMap = new Map();
                     state.enemies.forEach(se => serverEnemiesMap.set(se.id, se));
@@ -4473,10 +4421,23 @@ window.addEventListener('load', function () {
                                     le._setState('DEATH');
                                 }
                             } else {
+                                const stateMap = {
+                                    'walk': 'WALK',
+                                    'dead': 'DEATH',
+                                    'atk': 'ATTACK',
+                                    'hurt': 'HURT',
+                                    'idle': 'IDLE',
+                                    'WALK': 'WALK',
+                                    'DEATH': 'DEATH',
+                                    'ATTACK': 'ATTACK',
+                                    'HURT': 'HURT',
+                                    'IDLE': 'IDLE'
+                                };
+                                const mappedState = stateMap[se.state] || se.state || 'WALK';
                                 if (typeof le._setState === 'function') {
-                                    le._setState(se.state);
+                                    le._setState(mappedState);
                                 } else {
-                                    le.state = se.state;
+                                    le.state = mappedState;
                                 }
                             }
                             // Sync enemy's projectiles
@@ -4996,8 +4957,8 @@ window.addEventListener('load', function () {
                     });
                 }
 
-                // Sync wave & portal states if not host
-                if (!game.isHost) {
+                // Sync wave & portal states in multiplayer
+                if (game.isMultiplayer) {
                     if (state.waveIndex !== undefined) game.waveIndex = state.waveIndex;
                     if (state.waveSpawnedCount !== undefined) game.waveSpawnedCount = state.waveSpawnedCount;
                     if (state.waveComplete !== undefined) game.waveComplete = state.waveComplete;

@@ -656,8 +656,23 @@ export class BossEnemy {
     }
 
     takeDamage(amount) {
-        if (this.state === 'DEATH' || this.invuln > 0) return;
-        if (!this.hasEnteredScreen && !this.game.isMultiplayer) return;
+        if (this.state === 'DEATH') return;
+
+        if (this.game && this.game.isMultiplayer) {
+            if (this.game.socket) {
+                this.game.socket.emit('enemyHit', { enemyId: this.id, damage: amount });
+            }
+            this.flashTimer = 150;
+            this.scaleX = 1.15;
+            this.scaleY = 0.85;
+            if (typeof this.game.spawnDamageText === 'function') {
+                this.game.spawnDamageText(this.x + this.width / 2, this.y + this.height * 0.3, amount);
+            }
+            return;
+        }
+
+        if (!this.hasEnteredScreen) return;
+        if (this.invuln > 0) return;
 
         const dist = this._distToPlayer();
         if (dist > 350 && this.comeCloserCooldown <= 0) {
@@ -675,10 +690,6 @@ export class BossEnemy {
 
         if (this.game && typeof this.game.spawnDamageText === 'function') {
             this.game.spawnDamageText(this.x + this.width / 2, this.y + this.height * 0.3, amount);
-        }
-
-        if (this.game && this.game.isMultiplayer && !this.game.isHost && this.game.socket) {
-            this.game.socket.emit('enemyDamage', { enemyId: this.id, damage: amount });
         }
 
         if (this.currentHP <= 0) {
@@ -775,14 +786,21 @@ export class BossEnemy {
         this.scaleX += (1 - this.scaleX) * easeSpd;
         this.scaleY += (1 - this.scaleY) * easeSpd;
 
-        if (this.game.isMultiplayer && !this.game.isHost) {
+        if (this.game.isMultiplayer) {
             this.frameTimer += deltaTime;
             if (this.frameTimer > this.frameInterval) {
                 this.frameTimer = 0;
                 const totalFrames = this.frameCounts[this.state] || 1;
-                this.frameX = (this.frameX + 1) % totalFrames;
+                if (this.state === 'DEATH') {
+                    if (this.frameX < totalFrames - 1) {
+                        this.frameX++;
+                    } else {
+                        this.markedForDeletion = true;
+                    }
+                } else {
+                    this.frameX = (this.frameX + 1) % totalFrames;
+                }
             }
-            // Guest client collision checking (Melee damage is handled authoritatively by host)
             if (this.bossType !== 'impaler') {
                 this.projectiles.forEach(p => p.update(deltaTime));
                 this.projectiles = this.projectiles.filter(p => !p.markedForDeletion);
