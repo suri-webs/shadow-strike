@@ -1298,12 +1298,12 @@ window.addEventListener('load', function () {
         checkPlayerHit(projX, projY, radius, damage, isBossKill = false) {
             const pl = this.player;
             if (!pl || pl.isDead) return false;
-            const pLeft   = pl.x + pl.width  * 0.25;
-            const pRight  = pl.x + pl.width  * 0.75;
-            const pTop    = pl.y;
+            const pLeft = pl.x + pl.width * 0.25;
+            const pRight = pl.x + pl.width * 0.75;
+            const pTop = pl.y;
             const pBottom = pl.y + pl.height;
-            const cx = Math.max(pLeft,  Math.min(projX, pRight));
-            const cy = Math.max(pTop,   Math.min(projY, pBottom));
+            const cx = Math.max(pLeft, Math.min(projX, pRight));
+            const cy = Math.max(pTop, Math.min(projY, pBottom));
             const dist = Math.hypot(projX - cx, projY - cy);
             if (dist < radius) {
                 this.hurtPlayer(damage, isBossKill);
@@ -3875,10 +3875,10 @@ window.addEventListener('load', function () {
         if (!container) return;
 
         const icons = {
-            error:   '⛔',
+            error: '⛔',
             success: '✅',
             warning: '⚠️',
-            info:    'ℹ️'
+            info: 'ℹ️'
         };
 
         const toast = document.createElement('div');
@@ -4236,17 +4236,9 @@ window.addEventListener('load', function () {
             updateCharacterSelectionUI();
         };
 
-        // Multiplayer Action — hide main menu, open lobby
+        // Multiplayer Action — Redirect to Vercel multiplayer page
         mpBtn.onclick = () => {
-            // Auto-connect guest socket if not already connected (fixes join room for guests)
-            if (!game.socket) {
-                const savedToken = localStorage.getItem('shadowStrikeToken');
-                connectSocket(savedToken || null);
-            }
-            mainMenu.classList.remove('active');
-            lobbySelectionView.style.display = 'block';
-            lobbyRoomView.style.display = 'none';
-            lobbyOverlay.classList.add('active');
+            window.location.href = 'https://shadow-strike-s.vercel.app/multiplayer.html';
         };
 
         // Close buttons
@@ -4496,10 +4488,7 @@ window.addEventListener('load', function () {
 
         if (btnModeMP && modeSelectionOverlay) {
             btnModeMP.onclick = () => {
-                modeSelectionOverlay.classList.remove('active');
-                lobbySelectionView.style.display = 'block';
-                lobbyRoomView.style.display = 'none';
-                lobbyOverlay.classList.add('active');
+                window.location.href = 'https://shadow-strike-s.vercel.app/multiplayer.html';
             };
         }
 
@@ -4661,14 +4650,7 @@ window.addEventListener('load', function () {
     const settingsMPBtn = document.getElementById('btn-settings-mp');
     if (settingsMPBtn) {
         settingsMPBtn.addEventListener('click', () => {
-            settingsOverlay.classList.remove('active');
-            game.paused = false;
-            const lobbyEl = document.getElementById('html-lobby-overlay');
-            const lobbySelView = document.getElementById('lobby-selection-view');
-            const lobbyRoomView = document.getElementById('lobby-room-view');
-            if (lobbySelView) lobbySelView.style.display = 'block';
-            if (lobbyRoomView) lobbyRoomView.style.display = 'none';
-            if (lobbyEl) lobbyEl.classList.add('active');
+            window.location.href = 'https://shadow-strike-s.vercel.app/multiplayer.html';
         });
     }
     const settingsLogoutBtn = document.getElementById('btn-settings-logout');
