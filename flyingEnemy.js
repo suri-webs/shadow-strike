@@ -6,6 +6,7 @@ class FireProjectile {
 
         this.radius = 12;
         this.particles = [];
+        this.type = 'FireProjectile';
         this.x = startX;
         this.y = startY;
 
@@ -97,8 +98,12 @@ class FireProjectile {
                 });
             }
 
-            if (this.game.hitCooldown <= 0 && hitPlayer === this.game.player) {
-                this.game.hurtPlayer(10, false);
+            if (this.game.hitCooldown <= 0) {
+                if (typeof this.game.hurtTargetPlayer === 'function') {
+                    this.game.hurtTargetPlayer(hitPlayer, 10, false);
+                } else if (hitPlayer === this.game.player) {
+                    this.game.hurtPlayer(10, false);
+                }
             }
         }
 
@@ -213,6 +218,7 @@ export class FlyingEnemy {
         this.bobAmplitude = 28;
 
         this.projectiles = [];
+        this.enemyType = 'flying';
     }
 
     get _img() { return this.images[this.state] ?? this.images.IDLE; }
@@ -230,7 +236,7 @@ export class FlyingEnemy {
 
     takeDamage(amount) {
         if (this.state === 'DEATH') return;
-        if (!this.hasEnteredScreen) return;
+        if (!this.hasEnteredScreen && !this.game.isMultiplayer) return;
 
         this.currentHP -= amount;
         this.flashTimer = 150;

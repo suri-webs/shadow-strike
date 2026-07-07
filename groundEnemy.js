@@ -41,6 +41,7 @@ class ArcherProjectile {
         this.facingLeft = facingLeft;
         this.speed = 8;
         this.damage = damage;
+        this.type = 'ArcherProjectile';
         this.markedForDeletion = false;
         this.image = archerProjImage;
     }
@@ -79,8 +80,9 @@ class ArcherProjectile {
                 this.y + this.height > player.y;
 
             if (hit && this.game.hitCooldown <= 0) {
-                // Only hurt local player (remote HP handled server-side)
-                if (player === this.game.player) {
+                if (typeof this.game.hurtTargetPlayer === 'function') {
+                    this.game.hurtTargetPlayer(player, this.damage, false);
+                } else if (player === this.game.player) {
                     this.game.hurtPlayer(this.damage, false);
                 }
                 this.markedForDeletion = true;
@@ -231,7 +233,7 @@ export class GroundEnemy {
 
         this.currentHP = this.maxHP;
         this.x = this.game.width + 50;
-        this.hasEnteredScreen = false;
+        this.hasEnteredScreen = this.game.isMultiplayer ? true : false;
         this.y = this.game.height - this.height - this.game.groundMargin + (this.yOffset || 0);
 
         this.state = 'WALK';
@@ -275,7 +277,7 @@ export class GroundEnemy {
 
     takeDamage(amount) {
         if (this.state === 'DEATH') return;
-        if (!this.hasEnteredScreen) return;
+        if (!this.hasEnteredScreen && !this.game.isMultiplayer) return;
         this.currentHP -= amount;
         this.flashTimer = 150;
         this.scaleX = 1.25;
@@ -320,20 +322,7 @@ export class GroundEnemy {
                 const totalFrames = this.frameCounts[this.state] || 1;
                 this.frameX = (this.frameX + 1) % totalFrames;
             }
-            // Check melee damage to local player on guest client
-            const player = this.game.player;
-            if (player && !player.isDead && this.game.hitCooldown <= 0) {
-                if (this.state === 'ATTACK' && this.frameX === this.DAMAGE_ON_FRAME && !this.hasMeleeHitGuest) {
-                    const dist = Math.abs((this.x + this.width / 2) - (player.x + player.width / 2));
-                    if (dist <= this.attackRange + 30) {
-                        this.hasMeleeHitGuest = true;
-                        this.game.hurtPlayer(this.attackDamage || 8, false);
-                    }
-                }
-                if (this.state !== 'ATTACK') {
-                    this.hasMeleeHitGuest = false;
-                }
-            }
+            // Guest client collision checking (melee damage is handled authoritatively by host)
             this.projectiles.forEach(p => p.update(deltaTime));
             this.projectiles = this.projectiles.filter(p => !p.markedForDeletion);
             return;

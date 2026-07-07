@@ -117,7 +117,7 @@ export class BossEnemy {
         this.height = 320;
 
         this.x = game.width + 200;
-        this.hasEnteredScreen = false;
+        this.hasEnteredScreen = this.game.isMultiplayer ? true : false;
 
         this.baseY =
             game.height -
@@ -441,9 +441,13 @@ export class BossEnemy {
                 hitY < player.y + player.height &&
                 hitY + hitH > player.y;
 
-            if (overlaps && player === this.game.player) {
+            if (overlaps) {
                 const dmg = this.phase === 2 ? this.meleeDamagePhase2 : this.meleeDamage;
-                this.game.hurtPlayer(dmg, true);
+                if (typeof this.game.hurtTargetPlayer === 'function') {
+                    this.game.hurtTargetPlayer(player, dmg, true);
+                } else if (player === this.game.player) {
+                    this.game.hurtPlayer(dmg, true);
+                }
                 break;
             }
         }
@@ -653,7 +657,7 @@ export class BossEnemy {
 
     takeDamage(amount) {
         if (this.state === 'DEATH' || this.invuln > 0) return;
-        if (!this.hasEnteredScreen) return;
+        if (!this.hasEnteredScreen && !this.game.isMultiplayer) return;
 
         const dist = this._distToPlayer();
         if (dist > 350 && this.comeCloserCooldown <= 0) {
@@ -778,34 +782,7 @@ export class BossEnemy {
                 const totalFrames = this.frameCounts[this.state] || 1;
                 this.frameX = (this.frameX + 1) % totalFrames;
             }
-            // Guest client collision checking
-            const player = this.game.player;
-            if (player && !player.isDead && this.game.hitCooldown <= 0) {
-                // Melee hit check
-                if (this.state === 'ATTACK' && this.pendingAttackType === 'melee' && this.frameX === this.MELEE_FRAME && !this.hasMeleeHitGuest) {
-                    const hitX = this.facingLeft
-                        ? this.x - this.meleeRange + this.width * 0.3
-                        : this.x + this.width * 0.7;
-                    const hitW = this.meleeRange;
-                    const hitY = this.y + this.height * 0.3;
-                    const hitH = this.height * 0.5;
-
-                    const overlaps =
-                        hitX < player.x + player.width &&
-                        hitX + hitW > player.x &&
-                        hitY < player.y + player.height &&
-                        hitY + hitH > player.y;
-
-                    if (overlaps) {
-                        this.hasMeleeHitGuest = true;
-                        const dmg = this.phase === 2 ? this.meleeDamagePhase2 : this.meleeDamage;
-                        this.game.hurtPlayer(dmg, true);
-                    }
-                }
-                if (this.state !== 'ATTACK') {
-                    this.hasMeleeHitGuest = false;
-                }
-            }
+            // Guest client collision checking (Melee damage is handled authoritatively by host)
             if (this.bossType !== 'impaler') {
                 this.projectiles.forEach(p => p.update(deltaTime));
                 this.projectiles = this.projectiles.filter(p => !p.markedForDeletion);

@@ -9,6 +9,7 @@ export class BossFireballProjectile {
         this.radius = 32;
         this.markedForDeletion = false;
         this.damage = damage;
+        this.type = 'BossFireballProjectile';
         this.particles = [];
     }
 
@@ -292,6 +293,7 @@ export class BossGiantFireball extends BossFireballProjectile {
     constructor(game, x, y, dx, dy, speed = 6, damage = 40) {
         super(game, x, y, dx, dy, speed, damage);
         this.radius = 70;
+        this.type = 'BossGiantFireball';
     }
 }
 
@@ -308,6 +310,7 @@ export class FirePillar {
         this.markedForDeletion = false;
         this.damage = damage;
         this.hasDealtDamage = false;
+        this.type = 'FirePillar';
         this.particles = [];
     }
 
@@ -440,6 +443,7 @@ export class FlameThrowerParticle {
         this.damage = damage;
         this.life = 1000;
         this.timer = 0;
+        this.type = 'FlameThrowerParticle';
     }
 
     update(deltaTime) {

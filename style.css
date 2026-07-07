@@ -3237,16 +3237,31 @@ body {
 }
 
 .lobby-large-card {
-    width: 90% !important;
-    max-width: 520px !important;
+    width: 95% !important;
+    max-width: 960px !important;
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 30px;
+}
+
+.lobby-room-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border-left: 1px solid rgba(255,255,255,0.08);
+    padding-left: 30px;
 }
 
 @media(max-width: 768px) {
     .lobby-large-card {
         grid-template-columns: 1fr !important;
+        max-width: 520px !important;
+    }
+    .lobby-room-right {
+        border-left: none !important;
+        border-top: 1px solid rgba(255,255,255,0.08) !important;
+        padding-left: 0 !important;
+        padding-top: 20px !important;
     }
 }
 

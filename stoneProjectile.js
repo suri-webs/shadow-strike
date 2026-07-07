@@ -7,6 +7,7 @@ export class StoneProjectile {
         this.dy = dy;
         this.speed = speed;
         this.damage = damage;
+        this.type = 'StoneProjectile';
         this.radius = 16;
         this.markedForDeletion = false;
         this.particles = [];

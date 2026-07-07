@@ -9,6 +9,7 @@ export class BossProjectile {
         this.radius = 14;
         this.markedForDeletion = false;
         this.damage = damage;
+        this.type = 'BossProjectile';
         this.particles = [];
     }
 

@@ -1303,8 +1303,11 @@ window.addEventListener('load', function () {
             if (targetPlayer === this.player) {
                 return this.hurtPlayer(damage, isBossKill);
             }
-            // Remote player — send damage via server (if socket available)
-            // For now we skip remote HP sync and only damage local player through normal flow
+            // Remote player — send damage via server
+            if (this.isMultiplayer && this.socket) {
+                this.socket.emit('playerTakeDamage', { playerId: targetPlayer.id, damage: damage });
+                return true;
+            }
             return false;
         }
 
@@ -2094,8 +2097,18 @@ window.addEventListener('load', function () {
                     p.frameTimer += animDelta;
                     if (p.frameTimer >= p.frameInterval) {
                         p.frameTimer = 0;
-                        if (p.frameX < p.maxFrame) p.frameX++;
-                        else p.frameX = 0;
+
+                        const isDeathState = p.currentState && p.currentState.state === 'DEATH';
+
+                        if (isDeathState) {
+                            // One-shot: advance until the last frame, then freeze there
+                            if (p.frameX < p.maxFrame) p.frameX++;
+                            // else: stay at maxFrame — do NOT reset to 0
+                        } else if (p.frameX < p.maxFrame) {
+                            p.frameX++;
+                        } else {
+                            p.frameX = 0; // normal animations (walk, attack, etc.) still loop
+                        }
                     }
 
 
@@ -4121,6 +4134,13 @@ window.addEventListener('load', function () {
                 roomModeDisplay.innerText = room.mode === 'coop' ? 'Co-op Adventure' : 'Arena PvP';
                 roomLevelDisplay.innerText = room.level;
 
+                // Sync local player selected character from room roster
+                const localMember = room.members.find(m => m.playerId === game.playerId);
+                if (localMember) {
+                    game.selectedCharacter = localMember.characterType;
+                }
+
+
                 // Render roster
                 roomMembersList.innerHTML = '';
                 let allReady = true;
@@ -4196,14 +4216,86 @@ window.addEventListener('load', function () {
                 if (game.isHost && game.enemies) {
                     const enemy = game.enemies.find(e => String(e.id) === String(enemyId));
                     if (enemy) {
-                        if (typeof enemy.takeDamage === 'function') {
-                            enemy.takeDamage(damage);
-                        } else {
-                            enemy.currentHP = Math.max(0, enemy.currentHP - damage);
+                        // --- FIX: Bypass invuln (BossEnemy has invuln that the host's own attacks
+                        //     continuously refresh, which blocks ALL guest damage while host is alive).
+                        //     We directly apply HP reduction and trigger visual effects instead of
+                        //     going through takeDamage() which is gated by invuln > 0. ---
+                        const isDead = enemy.state === 'DEATH' || enemy.markedForDeletion;
+                        if (!isDead) {
+                            const curHP = enemy.currentHP !== undefined ? enemy.currentHP : (enemy.maxHP || 100);
+                            const newHP = Math.max(0, curHP - damage);
+                            enemy.currentHP = newHP;
+                            if (enemy.hp !== undefined) enemy.hp = newHP;
+
+                            // Visual feedback: flash and squash like a real hit
+                            if (enemy.flashTimer !== undefined) enemy.flashTimer = 150;
+                            if (enemy.scaleX !== undefined) { enemy.scaleX = 1.15; enemy.scaleY = 0.85; }
+
+                            // Spawn damage text
+                            if (typeof game.spawnDamageText === 'function') {
+                                game.spawnDamageText(
+                                    enemy.x + (enemy.width || 80) / 2,
+                                    enemy.y + (enemy.height || 100) * 0.3,
+                                    damage
+                                );
+                            }
+                            game.spawnHitSparks && game.spawnHitSparks(
+                                enemy.x + (enemy.width || 80) / 2,
+                                enemy.y + (enemy.height || 100) / 2, 'gold'
+                            );
+                            game.shake = Math.max(game.shake || 0, 6);
+
+                            // Trigger DEATH or HURT state
+                            if (newHP <= 0) {
+                                if (typeof enemy._setState === 'function') enemy._setState('DEATH');
+                                else if (typeof enemy.setState === 'function') enemy.setState('DEATH');
+                            } else {
+                                // Only switch to HURT if not already in attack/hurt/death
+                                const curState = enemy.state || (enemy.currentState && enemy.currentState.state);
+                                if (curState !== 'ATTACK' && curState !== 'DEATH') {
+                                    if (typeof enemy._setState === 'function') enemy._setState('HURT');
+                                    if (enemy.hurtTimer !== undefined) enemy.hurtTimer = 0;
+                                    // Reset boss invuln so host's NEXT attack also registers cleanly
+                                    if (enemy.invuln !== undefined) enemy.invuln = 0;
+                                }
+                            }
+                        }
+
+                        // Immediately push updated enemy state to server so guest sees HP drop without waiting for next tick
+                        if (game.socket && game.player) {
+                            const updatedEnemies = game.enemies.map(e => {
+                                if (!e.id) e.id = Math.random().toString();
+                                return {
+                                    id: e.id,
+                                    type: e.enemyType || (e.isBoss ? 'boss' : 'skeleton_white'),
+                                    x: e.x + game.cameraX,
+                                    y: e.y,
+                                    hp: e.currentHP !== undefined ? e.currentHP : (e.hp || 0),
+                                    maxHp: e.maxHP !== undefined ? e.maxHP : (e.maxHp || 100),
+                                    facingLeft: e.facingLeft,
+                                    state: e.state || (e.currentState && e.currentState.state) || 'WALK',
+                                    isBoss: e.isBoss || false
+                                };
+                            });
+                            game.socket.emit('playerStateUpdate', {
+                                x: game.player.x + game.cameraX,
+                                y: game.player.y,
+                                vy: game.player.vy,
+                                animState: game.player.currentState ? game.player.currentState.state : 'IDLE',
+                                facingLeft: game.player.facingLeft,
+                                hp: game.currentHP,
+                                maxHp: game.maxHP,
+                                score: game.score,
+                                coins: game.coins,
+                                shieldActive: game.player.shieldActive || false,
+                                isDead: game.player.isDead,
+                                enemies: updatedEnemies
+                            });
                         }
                     }
                 }
             });
+
 
             // Game state Tick sync
             game.socket.on('gameState', (state) => {
@@ -4222,6 +4314,27 @@ window.addEventListener('load', function () {
                     }
                     if (!game.players.has(game.playerId)) {
                         game.players.set(game.playerId, game.player);
+                    }
+                    // Sync local player HP if changed by server (e.g. damaged by enemies/boss on host)
+                    if (state.players && state.players[game.playerId]) {
+                        const sLocalPlayer = state.players[game.playerId];
+                        if (sLocalPlayer.hp !== undefined && sLocalPlayer.hp !== game.currentHP) {
+                            const oldHP = game.currentHP;
+                            game.currentHP = sLocalPlayer.hp;
+                            if (game.player) {
+                                if (game.currentHP <= 0) {
+                                    game.player.isDead = true;
+                                    if (game.player.currentState && game.player.currentState.state !== 'DEATH') {
+                                        game.player.setState('DEATH');
+                                    }
+                                } else if (sLocalPlayer.hp < oldHP) {
+                                    if (game.player.currentState && game.player.currentState.state !== 'DAMAGE') {
+                                        game.player.setState('DAMAGE');
+                                        game.player.takingDamage = true;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 
@@ -4263,7 +4376,61 @@ window.addEventListener('load', function () {
                         pInstance.setState(sPlayer.animState);
                     }
                     pInstance.shieldActive = sPlayer.shieldActive;
+
+                    // Sync remote player's projectiles for visual rendering on this client
+                    if (sPlayer.slashProjectiles) {
+                        pInstance.slashProjectiles = sPlayer.slashProjectiles.map(sp => ({
+                            x: sp.x - game.cameraX,
+                            y: sp.y,
+                            vx: sp.vx,
+                            vy: sp.vy || 0,
+                            facingLeft: sp.facingLeft,
+                            width: sp.width || 90,
+                            height: sp.height || 30,
+                            type: sp.type,
+                            particles: [],
+                            embers: [],
+                            markedForDeletion: false,
+                            draw(ctx) {
+                                ctx.save();
+                                ctx.shadowColor = '#ff8800';
+                                ctx.shadowBlur = 18;
+                                ctx.fillStyle = 'rgba(255, 140, 0, 0.75)';
+                                const drawX = this.facingLeft ? this.x - this.width : this.x;
+                                ctx.fillRect(drawX, this.y - this.height / 2, this.width, this.height);
+                                ctx.restore();
+                            }
+                        }));
+                    } else {
+                        pInstance.slashProjectiles = [];
+                    }
+                    if (sPlayer.windProjectiles) {
+                        pInstance.windProjectiles = sPlayer.windProjectiles.map(wp => ({
+                            x: wp.x - game.cameraX,
+                            y: wp.y,
+                            vx: wp.vx,
+                            vy: wp.vy || 0,
+                            facingLeft: wp.facingLeft,
+                            width: wp.width || 40,
+                            height: wp.height || 40,
+                            type: wp.type,
+                            markedForDeletion: false,
+                            draw(ctx) {
+                                ctx.save();
+                                ctx.shadowColor = '#00e5ff';
+                                ctx.shadowBlur = 14;
+                                ctx.fillStyle = 'rgba(0, 200, 255, 0.7)';
+                                ctx.beginPath();
+                                ctx.arc(this.x, this.y, this.width / 2, 0, Math.PI * 2);
+                                ctx.fill();
+                                ctx.restore();
+                            }
+                        }));
+                    } else {
+                        pInstance.windProjectiles = [];
+                    }
                 }
+
 
                 // Sync enemies and wave progression if not host
                 if (!game.isHost && state.enemies) {
@@ -4306,9 +4473,9 @@ window.addEventListener('load', function () {
                                     le._setState('DEATH');
                                 }
                             } else {
-                                if (le.currentState && le.currentState.state !== se.state) {
+                                if (typeof le._setState === 'function') {
                                     le._setState(se.state);
-                                } else if (le.state !== se.state) {
+                                } else {
                                     le.state = se.state;
                                 }
                             }
@@ -4337,7 +4504,13 @@ window.addEventListener('load', function () {
                                         particles: particles,
                                         history: history,
                                         rotation: rotation + 0.15,
+                                        timer: sp.timer || 0,
+                                        delay: sp.delay || 0,
+                                        life: sp.life || 1000,
                                         update: function (dt) {
+                                            this.x += this.vx - (this.game.scrollSpeed || 0);
+                                            this.y += this.vy;
+
                                             const localPlayer = this.game.player;
                                             if (localPlayer && !localPlayer.isDead && this.game.hitCooldown <= 0) {
                                                 const pLeft = localPlayer.x + localPlayer.width * 0.25;
@@ -4366,7 +4539,7 @@ window.addEventListener('load', function () {
                                                     });
                                                 }
                                                 this.particles.forEach(p => {
-                                                    p.x += p.vx;
+                                                    p.x += p.vx - (this.game.scrollSpeed || 0);
                                                     p.y += p.vy;
                                                     p.alpha -= 0.05;
                                                     p.size *= 0.9;
@@ -4412,7 +4585,7 @@ window.addEventListener('load', function () {
                                                         });
                                                     }
                                                     this.particles.forEach(p => {
-                                                        p.x += p.vx;
+                                                        p.x += p.vx - (this.game.scrollSpeed || 0);
                                                         p.y += p.vy;
                                                         p.alpha -= 0.035;
                                                         p.size *= 0.95;
@@ -4444,7 +4617,7 @@ window.addEventListener('load', function () {
                                                     });
                                                 }
                                                 this.particles.forEach(p => {
-                                                    p.x += p.vx;
+                                                    p.x += p.vx - (this.game.scrollSpeed || 0);
                                                     p.y += p.vy;
                                                     p.alpha -= 0.03;
                                                     p.size *= 0.95;
@@ -4468,7 +4641,7 @@ window.addEventListener('load', function () {
                                                     });
                                                 }
                                                 this.particles.forEach(p => {
-                                                    p.x += p.vx;
+                                                    p.x += p.vx - (this.game.scrollSpeed || 0);
                                                     p.y += p.vy;
                                                     p.alpha -= 0.04;
                                                     p.size *= 0.93;
@@ -4486,11 +4659,49 @@ window.addEventListener('load', function () {
                                                     });
                                                 }
                                                 this.particles.forEach(p => {
-                                                    p.x += p.vx;
+                                                    p.x += p.vx - (this.game.scrollSpeed || 0);
                                                     p.y += p.vy;
                                                     p.alpha -= 0.035;
                                                 });
                                                 this.particles = this.particles.filter(p => p.alpha > 0);
+                                            } else if (this.type === 'FirePillar') {
+                                                this.timer += dt;
+                                                const isErupting = this.timer >= this.delay;
+                                                if (isErupting) {
+                                                    for (let i = 0; i < 3; i++) {
+                                                        this.particles.push({
+                                                            x: this.x + (Math.random() - 0.5) * 80,
+                                                            y: this.y - Math.random() * (this.game.height - this.y),
+                                                            vx: (Math.random() - 0.5) * 1.5,
+                                                            vy: -Math.random() * 4 - 2,
+                                                            size: Math.random() * 16 + 8,
+                                                            alpha: 0.9,
+                                                            color: Math.random() > 0.5 ? 'rgba(255, 69, 0, 0.85)' : 'rgba(255, 215, 0, 0.85)'
+                                                        });
+                                                    }
+                                                } else {
+                                                    if (Math.random() < 0.3) {
+                                                        this.particles.push({
+                                                            x: this.x + (Math.random() - 0.5) * 80,
+                                                            y: this.y - 2,
+                                                            vx: (Math.random() - 0.5) * 0.5,
+                                                            vy: -Math.random() * 2 - 0.5,
+                                                            size: Math.random() * 6 + 3,
+                                                            alpha: 0.6,
+                                                            color: 'rgba(255, 0, 0, 0.5)'
+                                                        });
+                                                    }
+                                                }
+                                                this.particles.forEach(p => {
+                                                    p.x += p.vx - (this.game.scrollSpeed || 0);
+                                                    p.y += p.vy;
+                                                    p.alpha -= 0.02;
+                                                    p.size *= 0.97;
+                                                });
+                                                this.particles = this.particles.filter(p => p.alpha > 0);
+                                            } else if (this.type === 'FlameThrowerParticle') {
+                                                this.timer += dt;
+                                                this.radius = 16 + (60 - 16) * Math.min(1.0, this.timer / (this.life || 1000));
                                             }
                                         },
                                         draw: function (ctx) {
@@ -4700,6 +4911,70 @@ window.addEventListener('load', function () {
                                                     }
                                                     ctx.restore();
                                                 }
+                                            } else if (this.type === 'FirePillar') {
+                                                ctx.save();
+                                                const isErupting = this.timer >= this.delay;
+                                                if (isErupting) {
+                                                    const grad = ctx.createLinearGradient(this.x - 40, 0, this.x + 40, 0);
+                                                    grad.addColorStop(0, 'rgba(255, 0, 0, 0)');
+                                                    grad.addColorStop(0.3, 'rgba(255, 69, 0, 0.7)');
+                                                    grad.addColorStop(0.5, 'rgba(255, 230, 100, 0.9)');
+                                                    grad.addColorStop(0.7, 'rgba(255, 69, 0, 0.7)');
+                                                    grad.addColorStop(1, 'rgba(255, 0, 0, 0)');
+                                                    ctx.fillStyle = grad;
+                                                    ctx.fillRect(this.x - 40, 0, 80, this.y);
+                                                    ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+                                                    ctx.fillRect(this.x - 6, 0, 12, this.y);
+                                                } else {
+                                                    const warningAlpha = 0.25 + 0.25 * Math.sin(Date.now() * 0.015);
+                                                    const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, 80);
+                                                    grad.addColorStop(0, `rgba(255, 0, 0, ${warningAlpha * 0.9})`);
+                                                    grad.addColorStop(0.6, `rgba(255, 100, 0, ${warningAlpha * 0.4})`);
+                                                    grad.addColorStop(1, 'rgba(255, 0, 0, 0)');
+                                                    ctx.beginPath();
+                                                    ctx.ellipse(this.x, this.y, 80 * 1.2, 10, 0, 0, Math.PI * 2);
+                                                    ctx.fillStyle = grad;
+                                                    ctx.fill();
+                                                }
+                                                this.particles.forEach(p => {
+                                                    ctx.beginPath();
+                                                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                                                    ctx.fillStyle = p.color;
+                                                    ctx.fill();
+                                                });
+                                                ctx.restore();
+                                            } else if (this.type === 'FlameThrowerParticle') {
+                                                ctx.save();
+                                                const ratio = Math.min(1.0, this.timer / (this.life || 1000));
+                                                const alpha = 1.0 - ratio;
+                                                const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+                                                if (ratio < 0.4) {
+                                                    grad.addColorStop(0, `rgba(255, 255, 255, ${alpha})`);
+                                                    grad.addColorStop(0.3, `rgba(255, 215, 0, ${alpha * 0.85})`);
+                                                    grad.addColorStop(0.8, `rgba(255, 69, 0, ${alpha * 0.4})`);
+                                                } else if (ratio < 0.75) {
+                                                    grad.addColorStop(0, `rgba(255, 140, 0, ${alpha * 0.9})`);
+                                                    grad.addColorStop(0.5, `rgba(255, 0, 0, ${alpha * 0.5})`);
+                                                    grad.addColorStop(1, 'rgba(120, 0, 0, 0)');
+                                                } else {
+                                                    grad.addColorStop(0, `rgba(130, 30, 0, ${alpha * 0.6})`);
+                                                    grad.addColorStop(0.6, `rgba(40, 40, 40, ${alpha * 0.3})`);
+                                                    grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+                                                }
+                                                ctx.beginPath();
+                                                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                                                ctx.fillStyle = grad;
+                                                ctx.fill();
+                                                ctx.restore();
+                                            } else if (this.type === 'BossProjectile') {
+                                                ctx.save();
+                                                ctx.beginPath();
+                                                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                                                ctx.fillStyle = '#ff3d00';
+                                                ctx.shadowColor = '#ff3d00';
+                                                ctx.shadowBlur = 12;
+                                                ctx.fill();
+                                                ctx.restore();
                                             } else {
                                                 ctx.save();
                                                 ctx.beginPath();
@@ -6575,8 +6850,30 @@ window.addEventListener('load', function () {
                 score: game.score,
                 coins: game.coins,
                 shieldActive: game.player.shieldActive || false,
-                isDead: game.player.isDead
+                isDead: game.player.isDead,
+                // Sync player projectiles so remote client can see them
+                slashProjectiles: (game.player.slashProjectiles || []).map(p => ({
+                    x: p.x + game.cameraX,
+                    y: p.y,
+                    vx: p.facingLeft ? -(p.speed || 40) : (p.speed || 40),
+                    vy: 0,
+                    type: p.constructor ? p.constructor.name : 'SlashProjectile',
+                    facingLeft: p.facingLeft,
+                    width: p.width || 90,
+                    height: p.height || 30
+                })),
+                windProjectiles: (game.player.windProjectiles || []).map(p => ({
+                    x: p.x + game.cameraX,
+                    y: p.y,
+                    vx: p.vx || (p.facingLeft ? -8 : 8),
+                    vy: p.vy || 0,
+                    type: p.constructor ? p.constructor.name : 'WindProjectile',
+                    facingLeft: p.facingLeft,
+                    width: p.width || 40,
+                    height: p.height || 40
+                }))
             };
+
             if (game.isHost) {
                 playerState.enemies = game.enemies.map(e => {
                     if (!e.id) e.id = Math.random().toString();
@@ -6592,17 +6889,33 @@ window.addEventListener('load', function () {
                         isBoss: e.isBoss || false
                     };
                     if (e.projectiles) {
-                        enemyData.projectiles = e.projectiles.map(p => ({
-                            x: p.x + game.cameraX,
-                            y: p.y,
-                            vx: p.vx || p.speedX || p.dx || 0,
-                            vy: p.vy || p.speedY || p.dy || 0,
-                            type: p.constructor.name,
-                            radius: p.radius || 12,
-                            damage: p.damage || 10,
-                            isBlackHole: p.isBlackHole || false,
-                            facingLeft: p.facingLeft !== undefined ? p.facingLeft : (p.dx < 0)
-                        }));
+                        enemyData.projectiles = e.projectiles.map(p => {
+                            let vx = 0;
+                            let vy = 0;
+                            if (p.vx !== undefined) vx = p.vx;
+                            else if (p.speedX !== undefined) vx = p.speedX;
+                            else if (p.dx !== undefined) vx = p.dx * (p.speed || 1);
+                            else if (p.speed !== undefined) vx = (p.facingLeft ? -1 : 1) * p.speed;
+
+                            if (p.vy !== undefined) vy = p.vy;
+                            else if (p.speedY !== undefined) vy = p.speedY;
+                            else if (p.dy !== undefined) vy = p.dy * (p.speed || 1);
+
+                            return {
+                                x: p.x + game.cameraX,
+                                y: p.y,
+                                vx: vx,
+                                vy: vy,
+                                type: p.type || p.constructor.name,
+                                radius: p.radius || p.width || 12,
+                                damage: p.damage || 10,
+                                isBlackHole: p.isBlackHole || false,
+                                facingLeft: p.facingLeft !== undefined ? p.facingLeft : (p.dx !== undefined ? p.dx < 0 : false),
+                                timer: p.timer !== undefined ? p.timer : 0,
+                                delay: p.delay !== undefined ? p.delay : 0,
+                                life: p.life !== undefined ? p.life : 1000
+                            };
+                        });
                     }
                     if (e.pendingAttackType) {
                         enemyData.attackType = e.pendingAttackType;

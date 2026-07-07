@@ -12,7 +12,7 @@ export class MinoBoss {
         this.height = 320;
 
         this.x = game.width + 200;
-        this.hasEnteredScreen = false;
+        this.hasEnteredScreen = this.game.isMultiplayer ? true : false;
         this.baseY = game.height - this.height - game.groundMargin + 37;
         this.y = this.baseY;
 
@@ -168,14 +168,18 @@ export class MinoBoss {
                 hitY < player.y + player.height &&
                 hitY + hitH > player.y;
 
-            if (overlaps && this.game.hitCooldown <= 0 && player === this.game.player) {
+            if (overlaps && this.game.hitCooldown <= 0) {
                 const dmg = this.phase === 2 ? this.meleeDamagePhase2 : this.meleeDamage;
-                this.game.currentHP = Math.max(0, this.game.currentHP - dmg);
-                this.game.playerHit = true;
-                this.game.hitCooldown = this.game.hitCooldownMax;
-                player.takingDamage = true;
-                if (this.game.currentHP <= 0) {
-                    player.killedByBoss = true;
+                if (typeof this.game.hurtTargetPlayer === 'function') {
+                    this.game.hurtTargetPlayer(player, dmg, true);
+                } else if (player === this.game.player) {
+                    this.game.currentHP = Math.max(0, this.game.currentHP - dmg);
+                    this.game.playerHit = true;
+                    this.game.hitCooldown = this.game.hitCooldownMax;
+                    player.takingDamage = true;
+                    if (this.game.currentHP <= 0) {
+                        player.killedByBoss = true;
+                    }
                 }
                 break;
             }
@@ -251,7 +255,7 @@ export class MinoBoss {
 
     takeDamage(amount) {
         if (this.state === 'DEATH' || this.invuln > 0) return;
-        if (!this.hasEnteredScreen) return;
+        if (!this.hasEnteredScreen && !this.game.isMultiplayer) return;
 
         const dist = this._distToPlayer();
         if (dist > 350 && this.comeCloserCooldown <= 0) {
@@ -328,51 +332,7 @@ export class MinoBoss {
                 const totalFrames = this.frameCounts[this.state] || 1;
                 this.frameX = (this.frameX + 1) % totalFrames;
             }
-            // Guest client collision checking
-            const player = this.game.player;
-            if (player && !player.isDead) {
-                // 1. Melee hit check
-                if (this.state === 'ATTACK' && this.pendingAttackType === 'melee' && this.frameX === this.MELEE_FRAME && !this.hasMeleeHitGuest) {
-                    const hitX = this.facingLeft
-                        ? this.x - this.meleeRange + this.width * 0.3
-                        : this.x + this.width * 0.7;
-                    const hitW = this.meleeRange;
-                    const hitY = this.y + this.height * 0.3;
-                    const hitH = this.height * 0.5;
-
-                    const overlaps =
-                        hitX < player.x + player.width &&
-                        hitX + hitW > player.x &&
-                        hitY < player.y + player.height &&
-                        hitY + hitH > player.y;
-
-                    if (overlaps && this.game.hitCooldown <= 0) {
-                        this.hasMeleeHitGuest = true;
-                        const dmg = this.phase === 2 ? this.meleeDamagePhase2 : this.meleeDamage;
-                        this.game.currentHP = Math.max(0, this.game.currentHP - dmg);
-                        this.game.playerHit = true;
-                        this.game.hitCooldown = this.game.hitCooldownMax;
-                        player.takingDamage = true;
-                        if (this.game.currentHP <= 0) player.killedByBoss = true;
-                    }
-                }
-                // 2. Dash hit check
-                if (this.state === 'ATTACK' && this.pendingAttackType === 'dash' && this.frameX >= 5 && this.frameX <= 11) {
-                    const overlaps = (this.x < player.x + player.width && this.x + this.width > player.x &&
-                        this.y < player.y + player.height && this.y + this.height > player.y);
-                    if (overlaps && this.game.hitCooldown <= 0) {
-                        const dmg = this.phase === 2 ? 35 : 25;
-                        this.game.currentHP = Math.max(0, this.game.currentHP - dmg);
-                        this.game.playerHit = true;
-                        this.game.hitCooldown = this.game.hitCooldownMax;
-                        player.takingDamage = true;
-                        if (this.game.currentHP <= 0) player.killedByBoss = true;
-                    }
-                }
-                if (this.state !== 'ATTACK') {
-                    this.hasMeleeHitGuest = false;
-                }
-            }
+            // Guest client collision checking (melee/dash damage is handled authoritatively by host)
             this.projectiles.forEach(p => p.update(deltaTime));
             this.projectiles = this.projectiles.filter(p => !p.markedForDeletion);
             return;
@@ -629,14 +589,18 @@ export class MinoBoss {
                             if (!dashPlayer || dashPlayer.isDead) continue;
                             const overlaps = (this.x < dashPlayer.x + dashPlayer.width && this.x + this.width > dashPlayer.x &&
                                 this.y < dashPlayer.y + dashPlayer.height && this.y + this.height > dashPlayer.y);
-                            if (overlaps && this.game.hitCooldown <= 0 && dashPlayer === this.game.player) {
+                            if (overlaps && this.game.hitCooldown <= 0) {
                                 const dmg = this.phase === 2 ? 35 : 25;
-                                this.game.currentHP = Math.max(0, this.game.currentHP - dmg);
-                                this.game.playerHit = true;
-                                this.game.hitCooldown = this.game.hitCooldownMax;
-                                dashPlayer.takingDamage = true;
-                                if (this.game.currentHP <= 0) {
-                                    dashPlayer.killedByBoss = true;
+                                if (typeof this.game.hurtTargetPlayer === 'function') {
+                                    this.game.hurtTargetPlayer(dashPlayer, dmg, true);
+                                } else if (dashPlayer === this.game.player) {
+                                    this.game.currentHP = Math.max(0, this.game.currentHP - dmg);
+                                    this.game.playerHit = true;
+                                    this.game.hitCooldown = this.game.hitCooldownMax;
+                                    dashPlayer.takingDamage = true;
+                                    if (this.game.currentHP <= 0) {
+                                        dashPlayer.killedByBoss = true;
+                                    }
                                 }
                                 break;
                             }

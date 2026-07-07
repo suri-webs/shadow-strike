@@ -10,6 +10,7 @@ export class BossSlashProjectile {
         this.height = 90;
         this.markedForDeletion = false;
         this.damage = damage;
+        this.type = 'BossSlashProjectile';
         this.particles = [];
         this.history = [];
     }
