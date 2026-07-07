@@ -4282,7 +4282,7 @@ window.addEventListener('load', function () {
                                     x: e.x + game.cameraX,
                                     y: e.y,
                                     hp: e.currentHP !== undefined ? e.currentHP : (e.hp || 0),
-                                    maxHp: e.maxHP !== undefined ? e.maxHp : (e.maxHp || 100),
+                                    maxHp: e.maxHP !== undefined ? e.maxHP : (e.maxHp || 100),
                                     facingLeft: e.facingLeft,
                                     state: e.state || (e.currentState && e.currentState.state) || 'WALK',
                                     isBoss: e.isBoss || false
@@ -4308,7 +4308,6 @@ window.addEventListener('load', function () {
             };
 
             game.socket.on('applyEnemyDamage', handleGuestEnemyDamage);
-            game.socket.on('enemyDamage', handleGuestEnemyDamage);
 
 
             // Game state Tick sync
@@ -4479,8 +4478,14 @@ window.addEventListener('load', function () {
                         if (le) {
                             le.x = screenX;
                             le.y = se.y;
-                            le.currentHP = se.hp;
-                            le.hp = se.hp;
+                            // Grace period: if this guest just hit the enemy, don't overwrite HP with
+                            // the server's still-stale value — wait for the host to confirm the new HP.
+                            // Always sync on death so enemies never get stuck alive on the guest.
+                            const sinceLastHit = Date.now() - (le._guestHitTime || 0);
+                            if (se.hp <= 0 || sinceLastHit > 400) {
+                                le.currentHP = se.hp;
+                                le.hp = se.hp;
+                            }
                             le.facingLeft = se.facingLeft;
                             le.hasEnteredScreen = true;
                             if (se.hp <= 0) {
@@ -4488,10 +4493,13 @@ window.addEventListener('load', function () {
                                     le._setState('DEATH');
                                 }
                             } else {
-                                if (typeof le._setState === 'function') {
-                                    le._setState(se.state);
-                                } else {
-                                    le.state = se.state;
+                                // Only update state if not in a recent-hit visual state
+                                if (sinceLastHit > 200 || se.state === 'DEATH') {
+                                    if (typeof le._setState === 'function') {
+                                        le._setState(se.state);
+                                    } else {
+                                        le.state = se.state;
+                                    }
                                 }
                             }
                             // Sync enemy's projectiles

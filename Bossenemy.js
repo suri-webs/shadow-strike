@@ -338,6 +338,9 @@ export class BossEnemy {
             this.baseY = game.height - this.height - game.groundMargin + 50;
             this.y = this.baseY;
         }
+        // Unique ID assigned at spawn so guests can reference this enemy reliably
+        this.id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        this._guestHitTime = 0;
     }
 
     _rr(ctx, x, y, w, h, r) {
@@ -679,8 +682,8 @@ export class BossEnemy {
 
         if (this.game && this.game.isMultiplayer && !this.game.isHost && this.game.socket) {
             const damageId = Math.random().toString(36).substring(2, 11);
+            this._guestHitTime = Date.now();
             this.game.socket.emit('enemyDamage', { enemyId: this.id, damage: amount, damageId });
-            this.game.socket.emit('applyEnemyDamage', { enemyId: this.id, damage: amount, damageId });
         }
 
         if (this.currentHP <= 0) {
