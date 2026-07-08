@@ -4205,6 +4205,16 @@ window.addEventListener('load', function () {
                 voiceManager.init(game.socket, playerId);
             });
 
+            // Handle server disconnects
+            game.socket.on('disconnect', () => {
+                console.warn('Socket disconnected from server.');
+                if (lobbyRoomView && lobbyRoomView.style.display !== 'none') {
+                    lobbyRoomView.style.display = 'none';
+                    lobbySelectionView.style.display = 'grid';
+                    showToast('Connection lost. You have been removed from the room.', 'error');
+                }
+            });
+
             // Room Update handler
             game.socket.on('roomUpdate', (room) => {
                 game.roomMembers = room.members; // Save members for voice connection

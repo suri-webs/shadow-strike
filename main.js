@@ -4085,6 +4085,20 @@ window.addEventListener('load', function () {
                 console.log(`Socket authentication successful. PlayerId: ${playerId}, Username: ${username}`);
             });
 
+            // Handle server disconnects
+            game.socket.on('disconnect', () => {
+                console.warn('Socket disconnected from server.');
+                if (typeof lobbyRoomView !== 'undefined' && lobbyRoomView && lobbyRoomView.style.display !== 'none') {
+                    lobbyRoomView.style.display = 'none';
+                    if (typeof lobbySelectionView !== 'undefined' && lobbySelectionView) {
+                        lobbySelectionView.style.display = 'grid';
+                    }
+                    if (typeof showToast === 'function') {
+                        showToast('Connection lost. You have been removed from the room.', 'error');
+                    }
+                }
+            });
+
             // Game state Tick sync
             game.socket.on('gameState', (state) => {
                 game.serverState = state;
