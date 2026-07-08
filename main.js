@@ -3255,48 +3255,102 @@ window.addEventListener('load', function () {
             context.fillStyle = '#ffffff';
             context.fillText(this.score.toLocaleString(), sx + sw - 14, sy + 62);
 
-            const lw = 160, lh = 32, lx = W / 2 - lw / 2, ly = 12;
-            context.shadowColor = 'rgba(0,0,0,0.4)';
-            context.shadowBlur = 10;
-            context.fillStyle = 'rgba(5,5,14,0.92)';
-            rr(context, lx, ly, lw, lh, 10); context.fill();
-            context.shadowBlur = 0;
-            context.strokeStyle = lvlAccent + '55';
-            context.lineWidth = 1.5;
-            rr(context, lx, ly, lw, lh, 10); context.stroke();
+            // Sci-fi Level Polygon
+            const lw = 150, lh = 28, ly = 16, lvlCx = W / 2;
+            const hexCut = 14;
 
-            context.font = '800 13px "Poppins"';
+            // Fading side honeycombs (decorative)
+            function drawFlatHex(ctx, x, y, size) {
+                ctx.beginPath();
+                for (let i = 0; i < 6; i++) {
+                    const angle = (Math.PI / 3) * i;
+                    const px = x + size * Math.cos(angle);
+                    const py = y + size * Math.sin(angle);
+                    if (i === 0) ctx.moveTo(px, py);
+                    else ctx.lineTo(px, py);
+                }
+                ctx.closePath();
+                ctx.stroke();
+            }
+
+            context.lineWidth = 1.5;
+            const hexSize = 10;
+            const hexSpacing = hexSize * 1.6;
+            for (let i = 0; i < 4; i++) {
+                context.strokeStyle = `rgba(0, 229, 255, ${0.3 - i * 0.08})`;
+                drawFlatHex(context, lvlCx - lw / 2 - hexSpacing * (i + 1), ly + lh / 2, hexSize);
+                drawFlatHex(context, lvlCx + lw / 2 + hexSpacing * (i + 1), ly + lh / 2, hexSize);
+            }
+
+            // Main Level Polygon
+            context.beginPath();
+            context.moveTo(lvlCx - lw / 2 + hexCut, ly);
+            context.lineTo(lvlCx + lw / 2 - hexCut, ly);
+            context.lineTo(lvlCx + lw / 2, ly + lh / 2);
+            context.lineTo(lvlCx + lw / 2 - hexCut, ly + lh);
+            context.lineTo(lvlCx - lw / 2 + hexCut, ly + lh);
+            context.lineTo(lvlCx - lw / 2, ly + lh / 2);
+            context.closePath();
+
+            context.shadowColor = lvlAccent;
+            context.shadowBlur = 10;
+            context.fillStyle = 'rgba(10, 15, 25, 0.95)';
+            context.fill();
+            context.shadowBlur = 0;
+            context.strokeStyle = lvlAccent;
+            context.lineWidth = 1.5;
+            context.stroke();
+
+            // Inner text: LEVEL X
+            context.font = '900 15px "Orbitron", sans-serif';
             context.fillStyle = lvlAccent;
             context.textAlign = 'center';
-            context.fillText(`LEVEL  ${this.level}`, W / 2, ly + 21);
+            context.fillText(`LEVEL ${this.level}`, lvlCx, ly + 19);
 
-            const wy = ly + lh + 6;
-            const dotW = 32, dotH = 6, dotGap = 4;
-            const totalDotW = this.waveDef.length * dotW + (this.waveDef.length - 1) * dotGap;
-            const ddx = W / 2 - totalDotW / 2;
-            for (let i = 0; i < this.waveDef.length; i++) {
-                const px = ddx + i * (dotW + dotGap);
-                const isCurrent = i === this.waveIndex;
-                const isDone = i < this.waveIndex;
+            // Sci-fi Continuous Progress Bar
+            const wy = ly + lh + 10;
+            const barW = 120;
+            const barH = 3;
+            const lvlBx = lvlCx - barW / 2;
 
-                context.fillStyle = 'rgba(255,255,255,0.06)';
-                rr(context, px, wy, dotW, dotH, 3); context.fill();
+            // Background line
+            context.fillStyle = 'rgba(255,255,255,0.1)';
+            context.fillRect(lvlBx, wy, barW, barH);
 
-                if (isDone) {
-                    context.fillStyle = lvlAccent;
-                    rr(context, px, wy, dotW, dotH, 3); context.fill();
-                } else if (isCurrent) {
-                    const pulse = 0.7 + 0.3 * Math.sin(Date.now() * 0.006);
-                    context.fillStyle = lvlAccentDim;
-                    rr(context, px, wy, dotW, dotH, 3); context.fill();
-                    context.fillStyle = lvlAccent;
-                    rr(context, px, wy, dotW * pulse, dotH, 3); context.fill();
-                }
-            }
-            context.font = '700 9px "Poppins"';
-            context.fillStyle = 'rgba(255,255,255,0.35)';
-            context.textAlign = 'center';
-            context.fillText(`WAVE  ${this.waveIndex + 1} / ${this.waveDef.length}`, W / 2, wy + dotH + 13);
+            // Fill line
+            // Adding a small pulse to the progress calculation for a visual effect
+            const baseProgress = (this.waveIndex) / this.waveDef.length;
+            const pulse = Math.sin(Date.now() * 0.005) * 0.02;
+            const currentProgress = Math.min(1, Math.max(0, baseProgress + pulse));
+            const fillW = barW * currentProgress;
+            
+            context.shadowColor = lvlAccent;
+            context.shadowBlur = 8;
+            context.fillStyle = lvlAccent;
+            context.fillRect(lvlBx, wy, fillW, barH);
+            context.shadowBlur = 0;
+
+            // Arrowhead at the end of progress
+            context.beginPath();
+            context.moveTo(lvlBx + fillW + 2, wy - 2);
+            context.lineTo(lvlBx + fillW + 6, wy + barH / 2);
+            context.lineTo(lvlBx + fillW + 2, wy + barH + 2);
+            context.fillStyle = lvlAccent;
+            context.fill();
+
+            // Text: WAVE X/Y
+            context.font = '700 10px "Orbitron", sans-serif';
+            context.fillStyle = 'rgba(255,255,255,0.6)';
+            context.letterSpacing = '1px';
+            context.fillText(`WAVE ${this.waveIndex + 1} / ${this.waveDef.length}`, lvlCx, wy + 18);
+            context.letterSpacing = '0px';
+
+            // Two decorative dots below wave text
+            const dotY = wy + 28;
+            context.fillStyle = lvlAccent;
+            context.beginPath(); context.arc(lvlCx - 6, dotY, 2.5, 0, Math.PI * 2); context.fill();
+            context.fillStyle = 'rgba(255,255,255,0.3)';
+            context.beginPath(); context.arc(lvlCx + 6, dotY, 2.5, 0, Math.PI * 2); context.fill();
 
             if (this.multiplier > 1) {
                 const pulse = 1 + Math.sin(Date.now() * 0.008) * 0.05;

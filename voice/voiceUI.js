@@ -8,7 +8,7 @@ export class VoiceUI {
         this.pttHint = null;
         this.onToggleMic = null;
         this.onToggleDeafen = null;
-        
+
         this.injectCSS();
         this.createUI();
     }
@@ -20,7 +20,7 @@ export class VoiceUI {
         style.innerHTML = `
             #voice-controls {
                 position: absolute;
-                top: 80px; /* Moved down to avoid overlapping score */
+                top: 110px; /* Moved down to avoid overlapping score */
                 right: 20px;
                 z-index: 9999;
                 display: flex;
@@ -31,8 +31,8 @@ export class VoiceUI {
             }
             #voice-team-list {
                 position: absolute;
-                top: 140px; /* Moved down to avoid overlapping health bar */
-                left: 20px;
+                top: 150px; /* Moved down to avoid overlapping health bar */
+                left: 15px;
                 z-index: 9999;
                 display: flex;
                 flex-direction: column;
@@ -43,32 +43,62 @@ export class VoiceUI {
             .team-member {
                 display: flex;
                 align-items: center;
-                background: rgba(0, 0, 0, 0.4);
-                padding: 4px 10px;
+                background: linear-gradient(90deg, rgba(30, 30, 40, 0.95), rgba(15, 15, 20, 0.8));
+                padding: 4px 12px 4px 4px;
+                border-radius: 6px;
+                border-left: 4px solid #00e5ff; /* Default, will be overridden */
+                border-top: 1px solid rgba(255,255,255,0.08);
+                border-right: 1px solid rgba(255,255,255,0.08);
+                border-bottom: 1px solid rgba(255,255,255,0.08);
+                box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+                gap: 12px;
+                width: 170px;
+                transition: all 0.2s ease;
+            }
+            .team-member .avatar {
+                width: 26px;
+                height: 26px;
                 border-radius: 4px;
-                border-left: 3px solid #00e5ff;
-                gap: 8px;
+                background-color: rgba(0,0,0,0.6);
+                border: 1px solid rgba(255,255,255,0.15);
+                background-size: cover;
+                background-position: top center;
+                flex-shrink: 0;
             }
             .team-member .name {
                 color: #fff;
-                font-size: 14px;
+                font-size: 13px;
                 font-weight: 600;
+                font-family: 'Poppins', sans-serif;
                 text-shadow: 1px 1px 2px #000;
+                flex-grow: 1;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
             .team-member .mic-icon {
-                width: 14px;
-                height: 14px;
+                width: 16px;
+                height: 16px;
                 color: #fff;
                 opacity: 0.5;
+                flex-shrink: 0;
             }
             .team-member.speaking .mic-icon {
-                color: #00ff00;
+                color: #00ff00 !important;
                 opacity: 1;
                 filter: drop-shadow(0 0 4px #00ff00);
             }
+            .team-member.speaking {
+                border-left-color: #00ff00 !important;
+                background: linear-gradient(90deg, rgba(0, 255, 0, 0.15), rgba(15, 15, 20, 0.8));
+                box-shadow: 0 0 15px rgba(0, 255, 0, 0.2);
+            }
             .team-member.muted .mic-icon {
-                color: #ff3366;
+                color: #ff3366 !important;
                 opacity: 1;
+            }
+            .team-member.muted {
+                border-left-color: #ff3366 !important;
             }
             .voice-btn-row {
                 display: flex;
@@ -146,7 +176,7 @@ export class VoiceUI {
     createUI() {
         this.container = document.createElement('div');
         this.container.id = 'voice-controls';
-        
+
         const btnRow = document.createElement('div');
         btnRow.className = 'voice-btn-row';
 
@@ -170,7 +200,7 @@ export class VoiceUI {
 
         btnRow.appendChild(this.micBtn);
         btnRow.appendChild(this.deafenBtn);
-        
+
         this.statusText = document.createElement('div');
         this.statusText.className = 'voice-status';
         this.statusText.innerText = 'Voice: Disconnected';
@@ -184,14 +214,14 @@ export class VoiceUI {
         this.container.appendChild(this.statusText);
         this.container.appendChild(this.pttHint);
         this.container.appendChild(btnRow);
-        
+
         this.teamListContainer = document.createElement('div');
         this.teamListContainer.id = 'voice-team-list';
 
         // Hide initially until in room
         this.container.style.display = 'none';
         this.teamListContainer.style.display = 'none';
-        
+
         document.body.appendChild(this.container);
         document.body.appendChild(this.teamListContainer);
     }
@@ -209,7 +239,7 @@ export class VoiceUI {
     updateTeamList(players, localPlayerId) {
         if (!this.teamListContainer) return;
         this.teamListContainer.innerHTML = '';
-        
+
         // Deduplicate players by playerId (or id)
         const uniquePlayers = new Map();
         players.forEach(p => {
@@ -225,7 +255,7 @@ export class VoiceUI {
             if (p.isSpeaking) classes += ' speaking';
             if (p.isMuted) classes += ' muted';
             el.className = classes;
-            
+
             // Name
             const nameSpan = document.createElement('span');
             nameSpan.className = 'name';
@@ -233,15 +263,50 @@ export class VoiceUI {
             if ((p.playerId || p.id) === localPlayerId) {
                 nameSpan.innerText += ' (You)';
             }
-            
+
             // Mic Icon
             const micSpan = document.createElement('span');
             micSpan.className = 'mic-icon';
             micSpan.innerHTML = this.getMicIcon(p.isMuted);
+
+            // Avatar
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'avatar';
+            let charType = p.characterType || 'shinobi'; // fallback
+
+            // Map character to an approximate image/color to simulate the mockup
+            let themeColor = '#00e5ff';
             
+            if (charType === 'shinobi') {
+                // Red hood
+                themeColor = '#ff3366';
+                avatarDiv.style.backgroundImage = "url('/asset/players/player-banner/player1-banner.png')";
+                avatarDiv.style.backgroundPosition = "center";
+                avatarDiv.style.backgroundSize = "cover";
+            } else if (charType === 'jotem') {
+                // Green hood
+                themeColor = '#33ff66';
+                avatarDiv.style.backgroundImage = "url('/asset/players/player-banner/player2-banner.png')";
+                avatarDiv.style.backgroundPosition = "center";
+                avatarDiv.style.backgroundSize = "cover";
+            } else if (charType === 'shaia') {
+                themeColor = '#33ccff';
+                avatarDiv.style.backgroundImage = "url('/asset/players/player-banner/player3-banner.png')";
+                avatarDiv.style.backgroundPosition = "center";
+                avatarDiv.style.backgroundSize = "cover";
+            } else if (charType === 'archdemon') {
+                themeColor = '#9933ff';
+                avatarDiv.style.backgroundImage = "url('/asset/players/player-banner/player4-banner.png')";
+                avatarDiv.style.backgroundPosition = "center";
+                avatarDiv.style.backgroundSize = "cover";
+            }
+            
+            el.style.borderLeftColor = themeColor;
+
+            el.appendChild(avatarDiv);
             el.appendChild(nameSpan);
             el.appendChild(micSpan);
-            
+
             this.teamListContainer.appendChild(el);
         });
     }
@@ -250,7 +315,7 @@ export class VoiceUI {
         if (!this.statusText) return;
         this.statusText.innerText = `Voice: ${status}`;
         this.statusText.className = `voice-status ${type}`;
-        
+
         if (status === 'Connected') {
             this.pttHint.style.display = 'block';
         } else {
