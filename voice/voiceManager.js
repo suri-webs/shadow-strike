@@ -56,7 +56,7 @@ export class VoiceManager {
 
     setupKeyboard() {
         window.addEventListener('keydown', (e) => {
-            if (e.key.toLowerCase() === AudioSettings.pushToTalkKey && !AudioSettings.openMic) {
+            if (e.key && e.key.toLowerCase() === AudioSettings.pushToTalkKey && !AudioSettings.openMic) {
                 if (!this.pttActive && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
                     this.pttActive = true;
                     this.microphone.setMuted(false);
@@ -67,7 +67,7 @@ export class VoiceManager {
         });
 
         window.addEventListener('keyup', (e) => {
-            if (e.key.toLowerCase() === AudioSettings.pushToTalkKey && !AudioSettings.openMic) {
+            if (e.key && e.key.toLowerCase() === AudioSettings.pushToTalkKey && !AudioSettings.openMic) {
                 if (this.pttActive) {
                     this.pttActive = false;
                     this.microphone.setMuted(true);
