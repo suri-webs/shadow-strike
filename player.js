@@ -921,6 +921,18 @@ export class Player {
         }
         context.restore();
 
+        if (this.isSpeaking) {
+            context.save();
+            context.translate(this.x + this.width / 2, this.y - 15);
+            context.fillStyle = '#00ff00';
+            context.shadowColor = '#00ff00';
+            context.shadowBlur = 10;
+            context.beginPath();
+            context.arc(0, 0, 6 + Math.sin(Date.now() * 0.01) * 2, 0, Math.PI * 2);
+            context.fill();
+            context.restore();
+        }
+
         context.restore();
     }
 

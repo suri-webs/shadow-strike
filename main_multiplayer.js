@@ -11,6 +11,7 @@ import { Dropbox } from "./dropbox.js";
 import { KamehamehaBeam } from "./kamehameha.js";
 import { RasenganVortex } from "./rasengan.js";
 import { AudioManager } from "./audio.js";
+import { voiceManager } from "./voice/voiceManager.js";
 
 const multiplayerArcherProjImage = new Image();
 multiplayerArcherProjImage.src = 'asset/Arcane archer/projectile.png';
@@ -4054,8 +4055,15 @@ window.addEventListener('load', function () {
 
         // Try to verify token on startup
         const token = localStorage.getItem('shadowStrikeToken');
+        const isGuest = localStorage.getItem('shadowStrikeGuest') === 'true';
+
         if (token) {
+            authOverlay.classList.remove('active');
             verifyTokenAndConnect();
+        } else if (isGuest) {
+            authOverlay.classList.remove('active');
+            updateUserUI(null);
+            openLobbyDirectly();
         } else {
             updateUserUI(null);
         }
@@ -4074,6 +4082,7 @@ window.addEventListener('load', function () {
         async function verifyTokenAndConnect() {
             const data = await makeRequest('/auth/me', 'GET');
             if (data && data.user) {
+                localStorage.removeItem('shadowStrikeGuest');
                 updateUserUI(data.user);
                 connectSocket(localStorage.getItem('shadowStrikeToken'));
                 authOverlay.classList.remove('active');
@@ -4081,7 +4090,9 @@ window.addEventListener('load', function () {
             } else {
                 localStorage.removeItem('shadowStrikeToken');
                 localStorage.removeItem('shadowStrikeUser');
+                localStorage.removeItem('shadowStrikeGuest');
                 updateUserUI(null);
+                authOverlay.classList.add('active'); // Show if failed
             }
         }
 
@@ -4126,11 +4137,16 @@ window.addEventListener('load', function () {
             game.socket.on('authSuccess', ({ playerId, username, isGuest }) => {
                 game.playerId = playerId;
                 game.username = username;
+                if (game.player) game.player.username = username;
                 console.log(`Socket authentication successful. PlayerId: ${playerId}, Username: ${username}`);
+                
+                // Initialize Voice System
+                voiceManager.init(game.socket, playerId);
             });
 
             // Room Update handler
             game.socket.on('roomUpdate', (room) => {
+                game.roomMembers = room.members; // Save members for voice connection
                 game.isHost = (room.hostId === game.playerId);
                 currentRoomCode = room.code;
                 roomCodeDisplay.innerText = room.code;
@@ -4201,6 +4217,10 @@ window.addEventListener('load', function () {
             // Match Start handler
             game.socket.on('gameStarted', (data) => {
                 lobbyOverlay.classList.remove('active');
+                
+                // Show Voice UI and connect to peers now that game has started
+                voiceManager.connectToRoomMembers(game.roomMembers);
+
                 game.isMultiplayer = true;
                 game.gameStarted = true;
                 game.paused = false;
@@ -5105,6 +5125,7 @@ window.addEventListener('load', function () {
             if (data && data.token) {
                 localStorage.setItem('shadowStrikeToken', data.token);
                 localStorage.setItem('shadowStrikeUser', JSON.stringify(data.user));
+                localStorage.removeItem('shadowStrikeGuest');
                 updateUserUI(data.user);
                 connectSocket(data.token);
                 authOverlay.classList.remove('active');
@@ -5122,6 +5143,7 @@ window.addEventListener('load', function () {
         // Play as Guest — skip login, go to start screen
         authGuestBtn.onclick = () => {
             authOverlay.classList.remove('active');
+            localStorage.setItem('shadowStrikeGuest', 'true');
             connectSocket(null);
             updateUserUI(null);
             openLobbyDirectly();
@@ -5130,14 +5152,17 @@ window.addEventListener('load', function () {
         // Auth Action — LOG OUT: go back to login screen
         authActionBtn.onclick = () => {
             const token = localStorage.getItem('shadowStrikeToken');
-            if (token || game.socket) {
+            const isGuest = localStorage.getItem('shadowStrikeGuest') === 'true';
+            if (token || isGuest || game.socket) {
                 // Logged in → log out and show login screen
                 localStorage.removeItem('shadowStrikeToken');
                 localStorage.removeItem('shadowStrikeUser');
+                localStorage.removeItem('shadowStrikeGuest');
                 updateUserUI(null);
                 if (game.socket) {
                     game.socket.disconnect();
                     game.socket = null;
+                    voiceManager.cleanup();
                 }
                 mainMenu.classList.remove('active');
                 authOverlay.classList.add('active');
@@ -5273,6 +5298,7 @@ window.addEventListener('load', function () {
                 if (game.socket) {
                     game.socket.disconnect();
                     game.socket = null;
+                    voiceManager.cleanup();
                 }
                 if (profileOverlay) profileOverlay.classList.remove('active');
                 authOverlay.classList.add('active');
@@ -5492,7 +5518,7 @@ window.addEventListener('load', function () {
             game.paused = false;
             localStorage.removeItem('shadowStrikeToken');
             localStorage.removeItem('shadowStrikeUser');
-            if (game.socket) { game.socket.disconnect(); game.socket = null; }
+            if (game.socket) { game.socket.disconnect(); game.socket = null; voiceManager.cleanup(); }
             document.getElementById('html-auth-overlay').classList.add('active');
         });
     }
@@ -7005,8 +7031,28 @@ window.addEventListener('load', function () {
             });
         });
 
+        if (game.players || game.player) {
+            const allPlayers = game.players ? Array.from(game.players.values()) : [];
+            if (game.player) {
+                game.player.playerId = game.playerId;
+                allPlayers.push(game.player);
+            }
+            voiceManager.updateSpatialAudio(allPlayers);
+        }
         requestAnimationFrame(Animate);
     }
+
+    window.addEventListener('voice-speaking-update', (e) => {
+        const { playerId, isSpeaking, isMuted } = e.detail;
+        if (game.players && game.players.has(playerId)) {
+            const p = game.players.get(playerId);
+            if (isSpeaking !== undefined) p.isSpeaking = isSpeaking;
+            if (isMuted !== undefined) p.isMuted = isMuted;
+        } else if (game.playerId === playerId && game.player) {
+            if (isSpeaking !== undefined) game.player.isSpeaking = isSpeaking;
+            if (isMuted !== undefined) game.player.isMuted = isMuted;
+        }
+    });
 
     Animate(0);
 });

@@ -11,6 +11,7 @@ import { Dropbox } from "./dropbox.js";
 import { KamehamehaBeam } from "./kamehameha.js";
 import { RasenganVortex } from "./rasengan.js";
 import { AudioManager } from "./audio.js";
+import { voiceManager } from "./voice/voiceManager.js";
 
 const sharedTintCanvas = document.createElement('canvas');
 const sharedTintCtx = sharedTintCanvas.getContext('2d');
@@ -3010,9 +3011,6 @@ window.addEventListener('load', function () {
 
             // Show settings panel as navigation hub
             document.getElementById('settings-overlay').classList.add('active');
-            document.getElementById('html-lobby-overlay').classList.remove('active');
-            document.getElementById('lobby-room-view').style.display = 'none';
-            document.getElementById('lobby-selection-view').style.display = 'block';
 
             // Reset local stats
             this._init();
@@ -3934,7 +3932,6 @@ window.addEventListener('load', function () {
     function setupMultiplayerAndAuth(game) {
         const mainMenu = document.getElementById('html-main-menu');
         const authOverlay = document.getElementById('html-auth-overlay');
-        const lobbyOverlay = document.getElementById('html-lobby-overlay');
         const leaderboardOverlay = document.getElementById('html-leaderboard-overlay');
 
         const spBtn = document.getElementById('btn-sp');
@@ -3942,7 +3939,6 @@ window.addEventListener('load', function () {
         const authActionBtn = document.getElementById('btn-auth-action');
         const menuUserStatus = document.getElementById('menu-user-status');
 
-        const closeLobbyBtn = document.getElementById('btn-close-lobby');
         const closeLeaderboardBtn = document.getElementById('btn-close-leaderboard');
 
         // Auth form
@@ -3957,31 +3953,7 @@ window.addEventListener('load', function () {
         const authToggleLink = document.getElementById('auth-toggle-link');
         const authGuestBtn = document.getElementById('btn-auth-guest');
 
-        // Lobby elements
-        const lobbySelectionView = document.getElementById('lobby-selection-view');
-        const lobbyRoomView = document.getElementById('lobby-room-view');
-        const btnCreateRoom = document.getElementById('btn-create-room');
-        const btnJoinRoom = document.getElementById('btn-join-room');
-        const createModeSelect = document.getElementById('lobby-create-mode');
-        const createSizeSelect = document.getElementById('lobby-create-size');
-        const createLevelSelect = document.getElementById('lobby-create-level');
-        const joinCodeInput = document.getElementById('lobby-join-code');
-
-        // Room View elements
-        const roomCodeDisplay = document.getElementById('room-code-display');
-        const roomModeDisplay = document.getElementById('room-mode-display');
-        const roomLevelDisplay = document.getElementById('room-level-display');
-        const roomMembersList = document.getElementById('room-members-list');
-        const lobbyChatMessages = document.getElementById('lobby-chat-messages');
-        const lobbyChatInput = document.getElementById('lobby-chat-input');
-        const btnSendChat = document.getElementById('btn-send-chat');
-        const lobbyCharSelect = document.getElementById('lobby-char-select');
-        const btnToggleReady = document.getElementById('btn-toggle-ready');
-        const btnStartMatch = document.getElementById('btn-start-match');
-        const btnLeaveRoom = document.getElementById('btn-leave-room');
-
         let isSignupMode = false;
-        let currentRoomCode = null;
 
         // Try to verify token on startup
         const token = localStorage.getItem('shadowStrikeToken');
@@ -3994,6 +3966,7 @@ window.addEventListener('load', function () {
         async function verifyTokenAndConnect() {
             const data = await makeRequest('/auth/me', 'GET');
             if (data && data.user) {
+                localStorage.removeItem('shadowStrikeGuest');
                 updateUserUI(data.user);
                 connectSocket(localStorage.getItem('shadowStrikeToken'));
                 // Token valid — hide login screen to reveal start screen
@@ -4001,6 +3974,7 @@ window.addEventListener('load', function () {
             } else {
                 localStorage.removeItem('shadowStrikeToken');
                 localStorage.removeItem('shadowStrikeUser');
+                localStorage.removeItem('shadowStrikeGuest');
                 updateUserUI(null);
             }
         }
@@ -4046,66 +4020,8 @@ window.addEventListener('load', function () {
             game.socket.on('authSuccess', ({ playerId, username, isGuest }) => {
                 game.playerId = playerId;
                 game.username = username;
+                if (game.player) game.player.username = username;
                 console.log(`Socket authentication successful. PlayerId: ${playerId}, Username: ${username}`);
-            });
-
-            // Room Update handler
-            game.socket.on('roomUpdate', (room) => {
-                game.isHost = (room.hostId === game.playerId);
-                currentRoomCode = room.code;
-                roomCodeDisplay.innerText = room.code;
-                roomModeDisplay.innerText = room.mode === 'coop' ? 'Co-op Adventure' : 'Arena PvP';
-                roomLevelDisplay.innerText = room.level;
-
-                // Render roster
-                roomMembersList.innerHTML = '';
-                let allReady = true;
-                room.members.forEach(m => {
-                    const item = document.createElement('div');
-                    item.className = `room-member-item ${m.isReady ? 'ready' : ''}`;
-                    item.innerHTML = `
-                        <span style="font-weight:700;">${m.username.toUpperCase()} (${m.characterType.toUpperCase()}) ${m.playerId === room.hostId ? '👑' : ''}</span>
-                        <span class="ready-badge ${m.isReady ? 'is-ready' : 'not-ready'}">${m.isReady ? 'READY' : 'NOT READY'}</span>
-                    `;
-                    roomMembersList.appendChild(item);
-
-                    if (m.playerId !== room.hostId && !m.isReady) {
-                        allReady = false;
-                    }
-                });
-
-                // Show start match button if host
-                if (room.hostId === game.playerId) {
-                    btnStartMatch.style.display = 'block';
-                    btnStartMatch.disabled = !allReady && room.members.length > 1;
-                } else {
-                    btnStartMatch.style.display = 'none';
-                }
-            });
-
-            // Chat Messages handler
-            game.socket.on('chatMessage', ({ sender, message, time }) => {
-                const msgEl = document.createElement('div');
-                msgEl.className = 'chat-msg';
-                msgEl.innerHTML = `<span class="sender">${sender}:</span><span>${message}</span><span class="time">${time}</span>`;
-                lobbyChatMessages.appendChild(msgEl);
-                lobbyChatMessages.scrollTop = lobbyChatMessages.scrollHeight;
-            });
-
-            // Match Start handler
-            game.socket.on('gameStarted', (data) => {
-                lobbyOverlay.classList.remove('active');
-                game.isMultiplayer = true;
-                game.gameStarted = true;
-                game.paused = false;
-                if (data) {
-                    game.level = data.level || 1;
-                    game.mode = data.mode || 'coop';
-                }
-                game._init();
-                if (game.storyDialogueManager) {
-                    game.storyDialogueManager.startLevelIntro(game.level);
-                }
             });
 
             // Game state Tick sync
@@ -4238,24 +4154,10 @@ window.addEventListener('load', function () {
 
         // Multiplayer Action — hide main menu, open lobby
         mpBtn.onclick = () => {
-            // Auto-connect guest socket if not already connected (fixes join room for guests)
-            if (!game.socket) {
-                const savedToken = localStorage.getItem('shadowStrikeToken');
-                connectSocket(savedToken || null);
-            }
-            mainMenu.classList.remove('active');
-            lobbySelectionView.style.display = 'block';
-            lobbyRoomView.style.display = 'none';
-            lobbyOverlay.classList.add('active');
+            window.location.href = 'multiplayer.html';
         };
 
         // Close buttons
-        closeLobbyBtn.onclick = () => {
-            lobbyOverlay.classList.remove('active');
-            // Return to mode selection panel
-            const modeSel = document.getElementById('mode-selection-overlay');
-            if (modeSel) modeSel.classList.add('active');
-        };
         closeLeaderboardBtn.onclick = () => leaderboardOverlay.classList.remove('active');
 
         // Auth Toggle Link
@@ -4292,6 +4194,7 @@ window.addEventListener('load', function () {
             if (data && data.token) {
                 localStorage.setItem('shadowStrikeToken', data.token);
                 localStorage.setItem('shadowStrikeUser', JSON.stringify(data.user));
+                localStorage.removeItem('shadowStrikeGuest');
                 updateUserUI(data.user);
                 connectSocket(data.token);
                 // Hide login screen to reveal start screen
@@ -4309,6 +4212,7 @@ window.addEventListener('load', function () {
         // Play as Guest — skip login, go to start screen
         authGuestBtn.onclick = () => {
             authOverlay.classList.remove('active');
+            localStorage.setItem('shadowStrikeGuest', 'true');
             connectSocket(null);
             updateUserUI(null);
         };
@@ -4316,109 +4220,21 @@ window.addEventListener('load', function () {
         // Auth Action — LOG OUT: go back to login screen
         authActionBtn.onclick = () => {
             const token = localStorage.getItem('shadowStrikeToken');
-            if (token || game.socket) {
+            const isGuest = localStorage.getItem('shadowStrikeGuest') === 'true';
+            if (token || isGuest || game.socket) {
                 // Logged in → log out and show login screen
                 localStorage.removeItem('shadowStrikeToken');
                 localStorage.removeItem('shadowStrikeUser');
+                localStorage.removeItem('shadowStrikeGuest');
                 updateUserUI(null);
                 if (game.socket) {
                     game.socket.disconnect();
                     game.socket = null;
+                    voiceManager.cleanup();
                 }
                 mainMenu.classList.remove('active');
                 authOverlay.classList.add('active');
             }
-        };
-
-        // Create Room Action
-        btnCreateRoom.onclick = () => {
-            if (!game.socket || !game.socket.connected) {
-                showToast('Connecting to server... Please wait and try again.', 'warning');
-                return;
-            }
-            const mode = createModeSelect.value;
-            const maxPlayers = createSizeSelect.value;
-            const level = createLevelSelect.value;
-
-            game.socket.emit('createRoom', { mode, maxPlayers, level }, (res) => {
-                if (res.success) {
-                    lobbySelectionView.style.display = 'none';
-                    lobbyRoomView.style.display = 'grid';
-                    lobbyChatMessages.innerHTML = '';
-                } else {
-                    showToast(res.error || 'Failed to create room.', 'error');
-                }
-            });
-        };
-
-        // Join Room Action
-        btnJoinRoom.onclick = () => {
-            if (!game.socket || !game.socket.connected) {
-                showToast('Connecting to server... Please wait and try again.', 'warning');
-                return;
-            }
-            const code = joinCodeInput.value.trim().toUpperCase();
-            if (code.length !== 6) { showToast('Room Code must be 6 characters.', 'warning'); return; }
-
-            game.socket.emit('joinRoom', { code }, (res) => {
-                if (res.success) {
-                    lobbySelectionView.style.display = 'none';
-                    lobbyRoomView.style.display = 'grid';
-                    lobbyChatMessages.innerHTML = '';
-                    joinCodeInput.value = '';
-                } else {
-                    showToast(res.error || 'Room joining failed.', 'error');
-                }
-            });
-        };
-
-        // Roster Options Change
-        lobbyCharSelect.onchange = () => {
-            if (!game.socket || !currentRoomCode) return;
-            game.socket.emit('selectCharacter', { code: currentRoomCode, characterType: lobbyCharSelect.value });
-        };
-
-        btnToggleReady.onclick = () => {
-            if (!game.socket || !currentRoomCode) return;
-            game.socket.emit('toggleReady', { code: currentRoomCode });
-        };
-
-        btnStartMatch.onclick = () => {
-            if (!game.socket || !currentRoomCode) return;
-            game.socket.emit('startGame', { code: currentRoomCode }, (res) => {
-                if (!res.success) {
-                    showToast(res.error || 'Failed to start match.', 'error');
-                }
-            });
-        };
-
-        // Chat Box send message
-        btnSendChat.onclick = () => {
-            sendChat();
-        };
-
-        lobbyChatInput.onkeydown = (e) => {
-            if (e.key === 'Enter') {
-                sendChat();
-            }
-        };
-
-        function sendChat() {
-            if (!game.socket || !currentRoomCode) return;
-            const msg = lobbyChatInput.value.trim();
-            if (msg.length === 0) return;
-
-            game.socket.emit('sendChatMessage', { code: currentRoomCode, message: msg });
-            lobbyChatInput.value = '';
-        }
-
-        // Leave Room Action
-        btnLeaveRoom.onclick = () => {
-            if (!game.socket) return;
-            game.socket.emit('leaveRoom');
-            lobbySelectionView.style.display = 'block';
-            lobbyRoomView.style.display = 'none';
-            currentRoomCode = null;
         };
 
         // Profile Modal Events
@@ -4459,6 +4275,7 @@ window.addEventListener('load', function () {
                 if (game.socket) {
                     game.socket.disconnect();
                     game.socket = null;
+                    voiceManager.cleanup();
                 }
                 if (profileOverlay) profileOverlay.classList.remove('active');
                 authOverlay.classList.add('active');
@@ -4496,10 +4313,7 @@ window.addEventListener('load', function () {
 
         if (btnModeMP && modeSelectionOverlay) {
             btnModeMP.onclick = () => {
-                modeSelectionOverlay.classList.remove('active');
-                lobbySelectionView.style.display = 'block';
-                lobbyRoomView.style.display = 'none';
-                lobbyOverlay.classList.add('active');
+                window.location.href = 'multiplayer.html';
             };
         }
 
@@ -4661,14 +4475,7 @@ window.addEventListener('load', function () {
     const settingsMPBtn = document.getElementById('btn-settings-mp');
     if (settingsMPBtn) {
         settingsMPBtn.addEventListener('click', () => {
-            settingsOverlay.classList.remove('active');
-            game.paused = false;
-            const lobbyEl = document.getElementById('html-lobby-overlay');
-            const lobbySelView = document.getElementById('lobby-selection-view');
-            const lobbyRoomView = document.getElementById('lobby-room-view');
-            if (lobbySelView) lobbySelView.style.display = 'block';
-            if (lobbyRoomView) lobbyRoomView.style.display = 'none';
-            if (lobbyEl) lobbyEl.classList.add('active');
+            window.location.href = 'multiplayer.html';
         });
     }
     const settingsLogoutBtn = document.getElementById('btn-settings-logout');
@@ -4678,7 +4485,7 @@ window.addEventListener('load', function () {
             game.paused = false;
             localStorage.removeItem('shadowStrikeToken');
             localStorage.removeItem('shadowStrikeUser');
-            if (game.socket) { game.socket.disconnect(); game.socket = null; }
+            if (game.socket) { game.socket.disconnect(); game.socket = null; voiceManager.cleanup(); }
             document.getElementById('html-auth-overlay').classList.add('active');
         });
     }
@@ -6136,8 +5943,28 @@ window.addEventListener('load', function () {
             });
         });
 
+        if (game.players || game.player) {
+            const allPlayers = game.players ? Array.from(game.players.values()) : [];
+            if (game.player) {
+                game.player.playerId = game.playerId;
+                allPlayers.push(game.player);
+            }
+            voiceManager.updateSpatialAudio(allPlayers);
+        }
         requestAnimationFrame(Animate);
     }
+
+    window.addEventListener('voice-speaking-update', (e) => {
+        const { playerId, isSpeaking, isMuted } = e.detail;
+        if (game.players && game.players.has(playerId)) {
+            const p = game.players.get(playerId);
+            if (isSpeaking !== undefined) p.isSpeaking = isSpeaking;
+            if (isMuted !== undefined) p.isMuted = isMuted;
+        } else if (game.playerId === playerId && game.player) {
+            if (isSpeaking !== undefined) game.player.isSpeaking = isSpeaking;
+            if (isMuted !== undefined) game.player.isMuted = isMuted;
+        }
+    });
 
     Animate(0);
 });
