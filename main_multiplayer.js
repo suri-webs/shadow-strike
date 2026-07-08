@@ -3376,7 +3376,7 @@ window.addEventListener('load', function () {
             const pulse = Math.sin(Date.now() * 0.005) * 0.02;
             const currentProgress = Math.min(1, Math.max(0, baseProgress + pulse));
             const fillW = barW * currentProgress;
-            
+
             context.shadowColor = lvlAccent;
             context.shadowBlur = 8;
             context.fillStyle = lvlAccent;
@@ -3963,9 +3963,16 @@ window.addEventListener('load', function () {
     const game = new Game(canvas.width, canvas.height);
 
     // ── Setup Multiplayer and Auth UI ──
-    const SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'http://localhost:3000'
-        : 'https://twod-game-server-rndp.onrender.com'; // Replace with production URL on deploy
+    const hostname = window.location.hostname;
+    const isLocal = hostname === 'localhost' ||
+        hostname === '127.0.0.1' ||
+        hostname.startsWith('192.168.') ||
+        hostname.startsWith('10.') ||
+        hostname.startsWith('172.');
+
+    const SERVER_URL = isLocal
+        ? `http://${hostname}:3000`
+        : 'https://twod-game-server-rndp.onrender.com';
 
     // ── Toast Notification System ──
     (function initToastSystem() {
@@ -4193,7 +4200,7 @@ window.addEventListener('load', function () {
                 game.username = username;
                 if (game.player) game.player.username = username;
                 console.log(`Socket authentication successful. PlayerId: ${playerId}, Username: ${username}`);
-                
+
                 // Initialize Voice System
                 voiceManager.init(game.socket, playerId);
             });
@@ -4271,7 +4278,7 @@ window.addEventListener('load', function () {
             // Match Start handler
             game.socket.on('gameStarted', (data) => {
                 lobbyOverlay.classList.remove('active');
-                
+
                 // Show Voice UI and connect to peers now that game has started
                 voiceManager.connectToRoomMembers(game.roomMembers);
 

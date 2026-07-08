@@ -3910,8 +3910,15 @@ window.addEventListener('load', function () {
     const game = new Game(canvas.width, canvas.height);
 
     // ── Setup Multiplayer and Auth UI ──
-    const SERVER_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'http://localhost:3000'
+    const hostname = window.location.hostname;
+    const isLocal = hostname === 'localhost' || 
+                    hostname === '127.0.0.1' || 
+                    hostname.startsWith('192.168.') || 
+                    hostname.startsWith('10.') || 
+                    hostname.startsWith('172.');
+
+    const SERVER_URL = isLocal 
+        ? `http://${hostname}:3000`
         : 'https://twod-game-server-rndp.onrender.com'; // Replace with production URL on deploy
 
     // ── Toast Notification System ──
