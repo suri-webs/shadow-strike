@@ -57,6 +57,7 @@ window.addEventListener('load', function () {
                 { type: 'flying', count: 3 },
                 { type: 'mixed_level1', count: 4 },
                 { type: 'boss', count: 1 },
+                { type: 'amarjeet_timed', count: 1, duration: 10000 },
             ],
             enemyInterval: 3000,
             groundMargin: 45,
@@ -1073,7 +1074,7 @@ window.addEventListener('load', function () {
                 this.enemies = this.enemies.filter(e => e.isBoss);
                 const amarjeet = new BossEnemy(this, 'amarjeet');
                 amarjeet.isTimedEncounter = true;
-                amarjeet.timedDuration = 15000 + (this.level - 1) * 2000;
+                amarjeet.timedDuration = wave.duration || (15000 + (this.level - 1) * 2000);
                 this.enemies.push(amarjeet);
                 this.waveSpawnedCount++;
                 this.waveAnnounce = 'THE DEVOURER APPROACHES...';
@@ -1299,12 +1300,12 @@ window.addEventListener('load', function () {
         checkPlayerHit(projX, projY, radius, damage, isBossKill = false) {
             const pl = this.player;
             if (!pl || pl.isDead) return false;
-            const pLeft   = pl.x + pl.width  * 0.25;
-            const pRight  = pl.x + pl.width  * 0.75;
-            const pTop    = pl.y;
+            const pLeft = pl.x + pl.width * 0.25;
+            const pRight = pl.x + pl.width * 0.75;
+            const pTop = pl.y;
             const pBottom = pl.y + pl.height;
-            const cx = Math.max(pLeft,  Math.min(projX, pRight));
-            const cy = Math.max(pTop,   Math.min(projY, pBottom));
+            const cx = Math.max(pLeft, Math.min(projX, pRight));
+            const cy = Math.max(pTop, Math.min(projY, pBottom));
             const dist = Math.hypot(projX - cx, projY - cy);
             if (dist < radius) {
                 this.hurtPlayer(damage, isBossKill);
@@ -1960,11 +1961,11 @@ window.addEventListener('load', function () {
                         if (this.waveIndex < this.waveDef.length - 1) {
                             this._advanceWave();
                         } else {
-                            if (this.storyDialogueManager && !this.postBossDialoguePlayed) {
+                            if (this.storyDialogueManager && !this.postBossDialoguePlayed && !this.storyDialogueManager.active) {
                                 this.storyDialogueManager.startPostBossDialogue(this.level, () => {
                                     this.postBossDialoguePlayed = true;
                                 });
-                            } else if (!this.portal && !this.portalSpawned && !this.levelComplete) {
+                            } else if (!this.portal && !this.portalSpawned && !this.levelComplete && (!this.storyDialogueManager || this.postBossDialoguePlayed)) {
                                 this.portalSpawned = true;
                                 this.portal = new Portal(this, 1200, this.height - this.groundMargin);
                             }
@@ -3323,7 +3324,7 @@ window.addEventListener('load', function () {
             const pulse = Math.sin(Date.now() * 0.005) * 0.02;
             const currentProgress = Math.min(1, Math.max(0, baseProgress + pulse));
             const fillW = barW * currentProgress;
-            
+
             context.shadowColor = lvlAccent;
             context.shadowBlur = 8;
             context.fillStyle = lvlAccent;
@@ -3911,13 +3912,13 @@ window.addEventListener('load', function () {
 
     // ── Setup Multiplayer and Auth UI ──
     const hostname = window.location.hostname;
-    const isLocal = hostname === 'localhost' || 
-                    hostname === '127.0.0.1' || 
-                    hostname.startsWith('192.168.') || 
-                    hostname.startsWith('10.') || 
-                    hostname.startsWith('172.');
+    const isLocal = hostname === 'localhost' ||
+        hostname === '127.0.0.1' ||
+        hostname.startsWith('192.168.') ||
+        hostname.startsWith('10.') ||
+        hostname.startsWith('172.');
 
-    const SERVER_URL = isLocal 
+    const SERVER_URL = isLocal
         ? `http://${hostname}:3000`
         : 'https://twod-game-server-rndp.onrender.com'; // Replace with production URL on deploy
 
@@ -3934,10 +3935,10 @@ window.addEventListener('load', function () {
         if (!container) return;
 
         const icons = {
-            error:   '⛔',
+            error: '⛔',
             success: '✅',
             warning: '⚠️',
-            info:    'ℹ️'
+            info: 'ℹ️'
         };
 
         const toast = document.createElement('div');

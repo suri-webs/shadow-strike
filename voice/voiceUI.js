@@ -20,7 +20,7 @@ export class VoiceUI {
         style.innerHTML = `
             #voice-controls {
                 position: absolute;
-                top: 110px; /* Moved down to avoid overlapping score */
+                top: 76px; /* Added gap below score box */
                 right: 20px;
                 z-index: 9999;
                 display: flex;
@@ -31,7 +31,7 @@ export class VoiceUI {
             }
             #voice-team-list {
                 position: absolute;
-                top: 150px; /* Moved down to avoid overlapping health bar */
+                top: 106px; /* Added gap below coin box */
                 left: 15px;
                 z-index: 9999;
                 display: flex;
@@ -227,13 +227,13 @@ export class VoiceUI {
     }
 
     show() {
-        if (this.container) this.container.style.display = 'flex';
-        if (this.teamListContainer) this.teamListContainer.style.display = 'flex';
+        if (this.container && this.container.style.display !== 'flex') this.container.style.display = 'flex';
+        if (this.teamListContainer && this.teamListContainer.style.display !== 'flex') this.teamListContainer.style.display = 'flex';
     }
 
     hide() {
-        if (this.container) this.container.style.display = 'none';
-        if (this.teamListContainer) this.teamListContainer.style.display = 'none';
+        if (this.container && this.container.style.display !== 'none') this.container.style.display = 'none';
+        if (this.teamListContainer && this.teamListContainer.style.display !== 'none') this.teamListContainer.style.display = 'none';
     }
 
     updateTeamList(players, localPlayerId) {

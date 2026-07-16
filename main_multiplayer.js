@@ -1593,6 +1593,66 @@ window.addEventListener('load', function () {
             });
         }
 
+        _drawMinimap(context) {
+            const W = this.width, H = this.height;
+            const mw = 200, mh = 24;
+            const mx = W / 2 - mw / 2, my = 95; // Placed clearly below wave info
+
+            context.save();
+            
+            context.fillStyle = 'rgba(10, 10, 20, 0.6)';
+            context.strokeStyle = 'rgba(0, 229, 255, 0.2)';
+            context.lineWidth = 1;
+            context.beginPath();
+            context.roundRect(mx, my, mw, mh, 4);
+            context.fill();
+            context.stroke();
+
+            const rangeX = 2500;
+            const localP = this.player;
+            if (!localP) { context.restore(); return; }
+
+            const mapCenterX = mw / 2;
+
+            const drawBlip = (diffX, diffY, color, size, text = null) => {
+                const mapPx = mx + mapCenterX + (diffX / rangeX) * mw;
+                if (mapPx >= mx && mapPx <= mx + mw) {
+                    const mapPy = my + mh / 2 + (diffY / H) * (mh - 8);
+                    context.fillStyle = color;
+                    context.beginPath();
+                    context.arc(mapPx, mapPy, size, 0, Math.PI * 2);
+                    context.fill();
+                    if (text) {
+                        context.font = '7px "Poppins"';
+                        context.fillStyle = 'rgba(255,255,255,0.85)';
+                        context.textAlign = 'center';
+                        context.fillText(text, mapPx, mapPy - 5);
+                    }
+                }
+            };
+
+            if (this.players) {
+                this.players.forEach(p => {
+                    if (p.id === this.playerId || p.isDead) return;
+                    drawBlip(p.x - localP.x, p.y - localP.y, '#ffffff', 2.5, p.username);
+                });
+            }
+
+            this.enemies.forEach(e => {
+                if (e.isBoss && e.currentHP > 0) {
+                    drawBlip(e.x - localP.x, e.y - localP.y, '#ff2244', 3, 'BOSS');
+                }
+            });
+
+            if (this.portal && this.portalSpawned) {
+                drawBlip(this.portal.x - localP.x, this.portal.y - localP.y, '#ea80fc', 2.5, 'EXIT');
+            }
+
+            drawBlip(0, 0, '#00ffd0', 3, 'YOU');
+
+            context.restore();
+        }
+
         showDropboxCards() {
             this.paused = true;
             const overlay = document.getElementById('dropbox-overlay');
@@ -2000,11 +2060,11 @@ window.addEventListener('load', function () {
                         if (this.waveIndex < this.waveDef.length - 1) {
                             this._advanceWave();
                         } else {
-                            if (this.storyDialogueManager && !this.postBossDialoguePlayed) {
+                            if (this.storyDialogueManager && !this.postBossDialoguePlayed && !this.storyDialogueManager.active) {
                                 this.storyDialogueManager.startPostBossDialogue(this.level, () => {
                                     this.postBossDialoguePlayed = true;
                                 });
-                            } else if (!this.portal && !this.portalSpawned && !this.levelComplete) {
+                            } else if (!this.portal && !this.portalSpawned && !this.levelComplete && (!this.storyDialogueManager || this.postBossDialoguePlayed)) {
                                 this.portalSpawned = true;
                                 this.portal = new Portal(this, 1200, this.height - this.groundMargin);
                             }
@@ -2517,6 +2577,9 @@ window.addEventListener('load', function () {
             // Draw coin pickups in pure screen-space (outside shake transform)
             this.drawCoinPickups(context);
             this.drawHpPickups(context);
+            if (this.isMultiplayer && this.gameStarted && !this.levelComplete && !this.gameOver) {
+                this._drawMinimap(context);
+            }
         }
 
         _drawStartScreen(context) {
@@ -3044,7 +3107,11 @@ window.addEventListener('load', function () {
 
             context.font = '800 16px "Orbitron"';
             context.fillStyle = '#ffffff';
-            context.fillText('RETURN TO LOBBY', W / 2, btnY + btnH / 2 + 5);
+            let btnText = 'RETURN TO LOBBY';
+            if (success) {
+                btnText = this.isHost ? 'NEXT LEVEL' : 'WAITING FOR HOST...';
+            }
+            context.fillText(btnText, W / 2, btnY + btnH / 2 + 5);
             context.restore();
         }
 
@@ -3097,7 +3164,7 @@ window.addEventListener('load', function () {
                 : this.level === 2 ? 'rgba(255,140,0,0.18)'
                     : 'rgba(204,68,255,0.18)';
 
-            const hx = 16, hy = 12, hw = 300, hh = 74;
+            const hx = 16, hy = 12, hw = 220, hh = 46;
             const hpRatio = this.currentHP / this.maxHP;
 
             const hpColor = hpRatio > 0.6 ? '#00ffd0' : hpRatio > 0.3 ? '#ffaa00' : '#ff2200';
@@ -3147,24 +3214,24 @@ window.addEventListener('load', function () {
             context.fillText('', hx + 18, hy + 24);
             context.restore();
 
-            context.font = '800 10px "Poppins"';
+            context.font = '800 9px "Poppins"';
             context.fillStyle = 'rgba(255, 255, 255, 0.45)';
             context.textAlign = 'left';
-            context.fillText('VITAL SIGNS', hx + 36, hy + 23);
+            context.fillText('VITAL SIGNS', hx + 28, hy + 18);
 
-            context.font = '800 8px "Poppins"';
+            context.font = '800 7px "Poppins"';
             context.fillStyle = hpColor;
-            context.fillText(hpStatus, hx + 114, hy + 23);
+            context.fillText(hpStatus, hx + 90, hy + 18);
 
-            context.font = '800 13px "Poppins"';
+            context.font = '800 11px "Poppins"';
             context.fillStyle = '#ffffff';
             context.textAlign = 'right';
             context.shadowColor = hpColor;
             context.shadowBlur = hpRatio < 0.25 ? 8 : 0;
-            context.fillText(`${this.currentHP} / ${this.maxHP}`, hx + hw - 18, hy + 24);
+            context.fillText(`${this.currentHP} / ${this.maxHP}`, hx + hw - 14, hy + 19);
             context.shadowBlur = 0;
 
-            const bx = hx + 18, by2 = hy + 38, bw = hw - 36, bh = 18;
+            const bx = hx + 14, by2 = hy + 26, bw = hw - 28, bh = 12;
 
             context.fillStyle = 'rgba(0, 0, 0, 0.45)';
             rr(context, bx, by2, bw, bh, 6);
@@ -3228,20 +3295,20 @@ window.addEventListener('load', function () {
             context.restore();
 
             // Draw Coin Display Panel under HP panel
-            const cx = hx, cy = hy + hh + 8;
+            const cx = hx, cy = hy + hh + 12; // Added gap below HP panel
             context.save();
             context.shadowColor = 'rgba(0,0,0,0.4)';
             context.shadowBlur = 8;
             context.fillStyle = 'rgba(12, 10, 20, 0.9)';
-            rr(context, cx, cy, 140, 32, 8); context.fill();
+            rr(context, cx, cy, 110, 24, 6); context.fill();
             context.strokeStyle = 'rgba(255,215,0,0.3)';
             context.lineWidth = 1.2;
-            rr(context, cx, cy, 140, 32, 8); context.stroke();
+            rr(context, cx, cy, 110, 24, 6); context.stroke();
 
-            context.font = '800 12px "Poppins"';
+            context.font = '800 10px "Poppins"';
             context.fillStyle = '#ffd700';
             context.textAlign = 'left';
-            context.fillText('🪙 ' + this.coins.toLocaleString() + ' COINS', cx + 12, cy + 20);
+            context.fillText('🪙 ' + this.coins.toLocaleString() + ' COINS', cx + 10, cy + 16);
             context.restore();
 
             // Flash glow when coins arrive
@@ -3281,7 +3348,7 @@ window.addEventListener('load', function () {
                 context.restore();
             }
 
-            const sw = 240, sh = 72, sx = W - sw - 16, sy = 12;
+            const sw = 160, sh = 48, sx = W - sw - 16, sy = 12;
             context.shadowColor = 'rgba(0,0,0,0.5)';
             context.shadowBlur = 12;
             context.fillStyle = 'rgba(5,5,14,0.92)';
@@ -3300,13 +3367,13 @@ window.addEventListener('load', function () {
             context.fillStyle = lvlAccent;
             context.textAlign = 'right';
             context.fillText('', sx + sw - 14, sy + 24);
-            context.font = '700 10px "Poppins"';
+            context.font = '700 9px "Poppins"';
             context.fillStyle = 'rgba(255,255,255,0.42)';
-            context.fillText('SCORE', sx + sw - 30, sy + 24);
+            context.fillText('SCORE', sx + sw - 20, sy + 18);
 
-            context.font = '800 36px "Poppins"';
+            context.font = '800 24px "Poppins"';
             context.fillStyle = '#ffffff';
-            context.fillText(this.score.toLocaleString(), sx + sw - 14, sy + 62);
+            context.fillText(this.score.toLocaleString(), sx + sw - 12, sy + 40);
 
             // Sci-fi Level Polygon
             const lw = 150, lh = 28, ly = 16, lvlCx = W / 2;
@@ -4407,6 +4474,12 @@ window.addEventListener('load', function () {
             // Game state Tick sync
             game.socket.on('gameState', (state) => {
                 game.serverState = state;
+                if (!game.isHost && state.level && state.level > game.level) {
+                    game.level = state.level - 1;
+                    game.nextLevel();
+                    game.startTransition = true;
+                    game.startTransitionTimer = 0;
+                }
                 if (state.projectiles) {
                     game.projectiles = state.projectiles;
                 }
@@ -4423,7 +4496,7 @@ window.addEventListener('load', function () {
                         game.players.set(game.playerId, game.player);
                     }
                     // Sync local player HP if changed by server (e.g. damaged by enemies/boss on host)
-                    if (state.players && state.players[game.playerId]) {
+                    if (!game.isHost && state.players && state.players[game.playerId]) {
                         const sLocalPlayer = state.players[game.playerId];
                         if (sLocalPlayer.hp !== undefined && sLocalPlayer.hp !== game.currentHP) {
                             const oldHP = game.currentHP;
@@ -6246,7 +6319,21 @@ window.addEventListener('load', function () {
             const bX = canvas.width / 2 - bW / 2;
             const bY = canvas.height / 2 + 160;
             if (mx >= bX && mx <= bX + bW && my >= bY && my <= bY + bH) {
-                game.exitMultiplayerMatch();
+                if (game.levelComplete && game.isHost) {
+                    if (game.socket && typeof currentRoomCode !== 'undefined' && currentRoomCode) {
+                        game.socket.emit('nextLevel', { code: currentRoomCode }, (res) => {
+                            if (!res.success) {
+                                console.error('Failed to start next level:', res?.error);
+                            }
+                        });
+                    } else {
+                        game.nextLevel();
+                        game.startTransition = true;
+                        game.startTransitionTimer = 0;
+                    }
+                } else if (game.gameOver) {
+                    game.exitMultiplayerMatch();
+                }
             }
             return;
         }
@@ -6296,11 +6383,17 @@ window.addEventListener('load', function () {
                         <div class="void-subtitle">REALM BREAKER II: THE END OF INFINITY</div>
                     `;
                 } else {
-
-                    game.nextLevel();
-
-                    game.startTransition = true;
-                    game.startTransitionTimer = 0;
+                    if (game.socket && game.isHost && typeof currentRoomCode !== 'undefined' && currentRoomCode) {
+                        game.socket.emit('nextLevel', { code: currentRoomCode }, (res) => {
+                            if (!res.success) {
+                                console.error('Failed to start next level:', res?.error);
+                            }
+                        });
+                    } else {
+                        game.nextLevel();
+                        game.startTransition = true;
+                        game.startTransitionTimer = 0;
+                    }
                 }
             }
 
@@ -7047,6 +7140,7 @@ window.addEventListener('load', function () {
                     }
                     return enemyData;
                 });
+                playerState.level = game.level;
                 playerState.waveIndex = game.waveIndex;
                 playerState.waveSpawnedCount = game.waveSpawnedCount;
                 playerState.waveComplete = game.waveComplete;
@@ -7109,6 +7203,15 @@ window.addEventListener('load', function () {
                 allPlayers.push(game.player);
             }
             voiceManager.updateSpatialAudio(allPlayers);
+        }
+
+        // Toggle Voice UI visibility based on game state
+        if (voiceManager && voiceManager.ui) {
+            if (game.isMultiplayer && game.gameStarted && !game.gameOver && !game.levelComplete) {
+                voiceManager.ui.show();
+            } else {
+                voiceManager.ui.hide();
+            }
         }
         requestAnimationFrame(Animate);
     }
