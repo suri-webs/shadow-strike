@@ -4685,6 +4685,7 @@ window.addEventListener('load', function () {
                                         x: projX,
                                         y: sp.y,
                                         radius: sp.radius || 12,
+                                        radiusVal: sp.radiusVal || sp.radius || 16,
                                         damage: sp.damage || 10,
                                         type: sp.type,
                                         vx: sp.vx,
@@ -4716,7 +4717,64 @@ window.addEventListener('load', function () {
                                             }
 
                                             // Particle trails local simulation
-                                            if (this.type === 'FireProjectile') {
+                                            if (this.type === 'PowerBurstProjectile') {
+                                                if (this.lifeTimer === undefined) {
+                                                    this.lifeTimer = 0;
+                                                    this.maxLife = 650;
+                                                    this.radius = 10;
+                                                    this.maxRadius = this.radiusVal || 220;
+                                                }
+                                                this.lifeTimer += dt;
+                                                if (this.lifeTimer >= this.maxLife) {
+                                                    this.markedForDeletion = true;
+                                                }
+                                                this.x -= (this.game.scrollSpeed || 0);
+                                                const progress = this.lifeTimer / this.maxLife;
+                                                this.radius = this.maxRadius * Math.sin(progress * Math.PI / 2);
+
+                                                if (progress < 0.8 && Math.random() < 0.6) {
+                                                    const angle = Math.random() * Math.PI * 2;
+                                                    const dist = Math.random() * this.radius;
+                                                    this.particles.push({
+                                                        x: this.x + Math.cos(angle) * dist,
+                                                        y: this.y + (Math.random() - 0.5) * 20,
+                                                        vx: (Math.random() - 0.5) * 3,
+                                                        vy: -Math.random() * 4 - 2,
+                                                        size: Math.random() * 12 + 6,
+                                                        alpha: 1.0,
+                                                        color: Math.random() > 0.4 ? '#39ff14' : '#00ff66',
+                                                        swayTimer: Math.random() * 100,
+                                                        swaySpeed: Math.random() * 0.1 + 0.05,
+                                                        swayAmt: Math.random() * 2 + 1,
+                                                        decay: Math.random() * 0.03 + 0.02
+                                                     });
+                                                }
+                                                this.particles.forEach(p => {
+                                                    p.x += p.vx - (this.game.scrollSpeed || 0) + Math.sin(p.swayTimer) * p.swayAmt;
+                                                    p.y += p.vy;
+                                                    p.swayTimer += p.swaySpeed;
+                                                    p.alpha -= p.decay;
+                                                    p.size *= 0.95;
+                                                });
+                                                this.particles = this.particles.filter(p => p.alpha > 0 && p.size > 1);
+
+                                                const localPlayer = this.game.player;
+                                                if (localPlayer && !localPlayer.isDead && this.game.hitCooldown <= 0) {
+                                                    if (!this.hitPlayersSet) {
+                                                        this.hitPlayersSet = new Set();
+                                                    }
+                                                    if (!this.hitPlayersSet.has(localPlayer.id || localPlayer)) {
+                                                        const px = localPlayer.x + localPlayer.width / 2;
+                                                        const py = localPlayer.y + localPlayer.height / 2;
+                                                        const dist = Math.hypot(px - this.x, py - this.y);
+                                                        const playerRadius = Math.max(localPlayer.width, localPlayer.height) / 3;
+                                                        if (dist < this.radius + playerRadius) {
+                                                            this.game.hurtPlayer(this.damage, true);
+                                                            this.hitPlayersSet.add(localPlayer.id || localPlayer);
+                                                        }
+                                                    }
+                                                }
+                                            } else if (this.type === 'FireProjectile') {
                                                 if (Math.random() < 0.8) {
                                                     this.particles.push({
                                                         x: this.x + (Math.random() - 0.5) * 6,
@@ -4895,7 +4953,89 @@ window.addEventListener('load', function () {
                                             }
                                         },
                                         draw: function (ctx) {
-                                            if (this.type === 'FireProjectile') {
+                                            if (this.type === 'PowerBurstProjectile') {
+                                                ctx.save();
+
+                                                const progress = (this.lifeTimer || 0) / (this.maxLife || 650);
+                                                const mainAlpha = 1.0 - Math.pow(progress, 2);
+
+                                                // Background green glow
+                                                ctx.globalAlpha = mainAlpha * 0.45;
+                                                const glowGrad = ctx.createRadialGradient(this.x, this.y, 10, this.x, this.y, (this.radius || 10) * 1.2);
+                                                glowGrad.addColorStop(0, '#ffffff');
+                                                glowGrad.addColorStop(0.3, '#39ff14');
+                                                glowGrad.addColorStop(0.7, '#00ff66');
+                                                glowGrad.addColorStop(1, 'transparent');
+                                                ctx.fillStyle = glowGrad;
+                                                ctx.beginPath();
+                                                ctx.arc(this.x, this.y, (this.radius || 10) * 1.2, 0, Math.PI * 2);
+                                                ctx.fill();
+
+                                                // Expanding shockwave stroke
+                                                ctx.globalAlpha = mainAlpha * 0.8;
+                                                ctx.beginPath();
+                                                ctx.arc(this.x, this.y, this.radius || 10, 0, Math.PI * 2);
+                                                ctx.strokeStyle = '#39ff14';
+                                                ctx.lineWidth = 6 * (1.0 - progress);
+                                                ctx.shadowColor = '#00ff66';
+                                                ctx.shadowBlur = 20;
+                                                ctx.stroke();
+
+                                                // Vertical energy spikes
+                                                ctx.shadowBlur = 0;
+                                                ctx.globalAlpha = mainAlpha * 0.75;
+                                                const spikeCount = 6;
+                                                const currentRadius = this.radius || 10;
+                                                for (let i = 0; i < spikeCount; i++) {
+                                                    const angleOffset = (i / spikeCount) * Math.PI - Math.PI;
+                                                    const spikeLength = currentRadius * (1.2 + Math.random() * 0.3);
+                                                    const targetX = this.x + Math.cos(angleOffset) * currentRadius * 0.8;
+                                                    const targetY = this.y + Math.sin(angleOffset) * currentRadius * 0.3 - spikeLength;
+
+                                                    const baseW = currentRadius * 0.35;
+                                                    const leftBaseX = this.x + Math.cos(angleOffset - Math.PI/2) * baseW;
+                                                    const leftBaseY = this.y + Math.sin(angleOffset - Math.PI/2) * baseW * 0.5;
+                                                    const rightBaseX = this.x + Math.cos(angleOffset + Math.PI/2) * baseW;
+                                                    const rightBaseY = this.y + Math.sin(angleOffset + Math.PI/2) * baseW * 0.5;
+
+                                                    const spikeGrad = ctx.createLinearGradient(this.x, this.y, targetX, targetY);
+                                                    spikeGrad.addColorStop(0, 'rgba(0, 255, 100, 0.1)');
+                                                    spikeGrad.addColorStop(0.4, 'rgba(57, 255, 20, 0.7)');
+                                                    spikeGrad.addColorStop(0.8, 'rgba(255, 255, 255, 0.95)');
+                                                    spikeGrad.addColorStop(1, 'transparent');
+
+                                                    ctx.fillStyle = spikeGrad;
+                                                    ctx.beginPath();
+                                                    ctx.moveTo(leftBaseX, leftBaseY);
+                                                    ctx.quadraticCurveTo(
+                                                        (leftBaseX + targetX) / 2 - baseW * 0.3,
+                                                        (leftBaseY + targetY) / 2,
+                                                        targetX, targetY
+                                                    );
+                                                    ctx.quadraticCurveTo(
+                                                        (rightBaseX + targetX) / 2 + baseW * 0.3,
+                                                        (rightBaseY + targetY) / 2,
+                                                        rightBaseX, rightBaseY
+                                                    );
+                                                    ctx.closePath();
+                                                    ctx.fill();
+                                                }
+
+                                                ctx.restore();
+
+                                                // Individual flame particles
+                                                this.particles.forEach(p => {
+                                                    ctx.save();
+                                                    ctx.globalAlpha = p.alpha;
+                                                    ctx.beginPath();
+                                                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                                                    ctx.fillStyle = p.color;
+                                                    ctx.shadowColor = '#00ff66';
+                                                    ctx.shadowBlur = 15;
+                                                    ctx.fill();
+                                                    ctx.restore();
+                                                });
+                                            } else if (this.type === 'FireProjectile') {
                                                 ctx.save();
                                                 this.particles.forEach(p => {
                                                     ctx.beginPath();
@@ -7126,6 +7266,7 @@ window.addEventListener('load', function () {
                                 vy: vy,
                                 type: p.type || p.constructor.name,
                                 radius: p.radius || p.width || 12,
+                                radiusVal: p.maxRadius || p.radius || 16,
                                 damage: p.damage || 10,
                                 isBlackHole: p.isBlackHole || false,
                                 facingLeft: p.facingLeft !== undefined ? p.facingLeft : (p.dx !== undefined ? p.dx < 0 : false),

@@ -1,6 +1,7 @@
 import { BossProjectile } from "./bossProjectile.js";
 import { BossFireballProjectile, BossGiantFireball, FirePillar, FlameThrowerParticle } from "./bossFireballProjectile.js";
 import { StoneProjectile } from "./stoneProjectile.js";
+import { PowerBurstProjectile } from "./powerBurstProjectile.js";
 
 const level1Images = {
     IDLE: [],
@@ -201,6 +202,9 @@ export class BossEnemy {
                 DEATH: mechaImg,
             };
             this.deathAlpha = 1;
+            this.MELEE_FRAME = 6;
+            this.PROJECTILE_FRAME = 5;
+            this.meleeThreshold = 480;
         } else if (this.bossType === 'impaler') {
             this.frameCounts = {
                 IDLE: 4,
@@ -233,6 +237,7 @@ export class BossEnemy {
             this.scale = 1.3;
             this.MELEE_FRAME = 6;
             this.PROJECTILE_FRAME = 5;
+            this.meleeThreshold = 480;
         } else if (this.bossType === 'storm_seraph') {
             this.frameCounts = { IDLE: 4, WALK: 8, ATTACK: 16, HURT: 5, DEATH: 36 };
             this.frameSizes = { IDLE: { w: 74, h: 74 }, WALK: { w: 74, h: 74 }, ATTACK: { w: 90, h: 70 }, HURT: { w: 130, h: 130 }, DEATH: { w: 160, h: 160 } };
@@ -337,6 +342,13 @@ export class BossEnemy {
         if (this.bossType === 'boss_level_1' || this.bossType === 'frost_wyrm') {
             this.baseY = game.height - this.height - game.groundMargin + 50;
             this.y = this.baseY;
+        }
+        if (this.bossType === 'mecha_stone' || this.bossType === 'crystal_titan') {
+            this.baseY = game.height - this.height - game.groundMargin + 95;
+            this.y = this.baseY;
+            this.MELEE_FRAME = 6;
+            this.PROJECTILE_FRAME = 5;
+            this.meleeThreshold = 480;
         }
         // Unique ID assigned at spawn so guests can reference this enemy reliably
         this.id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
@@ -503,6 +515,14 @@ export class BossEnemy {
             }
             this.projectiles.push(proj);
         });
+    }
+
+    _firePowerBurst() {
+        const cx = this.x + this.width / 2;
+        const cy = this.y + this.height / 2; // centered on the boss chest/body
+        const dmg = this.phase === 2 ? this.meleeDamagePhase2 + 10 : this.meleeDamage + 5;
+        const burst = new PowerBurstProjectile(this.game, cx, cy, 220, dmg);
+        this.projectiles.push(burst);
     }
 
     _fireFireball(dmg) {
@@ -828,6 +848,44 @@ export class BossEnemy {
 
                 if (!this.introRoarPlayed && this.introTimer >= this.introDuration) {
                     this.introRoarPlayed = true;
+
+                    // Spawn dramatic shockwave energy particles on roar
+                    const centerX = this.x + this.width / 2;
+                    const centerY = this.y + this.height / 2;
+                    if (this.game.particles) {
+                        for (let i = 0; i < 60; i++) {
+                            const angle = (i / 60) * Math.PI * 2;
+                            const speed = 8 + Math.random() * 8;
+                            this.game.particles.push({
+                                x: centerX,
+                                y: centerY,
+                                vx: Math.cos(angle) * speed,
+                                vy: Math.sin(angle) * speed,
+                                color: 'rgba(255, 50, 50, 0.85)',
+                                size: 8 + Math.random() * 12,
+                                alpha: 1.0,
+                                decay: 0.96,
+                                gravity: 0.05,
+                                fadeSpeedMultiplier: 1.2
+                            });
+                        }
+                        for (let i = 0; i < 40; i++) {
+                            const angle = Math.random() * Math.PI * 2;
+                            const speed = 2 + Math.random() * 5;
+                            this.game.particles.push({
+                                x: centerX + (Math.random() - 0.5) * 80,
+                                y: centerY + (Math.random() - 0.5) * 80,
+                                vx: Math.cos(angle) * speed,
+                                vy: Math.sin(angle) * speed - 1.5,
+                                color: Math.random() > 0.5 ? '#ff5500' : '#ffaa00',
+                                size: 15 + Math.random() * 20,
+                                alpha: 0.9,
+                                decay: 0.94,
+                                fadeSpeedMultiplier: 1.5
+                            });
+                        }
+                    }
+
                     if (this.game.audio) {
                         // Roar bajao — khatam hote hi boss intro music band karo aur attack shuru
                         this.game.audio.playSFXWithEnded('boss_roar', () => {
@@ -1020,7 +1078,11 @@ export class BossEnemy {
 
                     if (this.frameX === this.MELEE_FRAME && !this.hasMeleeHit) {
                         this.hasMeleeHit = true;
-                        this._meleeHitCheck();
+                        if (this.bossType === 'mecha_stone' || this.bossType === 'crystal_titan') {
+                            this._firePowerBurst();
+                        } else {
+                            this._meleeHitCheck();
+                        }
                         this.game.shake = 70;
                         this.scaleY = 0.75;
                         this.scaleX = 1.25;

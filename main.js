@@ -65,9 +65,9 @@ window.addEventListener('load', function () {
         },
         2: {
             waves: [
-                { type: 'demon', count: 3 },
-                { type: 'skeleton_yellow', count: 4 },
-                { type: 'mixed_level2', count: 6 },
+                { type: 'demon', count: 1 },
+                // { type: 'skeleton_yellow', count: 4 },
+                // { type: 'mixed_level2', count: 6 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 2500,
@@ -320,7 +320,7 @@ window.addEventListener('load', function () {
             this.dialogueText = document.getElementById('dialogue-text');
 
             // Amarjeet — The Devourer of Reality (shared avatar across all levels)
-            this.amarjeetAvatar = "asset/main-villan-of-stoory/amarjeet-da-blackhole.png";
+            this.amarjeetAvatar = "/asset/main-villan-of-stoory/amarjeet-da-blackhole.png";
 
             // Databases
             this.narratives = {
@@ -348,10 +348,10 @@ window.addEventListener('load', function () {
             };
 
             this.heroAvatars = {
-                shinobi: "asset/players/player-banner/player1-banner.png",
-                jotem: "asset/players/player-banner/player2-banner.png",
-                shaia: "asset/players/player-banner/player3-banner.png",
-                archdemon: "asset/players/player-banner/player4-banner.png"
+                shinobi: "/asset/players/player-banner/player1-banner.png",
+                jotem: "/asset/players/player-banner/player2-banner.png",
+                shaia: "/asset/players/player-banner/player3-banner.png",
+                archdemon: "/asset/players/player-banner/player4-banner.png"
             };
 
             this.heroNames = {
@@ -362,26 +362,26 @@ window.addEventListener('load', function () {
             };
 
             this.bossAvatars = {
-                1: "asset/boss-level1/idle/idle_0.png",
-                2: "asset/MECHA-stone/Character_sheet.png",
-                3: "asset/demon-lord-bosslevel2/dragon_lord_idle_basic_74x74.png",
-                4: "asset/mino/idle/idle_1.png",
-                5: "asset/level-5-bossImpaler/idle/idle1.png",
-                6: "asset/boss-level1/idle/idle_0.png",
-                7: "asset/demon-lord-bosslevel2/dragon_lord_idle_basic_74x74.png",
-                8: "asset/mino/idle/idle_1.png",
-                9: "asset/level-5-bossImpaler/idle/idle1.png",
-                10: "asset/main-villan-of-stoory/amarjeet-da-blackhole.png",
-                11: "asset/boss-level1/idle/idle_0.png",
-                12: "asset/MECHA-stone/Character_sheet.png",
-                13: "asset/demon-lord-bosslevel2/dragon_lord_idle_basic_74x74.png",
-                14: "asset/mino/idle/idle_1.png",
-                15: "asset/level-5-bossImpaler/idle/idle1.png",
-                16: "asset/boss-level1/idle/idle_0.png",
-                17: "asset/demon-lord-bosslevel2/dragon_lord_idle_basic_74x74.png",
-                18: "asset/mino/idle/idle_1.png",
-                19: "asset/level-5-bossImpaler/idle/idle1.png",
-                20: "asset/main-villan-of-stoory/amarjeet-da-blackhole.png"
+                1: "/asset/boss-level1/idle/idle_1.png",
+                2: "/asset/MECHA-stone/Character_sheet.png",
+                3: "/asset/demon-lord-bosslevel2/dragon_lord_idle_basic_74x74.png",
+                4: "/asset/mino/idle/idle_1.png",
+                5: "/asset/level-5-bossImpaler/idle/idle1.png",
+                6: "/asset/boss-level1/idle/idle_1.png",
+                7: "/asset/demon-lord-bosslevel2/dragon_lord_idle_basic_74x74.png",
+                8: "/asset/mino/idle/idle_1.png",
+                9: "/asset/level-5-bossImpaler/idle/idle1.png",
+                10: "/asset/main-villan-of-stoory/amarjeet-da-blackhole.png",
+                11: "/asset/boss-level1/idle/idle_1.png",
+                12: "/asset/MECHA-stone/Character_sheet.png",
+                13: "/asset/demon-lord-bosslevel2/dragon_lord_idle_basic_74x74.png",
+                14: "/asset/mino/idle/idle_1.png",
+                15: "/asset/level-5-bossImpaler/idle/idle1.png",
+                16: "/asset/boss-level1/idle/idle_1.png",
+                17: "/asset/demon-lord-bosslevel2/dragon_lord_idle_basic_74x74.png",
+                18: "/asset/mino/idle/idle_1.png",
+                19: "/asset/level-5-bossImpaler/idle/idle1.png",
+                20: "/asset/main-villan-of-stoory/amarjeet-da-blackhole.png"
             };
 
             this.bossNames = {
@@ -1642,6 +1642,34 @@ window.addEventListener('load', function () {
 
         update(deltaTime) {
             if (this.paused) return;
+
+            // Camera zoom logic for Boss intro
+            const bossIntroActive = this.enemies.some(e => e.isBoss && e.introLocked);
+            if (bossIntroActive) {
+                const activeBoss = this.enemies.find(e => e.isBoss && e.introLocked);
+                // Center camera between player and boss, and anchor vertically to the ground
+                const targetX = (this.player.x + activeBoss.x + activeBoss.width / 2) / 2;
+                const targetY = this.height - this.groundMargin;
+
+                if (!this.zoomCenter) {
+                    this.zoomCenter = { x: targetX, y: targetY };
+                } else {
+                    this.zoomCenter.x += (targetX - this.zoomCenter.x) * 0.1;
+                    this.zoomCenter.y += (targetY - this.zoomCenter.y) * 0.1;
+                }
+
+                this.zoomFactor = this.zoomFactor || 1.0;
+                this.zoomFactor += (1.15 - this.zoomFactor) * 0.05;
+            } else {
+                if (this.zoomFactor && this.zoomFactor !== 1.0) {
+                    this.zoomFactor += (1.0 - this.zoomFactor) * 0.05;
+                    if (Math.abs(this.zoomFactor - 1.0) < 0.01) {
+                        this.zoomFactor = 1.0;
+                        this.zoomCenter = null;
+                    }
+                }
+            }
+
             if (this.isMultiplayer) {
                 this.updateMultiplayerEntities(deltaTime);
             }
@@ -2126,6 +2154,14 @@ window.addEventListener('load', function () {
                 context.translate(dx, dy);
             }
 
+            if (this.zoomFactor && this.zoomFactor !== 1.0) {
+                const cx = this.zoomCenter ? this.zoomCenter.x : this.width / 2;
+                const cy = this.zoomCenter ? this.zoomCenter.y : this.height / 2;
+                context.translate(cx, cy);
+                context.scale(this.zoomFactor, this.zoomFactor);
+                context.translate(-cx, -cy);
+            }
+
             this.background.draw(context);
 
             // Draw PVP loot items
@@ -2465,6 +2501,53 @@ window.addEventListener('load', function () {
             }
 
             context.restore();
+
+            // Cinematic boss entry cutscene overlay (letterbox + warning vignette)
+            const bossIntroActive = this.enemies.some(e => e.isBoss && e.introLocked);
+            this.bossIntroTransition = this.bossIntroTransition || 0;
+            if (bossIntroActive) {
+                this.bossIntroTransition += (1 - this.bossIntroTransition) * 0.1;
+            } else {
+                this.bossIntroTransition += (0 - this.bossIntroTransition) * 0.1;
+            }
+
+            if (this.bossIntroTransition > 0.01) {
+                context.save();
+                context.globalAlpha = this.bossIntroTransition;
+
+                // 1. Draw Red Warning Vignette
+                const pulse = Math.sin(Date.now() * 0.005) * 0.15 + 0.35;
+                const vignGrad = context.createRadialGradient(
+                    this.width / 2, this.height / 2, this.width / 4,
+                    this.width / 2, this.height / 2, this.width * 0.8
+                );
+                vignGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+                vignGrad.addColorStop(0.6, 'rgba(255, 0, 0, ' + (pulse * 0.15) + ')');
+                vignGrad.addColorStop(1, 'rgba(0, 0, 0, ' + (pulse * 0.7) + ')');
+                context.fillStyle = vignGrad;
+                context.fillRect(0, 0, this.width, this.height);
+
+                // 2. Draw Cinematic Letterbox Bars
+                const barHeight = 45 * this.bossIntroTransition;
+                context.fillStyle = 'black';
+                context.fillRect(0, 0, this.width, barHeight);
+                context.fillRect(0, this.height - barHeight, this.width, barHeight);
+
+                // 3. Draw Warning Alert Text
+                if (bossIntroActive) {
+                    const blink = Math.floor(Date.now() / 250) % 2 === 0;
+                    if (blink) {
+                        context.font = 'bold 36px "Orbitron", sans-serif';
+                        context.fillStyle = '#ff1100';
+                        context.textAlign = 'center';
+                        context.shadowColor = 'rgba(255, 0, 0, 0.8)';
+                        context.shadowBlur = 15;
+                        context.fillText('⚠️ WARNING: BOSS APPROACHING ⚠️', this.width / 2, barHeight + 80);
+                    }
+                }
+                context.restore();
+            }
+
             // Draw coin pickups in pure screen-space (outside shake transform)
             this.drawCoinPickups(context);
             this.drawHpPickups(context);

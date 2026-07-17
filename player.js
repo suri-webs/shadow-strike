@@ -27,6 +27,7 @@ export class Player {
 
         this.game = game;
         this.characterType = characterType;
+        this.isRemote = false;
 
         this.width = 95;
         this.height = 96.1;
@@ -323,58 +324,7 @@ export class Player {
 
         if (this.flashTimer > 0) this.flashTimer -= deltaTime;
 
-        if (this.characterType === 'jotem') {
-            const jotemMaxFrames = {
-                'STANDING': 5,
-                'RUNNING': 7,
-                'JUMPING': 5,
-                'FALLING': 5,
-                'ATTACK': 9,
-                'SPRINT': 7,
-                'DEATH': 5,
-                'DAMAGE': 3
-            };
-            const jotemFps = {
-                'STANDING': 24,
-                'RUNNING': 38,
-                'JUMPING': 32,
-                'FALLING': 28,
-                'ATTACK': 42,
-                'SPRINT': 65,
-                'DEATH': 20,
-                'DAMAGE': 26
-            };
-            const st = this.currentState.state;
-            this.maxFrame = jotemMaxFrames[st] ?? 5;
-            // Override fps for Jotem to animate faster
-            const targetFps = jotemFps[st] ?? 28;
-            if (this.fps !== targetFps) {
-                this.fps = targetFps;
-                this.frameInterval = 1000 / this.fps;
-            }
-        } else if (this.characterType === 'shaia') {
-            let shaiaSpriteList;
-            if (this.currentState.state === 'ATTACK') {
-                shaiaSpriteList = this.shaiaSprites['ATTACK_' + (this.activeShaiaAttackCombo || 'COMBO1')];
-            } else {
-                shaiaSpriteList = this.shaiaSprites[this.currentState.state] || this.shaiaSprites.STANDING;
-            }
-            this.maxFrame = Math.max(0, shaiaSpriteList.length - 1);
-        } else if (this.characterType === 'archdemon') {
-            if (this.currentState.state === 'ATTACK') {
-                this.image = this.archDemonAtk;
-                this.maxFrame = 5;
-            } else if (this.currentState.state === 'DEATH') {
-                this.image = this.archDemonDeath;
-                this.maxFrame = 7;
-            } else if (this.currentState.state === 'DAMAGE') {
-                this.image = this.archDemonHurt;
-                this.maxFrame = 3;
-            } else {
-                this.image = this.archDemonIdle;
-                this.maxFrame = 5;
-            }
-        }
+        this.updateCharacterAnimation(deltaTime);
 
         const easeSpd = 0.14 * (deltaTime / 16.6);
         this.scaleX += (1 - this.scaleX) * easeSpd;
@@ -1294,5 +1244,61 @@ export class Player {
             return;
         }
         this._takingDamage = value;
+    }
+
+    updateCharacterAnimation(deltaTime) {
+        if (this.characterType === 'jotem') {
+            const jotemMaxFrames = {
+                'STANDING': 5,
+                'RUNNING': 7,
+                'JUMPING': 5,
+                'FALLING': 5,
+                'ATTACK': 9,
+                'SPRINT': 7,
+                'DEATH': 5,
+                'DAMAGE': 3
+            };
+            const jotemFps = {
+                'STANDING': 24,
+                'RUNNING': 38,
+                'JUMPING': 32,
+                'FALLING': 28,
+                'ATTACK': 42,
+                'SPRINT': 65,
+                'DEATH': 20,
+                'DAMAGE': 26
+            };
+            const st = this.currentState ? this.currentState.state : 'STANDING';
+            this.maxFrame = jotemMaxFrames[st] ?? 5;
+            const targetFps = jotemFps[st] ?? 28;
+            if (this.fps !== targetFps) {
+                this.fps = targetFps;
+                this.frameInterval = 1000 / this.fps;
+            }
+        } else if (this.characterType === 'shaia') {
+            let shaiaSpriteList;
+            const st = this.currentState ? this.currentState.state : 'STANDING';
+            if (st === 'ATTACK') {
+                shaiaSpriteList = this.shaiaSprites['ATTACK_' + (this.activeShaiaAttackCombo || 'COMBO1')];
+            } else {
+                shaiaSpriteList = this.shaiaSprites[st] || this.shaiaSprites.STANDING;
+            }
+            this.maxFrame = Math.max(0, shaiaSpriteList.length - 1);
+        } else if (this.characterType === 'archdemon') {
+            const st = this.currentState ? this.currentState.state : 'STANDING';
+            if (st === 'ATTACK') {
+                this.image = this.archDemonAtk;
+                this.maxFrame = 5;
+            } else if (st === 'DEATH') {
+                this.image = this.archDemonDeath;
+                this.maxFrame = 7;
+            } else if (st === 'DAMAGE') {
+                this.image = this.archDemonHurt;
+                this.maxFrame = 3;
+            } else {
+                this.image = this.archDemonIdle;
+                this.maxFrame = 5;
+            }
+        }
     }
 }

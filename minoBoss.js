@@ -366,6 +366,44 @@ export class MinoBoss {
 
                 if (!this.introRoarPlayed && this.introTimer >= this.introDuration) {
                     this.introRoarPlayed = true;
+
+                    // Spawn dramatic shockwave energy particles on roar
+                    const centerX = this.x + this.width / 2;
+                    const centerY = this.y + this.height / 2;
+                    if (this.game.particles) {
+                        for (let i = 0; i < 60; i++) {
+                            const angle = (i / 60) * Math.PI * 2;
+                            const speed = 8 + Math.random() * 8;
+                            this.game.particles.push({
+                                x: centerX,
+                                y: centerY,
+                                vx: Math.cos(angle) * speed,
+                                vy: Math.sin(angle) * speed,
+                                color: 'rgba(255, 50, 50, 0.85)',
+                                size: 8 + Math.random() * 12,
+                                alpha: 1.0,
+                                decay: 0.96,
+                                gravity: 0.05,
+                                fadeSpeedMultiplier: 1.2
+                            });
+                        }
+                        for (let i = 0; i < 40; i++) {
+                            const angle = Math.random() * Math.PI * 2;
+                            const speed = 2 + Math.random() * 5;
+                            this.game.particles.push({
+                                x: centerX + (Math.random() - 0.5) * 80,
+                                y: centerY + (Math.random() - 0.5) * 80,
+                                vx: Math.cos(angle) * speed,
+                                vy: Math.sin(angle) * speed - 1.5,
+                                color: Math.random() > 0.5 ? '#ff5500' : '#ffaa00',
+                                size: 15 + Math.random() * 20,
+                                alpha: 0.9,
+                                decay: 0.94,
+                                fadeSpeedMultiplier: 1.5
+                            });
+                        }
+                    }
+
                     if (this.game.audio) {
                         // Roar bajao — khatam hote hi boss intro music band karo aur attack shuru
                         this.game.audio.playSFXWithEnded('boss_roar', () => {
