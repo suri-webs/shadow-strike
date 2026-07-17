@@ -990,7 +990,12 @@ window.addEventListener('load', function () {
         nextLevel() {
             const savedHP = this.currentHP;
             const savedScore = this.score;
-            if (this.level >= 20) { this.level = 1; this._init(); return; }
+            if (this.level >= 19) { 
+                localStorage.setItem('maxUnlockedLevel', '20');
+                alert("CONGRATULATIONS! You have cleared Level 19! Level 20 is the ULTIMATE SHOWDOWN, which is extremely difficult and is MULTIPLAYER ONLY! Go to the Main Menu and click 'Multiplayer' to challenge it.");
+                window.location.reload();
+                return; 
+            }
             this.level++;
 
             const maxUnlocked = parseInt(localStorage.getItem('maxUnlockedLevel') || '1');
@@ -4502,6 +4507,19 @@ window.addEventListener('load', function () {
 
     setupMultiplayerAndAuth(game);
 
+    function updateMultiplayerButtonVisibility() {
+        const btnMp = document.getElementById('btn-mp');
+        if (btnMp) {
+            const maxUnlocked = parseInt(localStorage.getItem('maxUnlockedLevel') || '1');
+            if (maxUnlocked >= 20) {
+                btnMp.style.display = 'inline-block';
+            } else {
+                btnMp.style.display = 'none';
+            }
+        }
+    }
+    updateMultiplayerButtonVisibility();
+
     let lastTime = 0;
 
     let osControlsEnabled = localStorage.getItem('shadowStrike_osControls') === 'true';
@@ -4604,6 +4622,9 @@ window.addEventListener('load', function () {
 
             // Reset selected level back to 1
             selectedLevel = 1;
+
+            // Update button visibility immediately
+            updateMultiplayerButtonVisibility();
 
             // Re-render level cards so locks are applied immediately
             renderLevelSelectionUI();
@@ -5665,6 +5686,13 @@ window.addEventListener('load', function () {
                 badge.className = 'level-lock-badge';
                 badge.innerHTML = '🔒 LOCKED';
                 card.appendChild(badge);
+            } else if (lvl.id === 20) {
+                const badge = document.createElement('div');
+                badge.className = 'level-lock-badge';
+                badge.style.background = 'linear-gradient(135deg, #005f73, #0a9396)';
+                badge.style.borderColor = '#94d2bd';
+                badge.innerHTML = '👥 MULTIPLAYER ONLY';
+                card.appendChild(badge);
             }
 
             // Click listener
@@ -5769,6 +5797,11 @@ window.addEventListener('load', function () {
     if (confirmLevelBtn) {
         confirmLevelBtn.addEventListener('click', (e) => {
             e.stopPropagation();
+
+            if (selectedLevel === 20) {
+                alert("Level 20: Ultimate Showdown is extremely hard and is MULTIPLAYER ONLY! Please click the 'Multiplayer' button on the Main Menu to play it.");
+                return;
+            }
 
             game.level = selectedLevel;
             game.selectedCharacter = currentlySelected;

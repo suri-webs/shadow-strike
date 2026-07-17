@@ -53,6 +53,12 @@ function escapeHtml(str) {
 }
 
 window.addEventListener('load', function () {
+    const maxUnlocked = parseInt(localStorage.getItem('maxUnlockedLevel') || '1');
+    if (maxUnlocked < 20) {
+        alert("Level 20 is the only Multiplayer level! You must clear Level 19 in Single Player to unlock Multiplayer.");
+        window.location.href = 'index.html';
+        return;
+    }
 
     const canvas = document.getElementById('canvas1');
     const ctx = canvas.getContext('2d');
