@@ -7,6 +7,7 @@ export class Dropbox {
         this.y = y;
         this.vy = 1.5; // fall slowly
         this.groundY = game.height - game.groundMargin - this.height;
+        this.y = this.groundY; // Spawn directly on the ground platform
         this.image = new Image();
         this.image.src = 'asset/dropboxs/Chests_Snow.png';
         
@@ -26,15 +27,21 @@ export class Dropbox {
         this.popupTimer = 0;
         this.popupDelay = 500; // wait 500ms after opening completes before popup
         this.popupTriggered = false;
+
+        // Smooth grow-in spawn animation variables
+        this.spawnScale = 0;
+        this.spawnTimer = 0;
+        this.spawnDuration = 400; // 400ms growth
     }
 
     update(deltaTime) {
         // Scroll with the game world (background scroll)
         this.x -= this.game.scrollSpeed || 0;
 
-        // Fall down until ground is reached
-        if (this.y < this.groundY) {
-            this.y = Math.min(this.y + this.vy, this.groundY);
+        // Smoothly grow the chest scale when spawning on the platform
+        if (this.spawnScale < 1) {
+            this.spawnTimer += deltaTime;
+            this.spawnScale = Math.min(1, this.spawnTimer / this.spawnDuration);
         }
 
         // Check proximity to player to allow opening with F key
@@ -153,10 +160,16 @@ export class Dropbox {
         const sy = this.frameY * sh;
 
         context.save();
+        // Translate to chest center for smooth scale-in effect
+        const cx = this.x + this.width / 2;
+        const cy = this.y + this.height / 2;
+        context.translate(cx, cy);
+        context.scale(this.spawnScale, this.spawnScale);
+        
         context.drawImage(
             this.image,
             sx, sy, sw, sh,
-            this.x, this.y, this.width, this.height
+            -this.width / 2, -this.height / 2, this.width, this.height
         );
         context.restore();
 

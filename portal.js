@@ -35,7 +35,7 @@ export class Portal {
                 this.markedForDeletion = true;
                 this.game.levelComplete = true;
                 this.game.coins += 100;
-                localStorage.setItem('gameCoins', this.game.coins.toString());
+                this.game.syncCoinsWithServer();
             }
             return;
         }

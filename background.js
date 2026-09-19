@@ -468,8 +468,6 @@ export class Level9Background extends Level3Background {
     // Void Kingdom (Crimson/Purple glitchy tint)
     update() {
         super.update();
-        // Erratic scroll speeds to simulate reality bending
-        this.backgroundLayers.forEach(l => l.x += (Math.random() - 0.5) * 2);
     }
     draw(context) {
         super.draw(context);
@@ -486,30 +484,14 @@ export class Level10Background extends Background {
     draw(context) {
         super.draw(context);
         context.save();
-        
-        // Deep void darkness
-        context.fillStyle = 'rgba(0, 0, 0, 0.8)';
-        context.fillRect(0, 0, this.game.width, this.game.height);
 
-        // Black Hole Accretion Disk glow
-        context.globalCompositeOperation = 'screen';
-        const bhGlow = context.createRadialGradient(this.game.width/2, this.game.height/2, 50, this.game.width/2, this.game.height/2, 600);
-        bhGlow.addColorStop(0, 'rgba(255, 50, 50, 0.5)');
-        bhGlow.addColorStop(0.5, 'rgba(50, 0, 100, 0.2)');
-        bhGlow.addColorStop(1, 'transparent');
-        context.fillStyle = bhGlow;
-        context.fillRect(0, 0, this.game.width, this.game.height);
-        
-        // Center singularity
         context.globalCompositeOperation = 'source-over';
         context.beginPath();
-        context.arc(this.game.width/2, this.game.height/2, 80, 0, Math.PI * 2);
-        context.fillStyle = '#000000';
+        context.arc(this.game.width / 2, this.game.height / 2, 80, 0, Math.PI * 2);
         context.fill();
         context.lineWidth = 4;
-        context.strokeStyle = 'rgba(255, 0, 0, 0.8)';
         context.stroke();
-        
+
         context.restore();
     }
 }

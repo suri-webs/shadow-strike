@@ -76,9 +76,9 @@ window.addEventListener('load', function () {
         },
         3: {
             waves: [
-                { type: 'skeleton_white', count: 4 },
-                { type: 'arcane_archer', count: 2 },
-                { type: 'mixed_level3', count: 6 },
+                { type: 'skeleton_white', count: 1 },
+                // { type: 'arcane_archer', count: 2 },
+                // { type: 'mixed_level3', count: 6 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 2000,
@@ -87,9 +87,9 @@ window.addEventListener('load', function () {
         },
         4: {
             waves: [
-                { type: 'skeleton_yellow', count: 4 },
-                { type: 'arcane_archer', count: 4 },
-                { type: 'mixed_level3', count: 8 },
+                { type: 'skeleton_yellow', count: 1 },
+                // { type: 'arcane_archer', count: 4 },
+                // { type: 'mixed_level3', count: 8 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1800,
@@ -98,9 +98,9 @@ window.addEventListener('load', function () {
         },
         5: {
             waves: [
-                { type: 'demon', count: 7 },
-                { type: 'arcane_archer', count: 6 },
-                { type: 'mixed_level3', count: 10 },
+                // { type: 'demon', count: 7 },
+                // { type: 'arcane_archer', count: 6 },
+                { type: 'mixed_level3', count: 1 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1600,
@@ -109,9 +109,9 @@ window.addEventListener('load', function () {
         },
         6: {
             waves: [
-                { type: 'skeleton_yellow', count: 6 },
-                { type: 'mixed_level2', count: 5 },
-                { type: 'mixed_level3', count: 6 },
+                // { type: 'skeleton_yellow', count: 6 },
+                // { type: 'mixed_level2', count: 5 },
+                { type: 'mixed_level3', count: 1 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1500,
@@ -120,9 +120,9 @@ window.addEventListener('load', function () {
         },
         7: {
             waves: [
-                { type: 'flying', count: 3 },
-                { type: 'arcane_archer', count: 6 },
-                { type: 'mixed_level3', count: 7 },
+                { type: 'flying', count: 1 },
+                // { type: 'arcane_archer', count: 6 },
+                // { type: 'mixed_level3', count: 7 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1400,
@@ -131,9 +131,9 @@ window.addEventListener('load', function () {
         },
         8: {
             waves: [
-                { type: 'skeleton_white', count: 7 },
-                { type: 'demon', count: 6 },
-                { type: 'mixed_level3', count: 5 },
+                // { type: 'skeleton_white', count: 7 },
+                // { type: 'demon', count: 6 },
+                { type: 'mixed_level3', count: 1 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1300,
@@ -142,9 +142,9 @@ window.addEventListener('load', function () {
         },
         9: {
             waves: [
-                { type: 'skeleton_yellow', count: 5 },
-                { type: 'arcane_archer', count: 7 },
-                { type: 'mixed_level3', count: 8 },
+                { type: 'skeleton_yellow', count: 1 },
+                // { type: 'arcane_archer', count: 7 },
+                // { type: 'mixed_level3', count: 8 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1200,
@@ -153,9 +153,9 @@ window.addEventListener('load', function () {
         },
         10: {
             waves: [
-                { type: 'skeleton_yellow', count: 11 },
-                { type: 'arcane_archer', count: 8 },
-                { type: 'mixed_level3', count: 13 },
+                { type: 'skeleton_yellow', count: 1 },
+                // { type: 'arcane_archer', count: 8 },
+                // { type: 'mixed_level3', count: 13 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1000,
@@ -164,9 +164,9 @@ window.addEventListener('load', function () {
         },
         11: {
             waves: [
-                { type: 'skeleton_white', count: 7 },
-                { type: 'flying', count: 8 },
-                { type: 'mixed_level1', count: 5 },
+                { type: 'skeleton_white', count: 1 },
+                // { type: 'flying', count: 8 },
+                // { type: 'mixed_level1', count: 5 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 2200,
@@ -175,9 +175,9 @@ window.addEventListener('load', function () {
         },
         12: {
             waves: [
-                { type: 'demon', count: 9 },
-                { type: 'skeleton_yellow', count: 10 },
-                { type: 'mixed_level2', count: 11 },
+                { type: 'demon', count: 1 },
+                // { type: 'skeleton_yellow', count: 10 },
+                // { type: 'mixed_level2', count: 11 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 2000,
@@ -186,9 +186,9 @@ window.addEventListener('load', function () {
         },
         13: {
             waves: [
-                { type: 'skeleton_white', count: 11 },
-                { type: 'arcane_archer', count: 9 },
-                { type: 'mixed_level3', count: 12 },
+                { type: 'skeleton_white', count: 1 },
+                // { type: 'arcane_archer', count: 9 },
+                // { type: 'mixed_level3', count: 12 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1800,
@@ -197,9 +197,9 @@ window.addEventListener('load', function () {
         },
         14: {
             waves: [
-                { type: 'skeleton_yellow', count: 16 },
-                { type: 'arcane_archer', count: 12 },
-                { type: 'mixed_level3', count: 10 },
+                { type: 'skeleton_yellow', count: 1 },
+                // { type: 'arcane_archer', count: 12 },
+                // { type: 'mixed_level3', count: 10 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1600,
@@ -208,9 +208,9 @@ window.addEventListener('load', function () {
         },
         15: {
             waves: [
-                { type: 'demon', count: 15 },
-                { type: 'arcane_archer', count: 15 },
-                { type: 'mixed_level3', count: 17 },
+                { type: 'demon', count: 1 },
+                // { type: 'arcane_archer', count: 15 },
+                // { type: 'mixed_level3', count: 17 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1400,
@@ -219,9 +219,9 @@ window.addEventListener('load', function () {
         },
         16: {
             waves: [
-                { type: 'skeleton_yellow', count: 16 },
-                { type: 'mixed_level2', count: 16 },
-                { type: 'mixed_level3', count: 17 },
+                { type: 'skeleton_yellow', count: 1 },
+                // { type: 'mixed_level2', count: 16 },
+                // { type: 'mixed_level3', count: 17 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1300,
@@ -230,9 +230,9 @@ window.addEventListener('load', function () {
         },
         17: {
             waves: [
-                { type: 'flying', count: 12 },
-                { type: 'arcane_archer', count: 9 },
-                { type: 'mixed_level3', count: 13 },
+                { type: 'flying', count: 1 },
+                // { type: 'arcane_archer', count: 9 },
+                // { type: 'mixed_level3', count: 13 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1200,
@@ -241,9 +241,9 @@ window.addEventListener('load', function () {
         },
         18: {
             waves: [
-                { type: 'skeleton_white', count: 17 },
-                { type: 'demon', count: 21 },
-                { type: 'mixed_level3', count: 13 },
+                { type: 'skeleton_white', count: 1 },
+                // { type: 'demon', count: 21 },
+                // { type: 'mixed_level3', count: 13 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1100,
@@ -252,9 +252,9 @@ window.addEventListener('load', function () {
         },
         19: {
             waves: [
-                { type: 'skeleton_yellow', count: 17 },
-                { type: 'arcane_archer', count: 17 },
-                { type: 'mixed_level3', count: 14 },
+                { type: 'skeleton_yellow', count: 1 },
+                // { type: 'arcane_archer', count: 17 },
+                // { type: 'mixed_level3', count: 14 },
                 { type: 'boss', count: 1 },
             ],
             enemyInterval: 1000,
@@ -987,20 +987,53 @@ window.addEventListener('load', function () {
 
         restart() { this._init(); }
 
+        syncCoinsWithServer() {
+            localStorage.setItem('gameCoins', this.coins.toString());
+            const token = localStorage.getItem('shadowStrikeToken');
+            if (token) {
+                fetch(`${SERVER_URL}/auth/stats`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        coins: this.coins,
+                        levelsCompleted: parseInt(localStorage.getItem('maxUnlockedLevel') || '1') - 1
+                    })
+                }).then(res => res.json())
+                    .then(data => {
+                        if (data && data.user) {
+                            const menuUserStatus = document.getElementById('menu-user-status');
+                            if (menuUserStatus) {
+                                menuUserStatus.innerText = `LOGGED IN: ${data.user.username.toUpperCase()} (🪙 ${data.user.coins} COINS)`;
+                            }
+                            const profileCoins = document.getElementById('profile-coins');
+                            if (profileCoins) {
+                                profileCoins.innerText = data.user.coins;
+                            }
+                            localStorage.setItem('shadowStrikeUser', JSON.stringify(data.user));
+                        }
+                    }).catch(err => console.error('Failed to sync coins with server:', err));
+            }
+        }
+
         nextLevel() {
             const savedHP = this.currentHP;
             const savedScore = this.score;
-            if (this.level >= 19) { 
-                localStorage.setItem('maxUnlockedLevel', '20');
-                alert("CONGRATULATIONS! You have cleared Level 19! Level 20 is the ULTIMATE SHOWDOWN, which is extremely difficult and is MULTIPLAYER ONLY! Go to the Main Menu and click 'Multiplayer' to challenge it.");
-                window.location.reload();
-                return; 
+            if (this.level >= 19) {
+                saveGameProgress(20);
+                showToast("🏆 CONGRATULATIONS! You have cleared Level 19! Level 20 is the ULTIMATE SHOWDOWN and is MULTIPLAYER ONLY! Returning to Main Menu...", "success", 5000);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 5000);
+                return;
             }
             this.level++;
 
             const maxUnlocked = parseInt(localStorage.getItem('maxUnlockedLevel') || '1');
             if (this.level > maxUnlocked) {
-                localStorage.setItem('maxUnlockedLevel', this.level.toString());
+                saveGameProgress(this.level);
             }
 
             this._init();
@@ -1104,10 +1137,13 @@ window.addEventListener('load', function () {
                         this.audio.playBossIntro();
                     }
 
-                    const lvlMod = this.level % 10 || 10;
+                    const lvl = this.level;
+                    const lvlMod = lvl % 10 || 10;
                     let newBoss;
-                    if (lvlMod === 10) {
-                        newBoss = new BossEnemy(this, 'amarjeet'); // Level 10 & 20: Final Boss
+                    if (lvl === 20) {
+                        newBoss = new BossEnemy(this, 'amarjeet'); // Level 20 ONLY: Final Boss Amarjeet
+                    } else if (lvlMod === 10) {
+                        newBoss = new BossEnemy(this, 'abyss_knight'); // Level 10: Abyss Knight (mid-story climax)
                     } else if (lvlMod === 9) {
                         newBoss = new BossEnemy(this, 'abyss_knight'); // Level 9 & 19: Abyss Knight
                     } else if (lvlMod === 8) {
@@ -1131,7 +1167,8 @@ window.addEventListener('load', function () {
                     // Boss ko introLocked mode mein spawn karo
                     newBoss.introLocked = true;
                     newBoss.introTimer = 0;
-                    newBoss.introDuration = 100; // 2 sec khada raho, phir roar
+                    // Impaler: 1500ms dramatic pose, others: quick 100ms
+                    newBoss.introDuration = (newBoss.bossType === 'impaler') ? 1500 : 100;
                     newBoss.introRoarPlayed = false;
                     this.enemies.push(newBoss);
                 };
@@ -1596,7 +1633,7 @@ window.addEventListener('load', function () {
             if (cardCoins) {
                 cardCoins.onclick = () => {
                     this.coins += 50;
-                    localStorage.setItem('gameCoins', this.coins.toString());
+                    this.syncCoinsWithServer();
                     this.coinHUDFlash = Math.max(this.coinHUDFlash, 350);
                     if (this.audio) {
                         this.audio.playSFX('coin_collect');
@@ -1831,7 +1868,7 @@ window.addEventListener('load', function () {
                     if (c.t >= 1) {
                         c.done = true;
                         this.coins += c.value;
-                        localStorage.setItem('gameCoins', this.coins.toString());
+                        this.syncCoinsWithServer();
                         this.coinHUDFlash = Math.max(this.coinHUDFlash, 350);
                     }
                 }
@@ -2596,32 +2633,38 @@ window.addEventListener('load', function () {
             context.fillText('Day 0 — The Siege Begins', W / 2, H / 2 - 78);
 
             const btnW = 220, btnH = 50, btnX = W / 2 - btnW / 2, btnY = H / 2 - 52;
-
-            context.fillStyle = 'rgba(230, 227, 227, 0.04)';
-            rr(context, btnX + 3, btnY + 3, btnW, btnH, 8); context.fill();
-
-            context.fillStyle = '#21202012';
-            rr(context, btnX, btnY, btnW, btnH, 8); context.fill();
-
-            context.fillStyle = 'rgba(0, 0, 0, 0.01)';
-            context.beginPath();
-            context.roundRect(btnX, btnY, btnW, btnH / 2, [8, 8, 0, 0]);
+            const cornerR = 25;
+            // 3D bottom bevel / shadow
+            context.fillStyle = '#0b845d';
+            rr(context, btnX, btnY + 6, btnW, btnH, cornerR);
             context.fill();
 
-            context.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-            context.lineWidth = 1.5;
-            rr(context, btnX, btnY, btnW, btnH, 8); context.stroke();
+            // Button Face Gradient
+            const btnGrad = context.createLinearGradient(btnX, btnY, btnX, btnY + btnH);
+            btnGrad.addColorStop(0, '#2ae0a8');
+            btnGrad.addColorStop(0.5, '#1ecc95');
+            btnGrad.addColorStop(1, '#12b380');
+            context.fillStyle = btnGrad;
+            rr(context, btnX, btnY, btnW, btnH, cornerR);
+            context.fill();
 
+            // Top Highlight / Specular
+            context.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            context.lineWidth = 2.5;
+            rr(context, btnX + 1, btnY + 1, btnW - 2, btnH - 2, cornerR);
+            context.stroke();
+
+            // Play Triangle (White)
             context.fillStyle = '#ffffff';
             context.beginPath();
-            context.moveTo(btnX + 36, btnY + btnH / 2 - 9);
-            context.lineTo(btnX + 36, btnY + btnH / 2 + 9);
-            context.lineTo(btnX + 54, btnY + btnH / 2);
+            context.moveTo(btnX + 34, btnY + btnH / 2 - 9);
+            context.lineTo(btnX + 34, btnY + btnH / 2 + 9);
+            context.lineTo(btnX + 50, btnY + btnH / 2);
             context.closePath();
             context.fill();
 
-            context.font = '700 18px "Poppins"';
-            context.fillStyle = '#f8f8f8ba';
+            context.font = '800 20px "Fredoka", "Poppins", sans-serif';
+            context.fillStyle = '#ffffff';
             context.textAlign = 'center';
             context.fillText('START GAME', btnX + btnW / 2 + 10, btnY + btnH / 2 + 7);
 
@@ -2946,80 +2989,121 @@ window.addEventListener('load', function () {
             const W = this.width, H = this.height;
             context.save();
 
-            context.fillStyle = 'rgba(10, 8, 20, 0.76)';
+            // Warm dim background overlay
+            context.fillStyle = 'rgba(14, 10, 6, 0.78)';
             context.fillRect(0, 0, W, H);
 
-            const vignette = context.createRadialGradient(W / 2, H / 2, H * 0.2, W / 2, H / 2, H * 0.85);
-            vignette.addColorStop(0, 'rgba(0,0,0,0)');
-            vignette.addColorStop(1, 'rgba(0,0,0,0.55)');
-            context.fillStyle = vignette;
-            context.fillRect(0, 0, W, H);
+            // Center Casual 3D Card
+            const cardW = 420, cardH = 340;
+            const cardX = W / 2 - cardW / 2, cardY = H / 2 - cardH / 2 - 10;
 
+            // Bottom bevel
+            context.fillStyle = '#c8b499';
+            rr(context, cardX, cardY + 6, cardW, cardH, 20);
+            context.fill();
 
-            context.font = '700 80px "Poppins"';
-            context.textAlign = 'center';
-            context.fillStyle = 'rgba(0,0,0,0.6)';
-            context.fillText('GAME OVER', W / 2 + 4, H / 2 - 154 + 4);
+            // Card face
+            context.fillStyle = '#fffdfa';
+            rr(context, cardX, cardY, cardW, cardH, 20);
+            context.fill();
 
-            context.fillStyle = '#f0f0f0';
-            context.fillText('GAME OVER', W / 2, H / 2 - 154);
-
-            context.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-            context.lineWidth = 2;
-            context.beginPath();
-            context.moveTo(W / 2 - 250, H / 2 - 136);
-            context.lineTo(W / 2 + 250, H / 2 - 136);
+            // Border
+            context.strokeStyle = '#dfcdb5';
+            context.lineWidth = 3;
+            rr(context, cardX, cardY, cardW, cardH, 20);
             context.stroke();
 
-            context.font = '700 16px "Poppins"';
-            context.fillStyle = 'rgba(240, 239, 240, 0.7)';
-            context.fillText(`Defeated at Level ${this.level}`, W / 2, H / 2 - 110);
+            // GAME OVER title in coral red with 3D text shadow
+            context.font = '900 42px "Fredoka", "Poppins", sans-serif';
+            context.textAlign = 'center';
+            context.fillStyle = '#ff4757';
+            context.shadowColor = 'rgba(180, 20, 20, 0.25)';
+            context.shadowBlur = 4;
+            context.shadowOffsetY = 2;
+            context.fillText('GAME OVER', W / 2, cardY + 54);
+            context.shadowBlur = 0;
+            context.shadowOffsetY = 0;
 
-            const panW = 400, panH = 80, panX = W / 2 - panW / 2, panY = H / 2 - 80;
-            context.fillStyle = 'rgba(255, 255, 255, 0.02)';
-            rr(context, panX, panY, panW, panH, 10); context.fill();
-            context.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-            context.lineWidth = 1;
-            rr(context, panX, panY, panW, panH, 10); context.stroke();
+            // Subtitle
+            context.font = '800 15px "Fredoka", "Poppins", sans-serif';
+            context.fillStyle = '#8c5c3e';
+            context.fillText(`Defeated at Level ${this.level}`, W / 2, cardY + 86);
 
-            context.font = '700 11px "Poppins"';
-            context.fillStyle = 'rgba(255, 255, 255, 0.4)';
-            context.fillText('FINAL SCORE', W / 2, panY + 24);
-
-            context.font = '800 36px "Poppins"';
-            context.fillStyle = '#ffffff';
-            context.fillText(this.score.toLocaleString(), W / 2, panY + 60);
-
-            const btnW = 240, btnH = 50, btnX = W / 2 - btnW / 2, btnY = H / 2 + 62;
-
-            context.fillStyle = 'rgba(230, 227, 227, 0.04)';
-            rr(context, btnX + 3, btnY + 3, btnW, btnH, 8); context.fill();
-
-            context.fillStyle = '#21202012';
-            rr(context, btnX, btnY, btnW, btnH, 8); context.fill();
-
-            context.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+            // Score Box (sunken groove)
+            const panW = 320, panH = 82, panX = W / 2 - panW / 2, panY = cardY + 104;
+            context.fillStyle = '#f8f1e5';
+            rr(context, panX, panY, panW, panH, 12);
+            context.fill();
+            context.strokeStyle = '#dfcdb5';
             context.lineWidth = 1.5;
-            rr(context, btnX, btnY, btnW, btnH, 8); context.stroke();
+            rr(context, panX, panY, panW, panH, 12);
+            context.stroke();
 
+            context.font = '800 12px "Fredoka", "Poppins", sans-serif';
+            context.fillStyle = '#8c5c3e';
+            context.fillText('FINAL SCORE', W / 2, panY + 26);
+
+            context.font = '900 36px "Fredoka", "Poppins", sans-serif';
+            context.fillStyle = '#fa6227';
+            context.fillText(this.score.toLocaleString(), W / 2, panY + 66);
+
+            // Play Again 3D Button (Green) - matches bX, bY, bW, bH in click listener
+            const btnW = 240, btnH = 50, btnX = W / 2 - btnW / 2, btnY = H / 2 + 62;
+            const btnR = 25;
+
+            // Button shadow / bevel
+            context.fillStyle = '#0b845d';
+            rr(context, btnX, btnY + 4, btnW, btnH, btnR);
+            context.fill();
+
+            // Button face
+            const btnGrad = context.createLinearGradient(btnX, btnY, btnX, btnY + btnH);
+            btnGrad.addColorStop(0, '#2ae0a8');
+            btnGrad.addColorStop(0.5, '#1ecc95');
+            btnGrad.addColorStop(1, '#12b380');
+            context.fillStyle = btnGrad;
+            rr(context, btnX, btnY, btnW, btnH, btnR);
+            context.fill();
+
+            // Top highlight
+            context.save();
+            context.beginPath();
+            rr(context, btnX + 2, btnY + 2, btnW - 4, (btnH - 4) * 0.48, btnR - 2);
+            context.clip();
+            const bGloss = context.createLinearGradient(btnX, btnY, btnX, btnY + btnH * 0.48);
+            bGloss.addColorStop(0, 'rgba(255, 255, 255, 0.6)');
+            bGloss.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
+            context.fillStyle = bGloss;
+            context.fillRect(btnX, btnY, btnW, btnH);
+            context.restore();
+
+            context.strokeStyle = '#ffffff';
+            context.lineWidth = 2;
+            rr(context, btnX, btnY, btnW, btnH, btnR);
+            context.stroke();
+
+            // Play Triangle
             context.fillStyle = '#ffffff';
             context.beginPath();
-            context.moveTo(btnX + 46, btnY + btnH / 2 - 9);
-            context.lineTo(btnX + 46, btnY + btnH / 2 + 9);
-            context.lineTo(btnX + 64, btnY + btnH / 2);
+            context.moveTo(btnX + 44, btnY + btnH / 2 - 8);
+            context.lineTo(btnX + 44, btnY + btnH / 2 + 8);
+            context.lineTo(btnX + 58, btnY + btnH / 2);
             context.closePath();
             context.fill();
 
-            context.font = '700 18px "Poppins"';
-            context.fillStyle = '#f8f8f8ba';
+            // Text
+            context.font = '900 18px "Fredoka", "Poppins", sans-serif';
+            context.fillStyle = '#ffffff';
             context.textAlign = 'center';
-            context.fillText('PLAY AGAIN', btnX + btnW / 2 + 10, btnY + btnH / 2 + 7);
+            context.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            context.shadowBlur = 3;
+            context.fillText('PLAY AGAIN', btnX + btnW / 2 + 10, btnY + btnH / 2 + 6);
 
-            const blinkAlpha = 0.45 + 0.35 * Math.sin(Date.now() * 0.003);
-            context.font = '12px "Poppins"';
-            context.fillStyle = `rgba(180, 170, 200, ${blinkAlpha})`;
+            const blinkAlpha = 0.5 + 0.35 * Math.sin(Date.now() * 0.004);
+            context.font = '700 13px "Fredoka", "Poppins", sans-serif';
+            context.fillStyle = `rgba(140, 92, 62, ${blinkAlpha})`;
             context.textAlign = 'center';
-            context.fillText('click to restart', W / 2, btnY + btnH + 30);
+            context.fillText('click to restart', W / 2, btnY + btnH + 26);
 
             context.restore();
         }
@@ -3105,20 +3189,41 @@ window.addEventListener('load', function () {
             this._init();
         }
 
-        _drawButton(context, label, x, y, w, h, bg = '#1a0050', border = '#7744ff') {
-            context.fillStyle = bg;
-            rr(context, x, y, w, h, 10); context.fill();
-            context.fillStyle = 'rgba(255,255,255,0.07)';
-            context.beginPath();
-            context.roundRect(x, y, w, h / 2, [10, 10, 0, 0]);
+        _drawButton(context, label, x, y, w, h, bgTop = '#2ae0a8', bgBot = '#05c46b', shadow = '#0b845d', border = '#55efc4') {
+            const r = h / 2;
+            context.fillStyle = shadow;
+            rr(context, x, y + 4, w, h, r);
             context.fill();
+
+            const grad = context.createLinearGradient(x, y, x, y + h);
+            grad.addColorStop(0, bgTop);
+            grad.addColorStop(1, bgBot);
+            context.fillStyle = grad;
+            rr(context, x, y, w, h, r);
+            context.fill();
+
+            // Top gloss
+            context.save();
+            context.beginPath();
+            rr(context, x + 2, y + 2, w - 4, (h - 4) * 0.48, Math.max(2, r - 2));
+            context.clip();
+            const gloss = context.createLinearGradient(x, y, x, y + (h - 4) * 0.48);
+            gloss.addColorStop(0, 'rgba(255, 255, 255, 0.55)');
+            gloss.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
+            context.fillStyle = gloss;
+            context.fillRect(x, y, w, h);
+            context.restore();
+
             context.strokeStyle = border;
-            context.lineWidth = 1;
-            rr(context, x, y, w, h, 10); context.stroke();
-            context.font = '700 16px "Poppins"';
+            context.lineWidth = 2;
+            rr(context, x, y, w, h, r);
+            context.stroke();
+
+            context.font = '900 16px "Fredoka", "Poppins", sans-serif';
             context.fillStyle = '#ffffff';
             context.textAlign = 'center';
-            context.shadowBlur = 0;
+            context.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            context.shadowBlur = 3;
             context.fillText(label, x + w / 2, y + h / 2 + 6);
         }
 
@@ -3126,871 +3231,554 @@ window.addEventListener('load', function () {
             const W = this.width, H = this.height;
             context.save();
 
-            const lvlAccent = this.level === 1 ? '#00e5ff'
-                : this.level === 2 ? '#ff8c00'
-                    : '#cc44ff';
-            const lvlAccentDim = this.level === 1 ? 'rgba(0,229,255,0.18)'
-                : this.level === 2 ? 'rgba(255,140,0,0.18)'
-                    : 'rgba(204,68,255,0.18)';
+            // ── Helper 1: Casual 3D Card / Container ──
+            const drawCasual3DCard = (ctx, x, y, w, h, r, fill, border, shadow, bevel = 4) => {
+                // Bottom 3D bevel
+                ctx.fillStyle = shadow;
+                rr(ctx, x, y + bevel, w, h, r);
+                ctx.fill();
 
-            const hx = 16, hy = 12, hw = 300, hh = 74;
-            const hpRatio = this.currentHP / this.maxHP;
+                // Main body
+                ctx.fillStyle = fill;
+                rr(ctx, x, y, w, h, r);
+                ctx.fill();
 
-            const hpColor = hpRatio > 0.6 ? '#00ffd0' : hpRatio > 0.3 ? '#ffaa00' : '#ff2200';
-            const hpDark = hpRatio > 0.6 ? '#007760' : hpRatio > 0.3 ? '#884400' : '#770000';
-            const hpStatus = hpRatio > 0.6 ? 'STABLE' : hpRatio > 0.3 ? 'WARNING' : 'CRITICAL';
+                // Top glossy capsule reflection
+                ctx.save();
+                ctx.beginPath();
+                rr(ctx, x + 2, y + 2, w - 4, (h - 4) * 0.45, Math.max(2, r - 2));
+                ctx.clip();
+                const glossGrad = ctx.createLinearGradient(x, y, x, y + (h - 4) * 0.45);
+                glossGrad.addColorStop(0, 'rgba(255, 255, 255, 0.45)');
+                glossGrad.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
+                ctx.fillStyle = glossGrad;
+                ctx.fillRect(x, y, w, h);
+                ctx.restore();
 
+                // 3D Border
+                ctx.strokeStyle = border;
+                ctx.lineWidth = 2.5;
+                rr(ctx, x, y, w, h, r);
+                ctx.stroke();
+            };
+
+            // ── Helper 2: Casual 3D Pill ──
+            const drawCasual3DPill = (ctx, x, y, w, h, fillTop, fillBot, shadow, border, bevel = 3.5) => {
+                const r = h / 2;
+                // Bottom bevel
+                ctx.fillStyle = shadow;
+                rr(ctx, x, y + bevel, w, h, r);
+                ctx.fill();
+
+                // Face gradient
+                const grad = ctx.createLinearGradient(x, y, x, y + h);
+                grad.addColorStop(0, fillTop);
+                grad.addColorStop(1, fillBot);
+                ctx.fillStyle = grad;
+                rr(ctx, x, y, w, h, r);
+                ctx.fill();
+
+                // Top glossy highlight
+                ctx.save();
+                ctx.beginPath();
+                rr(ctx, x + 2, y + 2, w - 4, (h - 4) * 0.48, Math.max(2, r - 2));
+                ctx.clip();
+                const gloss = ctx.createLinearGradient(x, y, x, y + (h - 4) * 0.48);
+                gloss.addColorStop(0, 'rgba(255, 255, 255, 0.55)');
+                gloss.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
+                ctx.fillStyle = gloss;
+                ctx.fillRect(x, y, w, h);
+                ctx.restore();
+
+                // Border
+                ctx.strokeStyle = border;
+                ctx.lineWidth = 2;
+                rr(ctx, x, y, w, h, r);
+                ctx.stroke();
+            };
+
+            // ── 1. Top-Left: Casual 3D Health Card ──
+            const hx = 16, hy = 12, hw = 280, hh = 66;
+            const hpRatio = Math.max(0, Math.min(1, this.currentHP / this.maxHP));
+
+            // Draw outer 3D card
+            drawCasual3DCard(context, hx, hy, hw, hh, 16, '#fffdfa', '#dfcdb5', '#c8b499', 4);
+
+            // Health Title & Heart
             context.save();
-            context.shadowColor = 'rgba(0,0,0,0.6)';
-            context.shadowBlur = 16;
-
-            const panelGrad = context.createLinearGradient(hx, hy, hx, hy + hh);
-            panelGrad.addColorStop(0, 'rgba(18, 16, 28, 0.88)');
-            panelGrad.addColorStop(1, 'rgba(8, 6, 12, 0.96)');
-            context.fillStyle = panelGrad;
-            rr(context, hx, hy, hw, hh, 14);
-            context.fill();
-            context.shadowBlur = 0;
-
-            context.fillStyle = hpColor;
-            context.beginPath();
-            context.roundRect(hx + 1, hy + 4, 3, hh - 8, 2);
-            context.fill();
-
-            context.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-            context.lineWidth = 1;
-            rr(context, hx, hy, hw, hh, 14);
-            context.stroke();
-
-            if (hpRatio < 0.25) {
-                const pulse = 0.5 + 0.5 * Math.sin(Date.now() * 0.008);
-                context.shadowColor = '#ff2200';
-                context.shadowBlur = 10 * pulse;
-                context.strokeStyle = `rgba(255, 34, 0, ${0.15 + 0.35 * pulse})`;
-                context.lineWidth = 1.5;
-                rr(context, hx, hy, hw, hh, 14);
-                context.stroke();
-                context.shadowBlur = 0;
-            }
-
-
-            context.save();
-            context.font = '15px sans-serif';
-            context.fillStyle = hpColor;
-            context.shadowColor = hpColor;
-            context.shadowBlur = 8;
+            context.font = '14px sans-serif';
             context.textAlign = 'left';
-            context.fillText('', hx + 18, hy + 24);
+            context.fillText('❤️', hx + 14, hy + 21);
+
+            context.font = '800 12px "Fredoka", "Poppins", sans-serif';
+            context.fillStyle = '#6d4429';
+            context.fillText('HEALTH', hx + 36, hy + 21);
+
+            // Status Pill Badge [STABLE] / [WARNING] / [CRITICAL]
+            const hpStatus = hpRatio > 0.6 ? 'STABLE' : hpRatio > 0.3 ? 'WARNING' : 'CRITICAL';
+            const statusBgTop = hpRatio > 0.6 ? '#2ae0a8' : hpRatio > 0.3 ? '#ffd13b' : '#ff5c5c';
+            const statusBgBot = hpRatio > 0.6 ? '#05c46b' : hpRatio > 0.3 ? '#fa8c16' : '#d63031';
+            const statusShadow = hpRatio > 0.6 ? '#0b845d' : hpRatio > 0.3 ? '#b25e00' : '#8a1212';
+            const statusBorder = hpRatio > 0.6 ? '#55efc4' : hpRatio > 0.3 ? '#ffeaa7' : '#ff7675';
+
+            const stW = 62, stH = 17, stX = hx + 94, stY = hy + 8;
+            drawCasual3DPill(context, stX, stY, stW, stH, statusBgTop, statusBgBot, statusShadow, statusBorder, 2);
+            context.font = '800 9px "Fredoka", "Poppins", sans-serif';
+            context.fillStyle = '#ffffff';
+            context.textAlign = 'center';
+            context.fillText(hpStatus, stX + stW / 2, stY + 12);
+
+            // HP Numbers: 100 / 100
+            context.font = '800 13px "Fredoka", "Poppins", sans-serif';
+            context.fillStyle = hpRatio < 0.25 ? '#eb3b3b' : '#6d4429';
+            context.textAlign = 'right';
+            context.fillText(`${Math.round(this.currentHP)} / ${this.maxHP}`, hx + hw - 14, hy + 21);
             context.restore();
 
-            context.font = '800 10px "Poppins"';
-            context.fillStyle = 'rgba(255, 255, 255, 0.45)';
-            context.textAlign = 'left';
-            context.fillText('VITAL SIGNS', hx + 36, hy + 23);
-
-            context.font = '800 8px "Poppins"';
-            context.fillStyle = hpColor;
-            context.fillText(hpStatus, hx + 114, hy + 23);
-
-            context.font = '800 13px "Poppins"';
-            context.fillStyle = '#ffffff';
-            context.textAlign = 'right';
-            context.shadowColor = hpColor;
-            context.shadowBlur = hpRatio < 0.25 ? 8 : 0;
-            context.fillText(`${this.currentHP} / ${this.maxHP}`, hx + hw - 18, hy + 24);
-            context.shadowBlur = 0;
-
-            const bx = hx + 18, by2 = hy + 38, bw = hw - 36, bh = 18;
-
-            context.fillStyle = 'rgba(0, 0, 0, 0.45)';
-            rr(context, bx, by2, bw, bh, 6);
+            // Health Bar Groove
+            const bx = hx + 14, by2 = hy + 33, bw = hw - 28, bh = 20, br = 10;
+            context.save();
+            // Inset groove background
+            context.fillStyle = '#ebdcc8';
+            rr(context, bx, by2, bw, bh, br);
             context.fill();
-            context.strokeStyle = 'rgba(255, 255, 255, 0.05)';
-            context.lineWidth = 1;
-            rr(context, bx, by2, bw, bh, 6);
+
+            // Inner groove shadow (sunken depth)
+            context.save();
+            context.beginPath();
+            rr(context, bx, by2, bw, bh, br);
+            context.clip();
+            context.fillStyle = 'rgba(100, 60, 20, 0.16)';
+            context.fillRect(bx, by2, bw, 4);
+            context.restore();
+
+            context.strokeStyle = '#dfcdb5';
+            context.lineWidth = 1.5;
+            rr(context, bx, by2, bw, bh, br);
             context.stroke();
 
+            // Health Bar 3D Fill
             if (hpRatio > 0) {
-                const fillWidth = Math.max(6, bw * hpRatio);
-
+                const fillWidth = Math.max(16, bw * hpRatio);
                 context.save();
                 context.beginPath();
-                rr(context, bx, by2, fillWidth, bh, 6);
+                rr(context, bx, by2, fillWidth, bh, br);
                 context.clip();
 
-                const barGrad = context.createLinearGradient(bx, 0, bx + fillWidth, 0);
-                barGrad.addColorStop(0, hpColor);
-                barGrad.addColorStop(1, hpDark);
+                // Vibrant 3D gradient fill
+                const barTop = hpRatio > 0.6 ? '#2ae0a8' : hpRatio > 0.3 ? '#ffd13b' : '#ff5c5c';
+                const barBot = hpRatio > 0.6 ? '#05c46b' : hpRatio > 0.3 ? '#fa8c16' : '#d63031';
+                const barBevel = hpRatio > 0.6 ? '#067a4d' : hpRatio > 0.3 ? '#ad5200' : '#871010';
+
+                const barGrad = context.createLinearGradient(bx, by2, bx, by2 + bh);
+                barGrad.addColorStop(0, barTop);
+                barGrad.addColorStop(0.8, barBot);
+                barGrad.addColorStop(1, barBevel);
                 context.fillStyle = barGrad;
                 context.fillRect(bx, by2, fillWidth, bh);
 
-                context.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-                context.lineWidth = 3;
-                for (let offset = -bh; offset < fillWidth + bh; offset += 12) {
+                // Top glossy capsule highlight
+                const barGloss = context.createLinearGradient(bx, by2, bx, by2 + bh * 0.45);
+                barGloss.addColorStop(0, 'rgba(255, 255, 255, 0.55)');
+                barGloss.addColorStop(1, 'rgba(255, 255, 255, 0.08)');
+                context.fillStyle = barGloss;
+                context.fillRect(bx, by2, fillWidth, bh * 0.45);
+
+                // Subtle diagonal tick lines (candy shimmer)
+                context.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+                context.lineWidth = 2;
+                for (let off = -bh; off < fillWidth + bh; off += 14) {
                     context.beginPath();
-                    context.moveTo(bx + offset, by2);
-                    context.lineTo(bx + offset + 8, by2 + bh);
+                    context.moveTo(bx + off, by2);
+                    context.lineTo(bx + off + 8, by2 + bh);
                     context.stroke();
                 }
-
-                const specGrad = context.createLinearGradient(0, by2, 0, by2 + bh);
-                specGrad.addColorStop(0, 'rgba(255, 255, 255, 0.28)');
-                specGrad.addColorStop(0.4, 'rgba(255, 255, 255, 0.06)');
-                specGrad.addColorStop(0.42, 'rgba(255, 255, 255, 0)');
-                specGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
-                context.fillStyle = specGrad;
-                context.fillRect(bx, by2, fillWidth, bh);
-
-                context.restore();
-
-                context.save();
-                context.fillStyle = '#ffffff';
-                context.beginPath();
-                context.roundRect(bx + fillWidth - 2.5, by2 + 1, 2, bh - 2, 1);
-                context.fill();
                 context.restore();
             }
-
-            context.strokeStyle = 'rgba(0, 0, 0, 0.4)';
-            context.lineWidth = 1.2;
-            for (let i = 1; i < 10; i++) {
-                const nx = bx + (bw / 10) * i;
-                context.beginPath();
-                context.moveTo(nx, by2);
-                context.lineTo(nx, by2 + bh);
-                context.stroke();
-            }
-
             context.restore();
 
-            // Draw Coin Display Panel under HP panel
-            const cx = hx, cy = hy + hh + 8;
-            context.save();
-            context.shadowColor = 'rgba(0,0,0,0.4)';
-            context.shadowBlur = 8;
-            context.fillStyle = 'rgba(12, 10, 20, 0.9)';
-            rr(context, cx, cy, 140, 32, 8); context.fill();
-            context.strokeStyle = 'rgba(255,215,0,0.3)';
-            context.lineWidth = 1.2;
-            rr(context, cx, cy, 140, 32, 8); context.stroke();
+            // ── 2. Coin Display Pill (Under HP card) ──
+            const cx = hx, cy = hy + hh + 8, cw = 146, ch = 32;
+            drawCasual3DPill(context, cx, cy, cw, ch, '#fffefb', '#fdf5e8', '#c8b499', '#dfcdb5', 3);
 
-            context.font = '800 12px "Poppins"';
-            context.fillStyle = '#ffd700';
+            context.save();
+            context.font = '15px sans-serif';
             context.textAlign = 'left';
-            context.fillText('🪙 ' + this.coins.toLocaleString() + ' COINS', cx + 12, cy + 20);
+            context.fillText('🪙', cx + 12, cy + 22);
+
+            context.font = '800 12px "Fredoka", "Poppins", sans-serif';
+            context.fillStyle = '#b25e00';
+            context.fillText(this.coins.toLocaleString() + ' COINS', cx + 34, cy + 21);
             context.restore();
 
             // Flash glow when coins arrive
             if (this.coinHUDFlash > 0) {
-                const flashAlpha = Math.min(1, this.coinHUDFlash / 200) * 0.75;
+                const flashAlpha = Math.min(1, this.coinHUDFlash / 200) * 0.8;
                 context.save();
                 context.globalAlpha = flashAlpha;
                 context.shadowColor = '#ffd700';
-                context.shadowBlur = 22;
+                context.shadowBlur = 18;
                 context.strokeStyle = '#ffd700';
-                context.lineWidth = 2;
-                rr(context, cx, cy, 140, 32, 8); context.stroke();
+                context.lineWidth = 2.5;
+                rr(context, cx, cy, cw, ch, ch / 2);
+                context.stroke();
                 context.restore();
             }
 
-            // Draw Special Move Display Panel if active
+            // ── 3. Special Move Badge (if active) ──
             if (this.activeSpecialMove && this.specialMoveUses > 0) {
-                const sx = cx + 140 + 8;
-                const sy = cy;
-                const moveColor = this.activeSpecialMove === 'kamehameha' ? '#00e5ff' : '#ea80fc';
-                const moveIcon = this.activeSpecialMove === 'kamehameha' ? '🌀' : '🔮';
+                const sx = cx + cw + 8, sy = cy, sw = 180, sh = 32;
+                const isKame = this.activeSpecialMove === 'kamehameha';
+                const moveTop = isKame ? '#38bdf8' : '#c084fc';
+                const moveBot = isKame ? '#0284c7' : '#9333ea';
+                const moveShadow = isKame ? '#075985' : '#581c87';
+                const moveBorder = isKame ? '#7dd3fc' : '#e9d5ff';
+                const moveIcon = isKame ? '🌀' : '🔮';
                 const moveLabel = this.activeSpecialMove.toUpperCase();
 
-                context.save();
-                context.shadowColor = moveColor;
-                context.shadowBlur = 6;
-                context.fillStyle = 'rgba(12, 10, 20, 0.9)';
-                rr(context, sx, sy, 195, 32, 8); context.fill();
-                context.strokeStyle = moveColor + '88';
-                context.lineWidth = 1.2;
-                rr(context, sx, sy, 195, 32, 8); context.stroke();
+                drawCasual3DPill(context, sx, sy, sw, sh, moveTop, moveBot, moveShadow, moveBorder, 3);
 
-                context.font = '800 11px "Poppins"';
-                context.fillStyle = moveColor;
+                context.save();
+                context.font = '14px sans-serif';
                 context.textAlign = 'left';
-                context.fillText(moveIcon + ' ' + moveLabel + ' [T]', sx + 12, sy + 20);
+                context.fillText(moveIcon, sx + 10, sy + 22);
+
+                context.font = '800 11px "Fredoka", "Poppins", sans-serif';
+                context.fillStyle = '#ffffff';
+                context.fillText(moveLabel, sx + 28, sy + 21);
+
+                // Cute [T] 3D keycap badge
+                const kw = 18, kh = 16, kx = sx + sw - kw - 8, ky = sy + 8;
+                context.fillStyle = '#c8b499';
+                rr(context, kx, ky + 2, kw, kh, 3); context.fill();
+                context.fillStyle = '#fffdfa';
+                rr(context, kx, ky, kw, kh, 3); context.fill();
+                context.strokeStyle = '#dfcdb5';
+                context.lineWidth = 1;
+                rr(context, kx, ky, kw, kh, 3); context.stroke();
+
+                context.font = '900 9px "Fredoka", "Poppins", sans-serif';
+                context.fillStyle = '#6d4429';
+                context.textAlign = 'center';
+                context.fillText('T', kx + kw / 2, ky + 11.5);
                 context.restore();
             }
 
-            const sw = 240, sh = 72, sx = W - sw - 16, sy = 12;
-            context.shadowColor = 'rgba(0,0,0,0.5)';
-            context.shadowBlur = 12;
-            context.fillStyle = 'rgba(5,5,14,0.92)';
-            rr(context, sx, sy, sw, sh, 12); context.fill();
-            context.shadowBlur = 0;
+            // ── 4. Top-Center: Casual 3D Level Banner & Wave ──
+            const lvlCx = W / 2;
+            const lw = 176, lh = 36, ly = 12;
+            const lx = lvlCx - lw / 2;
 
-            context.fillStyle = lvlAccent;
-            context.beginPath();
-            context.roundRect(sx, sy, sw, 2.5, [12, 12, 0, 0]);
-            context.fill();
-            context.strokeStyle = 'rgba(255,255,255,0.07)';
-            context.lineWidth = 1;
-            rr(context, sx, sy, sw, sh, 12); context.stroke();
+            // Royal Blue 3D Banner
+            drawCasual3DPill(context, lx, ly, lw, lh, '#3b88fd', '#1e5fc7', '#0e428c', '#7cb5ff', 4);
 
-            context.font = '13px sans-serif';
-            context.fillStyle = lvlAccent;
-            context.textAlign = 'right';
-            context.fillText('', sx + sw - 14, sy + 24);
-            context.font = '700 10px "Poppins"';
-            context.fillStyle = 'rgba(255,255,255,0.42)';
-            context.fillText('SCORE', sx + sw - 30, sy + 24);
-
-            context.font = '800 36px "Poppins"';
+            context.save();
+            context.font = '900 15px "Fredoka", "Poppins", sans-serif';
             context.fillStyle = '#ffffff';
-            context.fillText(this.score.toLocaleString(), sx + sw - 14, sy + 62);
-
-            // Sci-fi Level Polygon
-            const lw = 150, lh = 28, ly = 16, lvlCx = W / 2;
-            const hexCut = 14;
-
-            // Fading side honeycombs (decorative)
-            function drawFlatHex(ctx, x, y, size) {
-                ctx.beginPath();
-                for (let i = 0; i < 6; i++) {
-                    const angle = (Math.PI / 3) * i;
-                    const px = x + size * Math.cos(angle);
-                    const py = y + size * Math.sin(angle);
-                    if (i === 0) ctx.moveTo(px, py);
-                    else ctx.lineTo(px, py);
-                }
-                ctx.closePath();
-                ctx.stroke();
-            }
-
-            context.lineWidth = 1.5;
-            const hexSize = 10;
-            const hexSpacing = hexSize * 1.6;
-            for (let i = 0; i < 4; i++) {
-                context.strokeStyle = `rgba(0, 229, 255, ${0.3 - i * 0.08})`;
-                drawFlatHex(context, lvlCx - lw / 2 - hexSpacing * (i + 1), ly + lh / 2, hexSize);
-                drawFlatHex(context, lvlCx + lw / 2 + hexSpacing * (i + 1), ly + lh / 2, hexSize);
-            }
-
-            // Main Level Polygon
-            context.beginPath();
-            context.moveTo(lvlCx - lw / 2 + hexCut, ly);
-            context.lineTo(lvlCx + lw / 2 - hexCut, ly);
-            context.lineTo(lvlCx + lw / 2, ly + lh / 2);
-            context.lineTo(lvlCx + lw / 2 - hexCut, ly + lh);
-            context.lineTo(lvlCx - lw / 2 + hexCut, ly + lh);
-            context.lineTo(lvlCx - lw / 2, ly + lh / 2);
-            context.closePath();
-
-            context.shadowColor = lvlAccent;
-            context.shadowBlur = 10;
-            context.fillStyle = 'rgba(10, 15, 25, 0.95)';
-            context.fill();
-            context.shadowBlur = 0;
-            context.strokeStyle = lvlAccent;
-            context.lineWidth = 1.5;
-            context.stroke();
-
-            // Inner text: LEVEL X
-            context.font = '900 15px "Orbitron", sans-serif';
-            context.fillStyle = lvlAccent;
             context.textAlign = 'center';
-            context.fillText(`LEVEL ${this.level}`, lvlCx, ly + 19);
+            context.shadowColor = 'rgba(0, 0, 0, 0.35)';
+            context.shadowBlur = 3;
+            context.shadowOffsetY = 1.5;
+            context.fillText(`⭐ LEVEL ${this.level} ⭐`, lvlCx, ly + 23);
+            context.restore();
 
-            // Sci-fi Continuous Progress Bar
-            const wy = ly + lh + 10;
-            const barW = 120;
-            const barH = 3;
-            const lvlBx = lvlCx - barW / 2;
+            // Wave Pill underneath
+            const ww = 138, wh = 24, wx = lvlCx - ww / 2, wy = ly + lh + 8;
+            drawCasual3DPill(context, wx, wy, ww, wh, '#fffdfa', '#fcf6ec', '#c8b499', '#dfcdb5', 2.5);
 
-            // Background line
-            context.fillStyle = 'rgba(255,255,255,0.1)';
-            context.fillRect(lvlBx, wy, barW, barH);
+            context.save();
+            context.font = '800 10.5px "Fredoka", "Poppins", sans-serif';
+            context.fillStyle = '#6d4429';
+            context.textAlign = 'center';
+            context.fillText(`WAVE ${this.waveIndex + 1} / ${this.waveDef.length}`, lvlCx, wy + 16);
+            context.restore();
 
-            // Fill line
-            // Adding a small pulse to the progress calculation for a visual effect
-            const baseProgress = (this.waveIndex) / this.waveDef.length;
-            const pulse = Math.sin(Date.now() * 0.005) * 0.02;
-            const currentProgress = Math.min(1, Math.max(0, baseProgress + pulse));
-            const fillW = barW * currentProgress;
+            // ── 5. Top-Right: Casual 3D Score Card ──
+            const scW = 190, scH = 66, scX = W - scW - 16, scY = 12;
+            drawCasual3DCard(context, scX, scY, scW, scH, 16, '#fffdfa', '#dfcdb5', '#c8b499', 4);
 
-            context.shadowColor = lvlAccent;
-            context.shadowBlur = 8;
-            context.fillStyle = lvlAccent;
-            context.fillRect(lvlBx, wy, fillW, barH);
-            context.shadowBlur = 0;
+            context.save();
+            // Trophy Icon & Label
+            context.font = '14px sans-serif';
+            context.textAlign = 'left';
+            context.fillText('🏆', scX + 14, scY + 22);
 
-            // Arrowhead at the end of progress
-            context.beginPath();
-            context.moveTo(lvlBx + fillW + 2, wy - 2);
-            context.lineTo(lvlBx + fillW + 6, wy + barH / 2);
-            context.lineTo(lvlBx + fillW + 2, wy + barH + 2);
-            context.fillStyle = lvlAccent;
-            context.fill();
+            context.font = '800 11px "Fredoka", "Poppins", sans-serif';
+            context.fillStyle = '#8c5c3e';
+            context.fillText('SCORE', scX + 34, scY + 22);
 
-            // Text: WAVE X/Y
-            context.font = '700 10px "Orbitron", sans-serif';
-            context.fillStyle = 'rgba(255,255,255,0.6)';
-            context.letterSpacing = '1px';
-            context.fillText(`WAVE ${this.waveIndex + 1} / ${this.waveDef.length}`, lvlCx, wy + 18);
-            context.letterSpacing = '0px';
+            // Score Number
+            context.font = '900 28px "Fredoka", "Poppins", sans-serif';
+            context.fillStyle = '#fa6227';
+            context.textAlign = 'right';
+            context.shadowColor = 'rgba(120, 50, 0, 0.15)';
+            context.shadowBlur = 2;
+            context.shadowOffsetY = 1;
+            context.fillText(this.score.toLocaleString(), scX + scW - 14, scY + 52);
+            context.restore();
 
-            // Two decorative dots below wave text
-            const dotY = wy + 28;
-            context.fillStyle = lvlAccent;
-            context.beginPath(); context.arc(lvlCx - 6, dotY, 2.5, 0, Math.PI * 2); context.fill();
-            context.fillStyle = 'rgba(255,255,255,0.3)';
-            context.beginPath(); context.arc(lvlCx + 6, dotY, 2.5, 0, Math.PI * 2); context.fill();
-
+            // ── 6. Combo & Low HP Warning ──
             if (this.multiplier > 1) {
                 const pulse = 1 + Math.sin(Date.now() * 0.008) * 0.05;
                 context.save();
-                context.translate(W / 2, H - 72);
+                context.translate(W / 2, H - 76);
                 context.scale(pulse, pulse);
-                const cbw = 185, cbh = 40;
+                const cbw = 170, cbh = 36;
+                drawCasual3DPill(context, -cbw / 2, -cbh / 2, cbw, cbh, '#ff922b', '#e8590c', '#9c2c04', '#ffa94d', 3.5);
 
-                context.shadowColor = '#ffab40';
-                context.shadowBlur = 4;
-                context.fillStyle = 'rgba(255,140,0,0.16)';
-                rr(context, -cbw / 2, -cbh / 2, cbw, cbh, 10); context.fill();
-                context.strokeStyle = 'rgba(255,160,0,0.55)';
-                context.lineWidth = 1.5;
-                rr(context, -cbw / 2, -cbh / 2, cbw, cbh, 10); context.stroke();
-                context.shadowBlur = 0;
-                context.font = '700 20px "Poppins"';
-                context.fillStyle = '#ffcc44';
+                context.font = '900 16px "Fredoka", "Poppins", sans-serif';
+                context.fillStyle = '#ffffff';
                 context.textAlign = 'center';
-                context.fillText(` x${this.multiplier} COMBO`, 0, 7);
+                context.shadowColor = 'rgba(0, 0, 0, 0.35)';
+                context.shadowBlur = 3;
+                context.shadowOffsetY = 1.5;
+                context.fillText(`🔥 x${this.multiplier} COMBO`, 0, 6);
                 context.restore();
             }
 
             if (hpRatio < 0.25) {
-                const alpha = 0.4 + 0.4 * Math.sin(Date.now() * 0.008);
+                const alpha = 0.3 + 0.3 * Math.sin(Date.now() * 0.008);
                 context.save();
                 context.globalAlpha = alpha;
-
                 const warnVig = context.createRadialGradient(W / 2, H / 2, H * 0.3, W / 2, H / 2, H * 0.85);
                 warnVig.addColorStop(0, 'transparent');
-                warnVig.addColorStop(1, 'rgba(200,0,0,0.22)');
+                warnVig.addColorStop(1, 'rgba(200, 0, 0, 0.2)');
                 context.fillStyle = warnVig;
                 context.fillRect(0, 0, W, H);
                 context.restore();
 
-                const warnW = 280, warnH = 38;
                 context.save();
-                context.shadowColor = '#ff0000';
-                context.shadowBlur = 6;
-                context.fillStyle = 'rgba(140,0,0,0.28)';
-                rr(context, W / 2 - warnW / 2, H - 60, warnW, warnH, 10); context.fill();
-                context.strokeStyle = 'rgba(255,30,30,0.6)';
-                context.lineWidth = 1.5;
-                rr(context, W / 2 - warnW / 2, H - 60, warnW, warnH, 10); context.stroke();
-                context.shadowBlur = 0;
-                context.font = '700 15px "Poppins"';
-                context.fillStyle = '#ff4444';
+                const wnW = 210, wnH = 36;
+                drawCasual3DPill(context, W / 2 - wnW / 2, H - 64, wnW, wnH, '#ff5c5c', '#c92222', '#7a1212', '#ff8787', 3.5);
+                context.font = '900 14px "Fredoka", "Poppins", sans-serif';
+                context.fillStyle = '#ffffff';
                 context.textAlign = 'center';
-                context.fillText('  CRITICAL HP  ', W / 2, H - 34);
+                context.fillText('⚠️ CRITICAL HP ⚠️', W / 2, H - 41);
                 context.restore();
             }
-            // ── Premium Glassmorphic Ability Icons (bottom-right) ────────────
+
+            // ── 7. Chunky 3D Action Skill Buttons (bottom-right) ──
             if (localStorage.getItem('shadowStrike_osControls') !== 'true') {
                 const player = this.player;
-                const iconSize = 52;
-                const iconGap = 14;
-                const iconY = H - iconSize - 18;
+                const iconSize = 56;
+                const iconGap = 16;
+                const iconY = H - iconSize - 20;
                 const r = iconSize / 2;
 
-                const hexToRgb = (hex) => {
-                    if (!hex) return '0, 229, 255';
-                    const m = hex.match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
-                    return m ? `${parseInt(m[1], 16)}, ${parseInt(m[2], 16)}, ${parseInt(m[3], 16)}` : '0, 229, 255';
+                const drawCasualAbilityBtn = (cx, cy, cd, maxCd, label, theme, drawIcon) => {
+                    const ready = cd <= 0;
+                    context.save();
+
+                    // 1. Bottom 3D Bevel Shadow
+                    context.fillStyle = theme.shadow;
+                    context.beginPath();
+                    context.arc(cx, cy + 5, r, 0, Math.PI * 2);
+                    context.fill();
+
+                    // 2. Ambient drop shadow
+                    context.save();
+                    context.shadowColor = ready ? theme.glow : 'rgba(0, 0, 0, 0.3)';
+                    context.shadowBlur = ready ? 12 : 6;
+                    context.shadowOffsetY = 3;
+
+                    // Button Face
+                    const faceGrad = context.createLinearGradient(cx, cy - r, cx, cy + r);
+                    faceGrad.addColorStop(0, ready ? theme.top : '#6b7280');
+                    faceGrad.addColorStop(0.5, ready ? theme.mid : '#4b5563');
+                    faceGrad.addColorStop(1, ready ? theme.bot : '#374151');
+                    context.fillStyle = faceGrad;
+                    context.beginPath();
+                    context.arc(cx, cy, r, 0, Math.PI * 2);
+                    context.fill();
+                    context.restore();
+
+                    // 3. Top Glossy Dome Shine
+                    context.save();
+                    context.beginPath();
+                    context.arc(cx, cy, r - 2, 0, Math.PI * 2);
+                    context.clip();
+
+                    const glossGrad = context.createLinearGradient(cx, cy - r, cx, cy);
+                    glossGrad.addColorStop(0, 'rgba(255, 255, 255, 0.55)');
+                    glossGrad.addColorStop(1, 'rgba(255, 255, 255, 0.05)');
+                    context.fillStyle = glossGrad;
+                    context.beginPath();
+                    context.arc(cx, cy - r * 0.35, r, 0, Math.PI * 2);
+                    context.fill();
+                    context.restore();
+
+                    // 4. White/Ivory Rim Border
+                    context.strokeStyle = ready ? '#ffffff' : 'rgba(255, 255, 255, 0.4)';
+                    context.lineWidth = 3;
+                    context.beginPath();
+                    context.arc(cx, cy, r, 0, Math.PI * 2);
+                    context.stroke();
+
+                    // 5. Center Vector Icon
+                    context.save();
+                    context.translate(cx, cy);
+                    context.strokeStyle = ready ? '#ffffff' : 'rgba(255, 255, 255, 0.55)';
+                    context.fillStyle = ready ? '#ffffff' : 'rgba(255, 255, 255, 0.55)';
+                    context.lineWidth = 3.2;
+                    context.lineCap = 'round';
+                    context.lineJoin = 'round';
+                    context.shadowColor = 'rgba(0, 0, 0, 0.35)';
+                    context.shadowBlur = 3;
+                    drawIcon(context);
+                    context.restore();
+
+                    // 6. Cooldown Sweep Dial & Countdown
+                    if (!ready) {
+                        const prog = cd / maxCd;
+                        context.save();
+                        context.beginPath();
+                        context.moveTo(cx, cy);
+                        context.arc(cx, cy, r - 1, -Math.PI / 2, -Math.PI / 2 + prog * Math.PI * 2);
+                        context.closePath();
+                        context.fillStyle = 'rgba(12, 10, 18, 0.72)';
+                        context.fill();
+
+                        const secLeft = Math.ceil(cd / 1000);
+                        context.font = '900 16px "Fredoka", "Poppins", sans-serif';
+                        context.fillStyle = '#ffffff';
+                        context.strokeStyle = 'rgba(0, 0, 0, 0.7)';
+                        context.lineWidth = 3;
+                        context.textAlign = 'center';
+                        context.textBaseline = 'middle';
+                        context.strokeText(`${secLeft}s`, cx, cy + 1);
+                        context.fillText(`${secLeft}s`, cx, cy + 1);
+                        context.restore();
+                    }
+
+                    // 7. Tactile 3D Keycap Badge [Q], [E], [R]
+                    const bw = 19, bh = 15;
+                    const bx = cx + r * 0.45;
+                    const by = cy - r * 1.05;
+
+                    context.save();
+                    // Keycap bottom bevel
+                    context.fillStyle = '#c8b499';
+                    rr(context, bx, by + 2, bw, bh, 4);
+                    context.fill();
+
+                    // Keycap face
+                    context.fillStyle = '#fffdfa';
+                    rr(context, bx, by, bw, bh, 4);
+                    context.fill();
+
+                    // Keycap border
+                    context.strokeStyle = '#dfcdb5';
+                    context.lineWidth = 1.5;
+                    rr(context, bx, by, bw, bh, 4);
+                    context.stroke();
+
+                    // Key label
+                    context.font = '900 9.5px "Fredoka", "Poppins", sans-serif';
+                    context.fillStyle = '#6d4429';
+                    context.textAlign = 'center';
+                    context.textBaseline = 'middle';
+                    context.fillText(label, bx + bw / 2, by + bh / 2 + 0.5);
+                    context.restore();
+
+                    // 8. Ready pulsing outer ring
+                    if (ready) {
+                        const pulse = 1.0 + 0.04 * Math.sin(Date.now() * 0.008);
+                        context.save();
+                        context.translate(cx, cy);
+                        context.scale(pulse, pulse);
+                        context.globalAlpha = 0.28;
+                        context.strokeStyle = theme.glow;
+                        context.lineWidth = 2;
+                        context.beginPath();
+                        context.arc(0, 0, r + 4, 0, Math.PI * 2);
+                        context.stroke();
+                        context.restore();
+                    }
+
+                    context.restore();
                 };
 
-                // ── Q ability (Blast) ───────────────────────────────────────────
+                // Q Ability (Wind/Blast - Royal Blue)
                 const qX = W - iconSize * 3 - iconGap * 2 - 24;
-                const qCd = player.windCooldown;
-                const qMax = player.windCooldownMax;
-                const qReady = qCd <= 0;
-                const qCX = qX + r;
-                const qCY = iconY + r;
-                const qRgb = hexToRgb(player.qColor);
-
-                context.save();
-                // 1. Radial/Linear premium backing gradient (matching controls button styling)
-                context.shadowColor = qReady ? player.qColor : 'transparent';
-                context.shadowBlur = qReady ? 14 : 0;
-
-                const qBgGrad = context.createLinearGradient(qCX - r, qCY - r, qCX + r, qCY + r);
-                qBgGrad.addColorStop(0, `rgba(${qRgb}, 0.25)`);
-                qBgGrad.addColorStop(1, 'rgba(8, 6, 16, 0.95)');
-                context.fillStyle = qBgGrad;
-                context.beginPath();
-                context.arc(qCX, qCY, r, 0, Math.PI * 2);
-                context.fill();
-
-                // Highlight radial overlay
-                const qHighlight = context.createRadialGradient(qCX, qCY - r * 0.4, 0, qCX, qCY - r * 0.4, r);
-                qHighlight.addColorStop(0, `rgba(${qRgb}, 0.15)`);
-                qHighlight.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                context.fillStyle = qHighlight;
-                context.beginPath();
-                context.arc(qCX, qCY, r, 0, Math.PI * 2);
-                context.fill();
-
-                // 2. Translucent border
-                context.shadowBlur = 0; // reset
-                context.strokeStyle = qReady ? player.qColor : 'rgba(255, 255, 255, 0.08)';
-                context.lineWidth = qReady ? 2.0 : 1.5;
-                context.beginPath();
-                context.arc(qCX, qCY, r, 0, Math.PI * 2);
-                context.stroke();
-
-                // 3. Inset highlight arc for glass look
-                context.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-                context.lineWidth = 1.0;
-                context.beginPath();
-                context.arc(qCX, qCY, r - 2, Math.PI * 1.1, Math.PI * 1.9);
-                context.stroke();
-
-                // 4. Cooldown Sector sweep dial
-                if (!qReady) {
-                    const qProg = qCd / qMax;
-                    context.beginPath();
-                    context.moveTo(qCX, qCY);
-                    context.arc(qCX, qCY, r - 1, -Math.PI / 2, -Math.PI / 2 + qProg * Math.PI * 2);
-                    context.closePath();
-                    context.fillStyle = 'rgba(12, 10, 16, 0.72)';
-                    context.fill();
-                }
-
-                // 5. Q Icon vector graphics
-                context.save();
-                context.translate(qCX, qCY);
-                context.strokeStyle = qReady ? player.qColor : 'rgba(120, 120, 120, 0.45)';
-                context.lineWidth = 2.5; context.lineCap = 'round';
-                context.shadowColor = qReady ? player.qColor : 'transparent';
-                context.shadowBlur = qReady ? 6 : 0;
-
-                if (player.characterType === 'jotem') {
-                    context.beginPath();
-                    context.arc(0, 0, 10, 0, Math.PI * 2);
-                    context.stroke();
-                    context.beginPath();
-                    context.moveTo(-5, -5); context.lineTo(5, 5);
-                    context.moveTo(5, -5); context.lineTo(-3, 3);
-                    context.stroke();
-                } else if (player.characterType === 'shaia') {
-                    context.beginPath();
-                    for (let i = 0; i < 8; i++) {
-                        const a = (i / 8) * Math.PI * 2;
-                        const r1 = i % 2 === 0 ? 11 : 4;
-                        context.lineTo(Math.cos(a) * r1, Math.sin(a) * r1);
+                drawCasualAbilityBtn(qX + r, iconY + r, player.windCooldown, player.windCooldownMax, 'Q', {
+                    top: '#38bdf8', mid: '#0284c7', bot: '#0369a1', shadow: '#074775', glow: '#38bdf8'
+                }, (ctx) => {
+                    if (player.characterType === 'jotem') {
+                        ctx.beginPath(); ctx.arc(0, 0, 10, 0, Math.PI * 2); ctx.stroke();
+                        ctx.beginPath(); ctx.moveTo(-5, -5); ctx.lineTo(5, 5); ctx.moveTo(5, -5); ctx.lineTo(-3, 3); ctx.stroke();
+                    } else if (player.characterType === 'shaia') {
+                        ctx.beginPath();
+                        for (let i = 0; i < 8; i++) {
+                            const a = (i / 8) * Math.PI * 2;
+                            const r1 = i % 2 === 0 ? 11 : 4;
+                            ctx.lineTo(Math.cos(a) * r1, Math.sin(a) * r1);
+                        }
+                        ctx.closePath(); ctx.stroke();
+                    } else if (player.characterType === 'archdemon') {
+                        ctx.beginPath(); ctx.moveTo(0, -11); ctx.quadraticCurveTo(7, 0, 4, 9);
+                        ctx.quadraticCurveTo(0, 12, -4, 9); ctx.quadraticCurveTo(-7, 0, 0, -11); ctx.closePath(); ctx.stroke();
+                    } else {
+                        // Shinobi shuriken swirl
+                        for (let wi = 0; wi < 3; wi++) {
+                            const wa = (wi / 3) * Math.PI * 2;
+                            ctx.beginPath();
+                            ctx.arc(Math.cos(wa) * 7, Math.sin(wa) * 7, 7, wa, wa + Math.PI * 1.1);
+                            ctx.stroke();
+                        }
                     }
-                    context.closePath();
-                    context.stroke();
-                } else if (player.characterType === 'archdemon') {
-                    context.beginPath();
-                    context.moveTo(0, -11);
-                    context.quadraticCurveTo(7, 0, 4, 9);
-                    context.quadraticCurveTo(0, 12, -4, 9);
-                    context.quadraticCurveTo(-7, 0, 0, -11);
-                    context.closePath();
-                    context.stroke();
-                } else {
-                    for (let wi = 0; wi < 3; wi++) {
-                        const wa = (wi / 3) * Math.PI * 2;
-                        context.beginPath();
-                        context.arc(Math.cos(wa) * 7, Math.sin(wa) * 7, 7, wa, wa + Math.PI * 1.1);
-                        context.stroke();
-                    }
-                }
-                context.restore();
+                });
 
-                // 6. Cooldown countdown text
-                if (!qReady) {
-                    const secLeft = Math.ceil(qCd / 1000);
-                    context.font = '700 13px "Poppins"';
-                    context.fillStyle = '#ffffff';
-                    context.textAlign = 'center';
-                    context.fillText(`${secLeft}s`, qCX, qCY + 5);
-                }
-
-                // 7. Premium Badge Overlay (matching controls style)
-                const qBadgeW = 16;
-                const qBadgeH = 13;
-                const qBadgeX = qCX + r * 0.45;
-                const qBadgeY = qCY - r * 1.05;
-                const qBadgeRadius = 3;
-
-                context.save();
-                context.shadowColor = 'rgba(0, 0, 0, 0.5)';
-                context.shadowBlur = 4;
-                context.shadowOffsetY = 1.5;
-
-                // Fill badge
-                context.fillStyle = qReady ? `rgba(${qRgb}, 0.22)` : 'rgba(20, 20, 20, 0.85)';
-                rr(context, qBadgeX, qBadgeY, qBadgeW, qBadgeH, qBadgeRadius);
-                context.fill();
-                context.shadowBlur = 0;
-                context.shadowOffsetY = 0;
-
-                // Stroke badge
-                context.strokeStyle = qReady ? player.qColor : 'rgba(120, 120, 120, 0.4)';
-                context.lineWidth = 1.2;
-                rr(context, qBadgeX, qBadgeY, qBadgeW, qBadgeH, qBadgeRadius);
-                context.stroke();
-
-                // Key label text
-                context.font = '900 8.5px "Orbitron"';
-                context.fillStyle = qReady ? player.qColor : 'rgba(120, 120, 120, 0.6)';
-                context.textAlign = 'center';
-                context.textBaseline = 'middle';
-                if (qReady) {
-                    context.shadowColor = player.qColor;
-                    context.shadowBlur = 3;
-                }
-                context.fillText('Q', qBadgeX + qBadgeW / 2, qBadgeY + qBadgeH / 2 + 0.5);
-                context.restore();
-
-                // 8. Outer pulsating halo
-                if (qReady) {
-                    const pulse = 1.0 + 0.04 * Math.sin(Date.now() * 0.008);
-                    context.save();
-                    context.translate(qCX, qCY);
-                    context.scale(pulse, pulse);
-                    context.globalAlpha = 0.22;
-                    context.strokeStyle = player.qColor;
-                    context.lineWidth = 1.5;
-                    context.beginPath();
-                    context.arc(0, 0, r + 4, 0, Math.PI * 2);
-                    context.stroke();
-                    context.restore();
-                }
-                context.restore();
-
-                // ── E ability (Shield) ───────────────────────────────────────────
+                // E Ability (Shield/Aegis - Emerald Green)
                 const eX = W - iconSize * 2 - iconGap - 24;
-                const eCd = player.shieldCooldown;
-                const eMax = player.shieldCooldownMax;
-                const eReady = eCd <= 0;
-                const eCX = eX + r;
-                const eCY = iconY + r;
-                const eRgb = hexToRgb(player.eColor);
+                drawCasualAbilityBtn(eX + r, iconY + r, player.shieldCooldown, player.shieldCooldownMax, 'E', {
+                    top: '#34d399', mid: '#059669', bot: '#047857', shadow: '#024e37', glow: '#34d399'
+                }, (ctx) => {
+                    if (player.characterType === 'jotem') {
+                        ctx.beginPath(); ctx.moveTo(-8, -10); ctx.lineTo(8, -10); ctx.lineTo(8, 5);
+                        ctx.quadraticCurveTo(0, 11, -8, 5); ctx.closePath(); ctx.stroke();
+                        ctx.beginPath(); ctx.moveTo(-8, -2); ctx.lineTo(8, -2); ctx.stroke();
+                    } else if (player.characterType === 'shaia') {
+                        ctx.beginPath(); ctx.arc(0, 0, 9, 0, Math.PI * 2); ctx.stroke();
+                        ctx.beginPath(); ctx.moveTo(-13, 0); ctx.lineTo(-9, 0); ctx.moveTo(13, 0); ctx.lineTo(9, 0);
+                        ctx.moveTo(0, -13); ctx.lineTo(0, -9); ctx.moveTo(0, 13); ctx.lineTo(0, 9); ctx.stroke();
+                    } else if (player.characterType === 'archdemon') {
+                        ctx.beginPath(); ctx.arc(0, 0, 10, 0, Math.PI * 1.35); ctx.stroke();
+                        ctx.beginPath(); ctx.arc(0, 0, 6, Math.PI * 0.7, Math.PI * 2); ctx.stroke();
+                    } else {
+                        // Shield crest
+                        ctx.beginPath();
+                        ctx.moveTo(-9, -10); ctx.lineTo(9, -10); ctx.lineTo(9, -2);
+                        ctx.quadraticCurveTo(9, 7, 0, 12);
+                        ctx.quadraticCurveTo(-9, 7, -9, -2); ctx.closePath(); ctx.stroke();
+                        ctx.beginPath(); ctx.moveTo(0, -6); ctx.lineTo(0, 5);
+                        ctx.moveTo(-5, -1); ctx.lineTo(5, -1); ctx.stroke();
+                    }
+                });
 
-                context.save();
-                // 1. Radial/Linear premium backing gradient
-                context.shadowColor = eReady ? player.eColor : 'transparent';
-                context.shadowBlur = eReady ? 14 : 0;
-
-                const eBgGrad = context.createLinearGradient(eCX - r, eCY - r, eCX + r, eCY + r);
-                eBgGrad.addColorStop(0, `rgba(${eRgb}, 0.25)`);
-                eBgGrad.addColorStop(1, 'rgba(8, 6, 16, 0.95)');
-                context.fillStyle = eBgGrad;
-                context.beginPath();
-                context.arc(eCX, eCY, r, 0, Math.PI * 2);
-                context.fill();
-
-                // Highlight radial overlay
-                const eHighlight = context.createRadialGradient(eCX, eCY - r * 0.4, 0, eCX, eCY - r * 0.4, r);
-                eHighlight.addColorStop(0, `rgba(${eRgb}, 0.15)`);
-                eHighlight.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                context.fillStyle = eHighlight;
-                context.beginPath();
-                context.arc(eCX, eCY, r, 0, Math.PI * 2);
-                context.fill();
-
-                // 2. Translucent border
-                context.shadowBlur = 0; // reset
-                context.strokeStyle = eReady ? player.eColor : 'rgba(255, 255, 255, 0.08)';
-                context.lineWidth = eReady ? 2.0 : 1.5;
-                context.beginPath();
-                context.arc(eCX, eCY, r, 0, Math.PI * 2);
-                context.stroke();
-
-                // 3. Inset highlight arc for glass look
-                context.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-                context.lineWidth = 1.0;
-                context.beginPath();
-                context.arc(eCX, eCY, r - 2, Math.PI * 1.1, Math.PI * 1.9);
-                context.stroke();
-
-                // 4. Cooldown Sector sweep dial
-                if (!eReady) {
-                    const eProg = eCd / eMax;
-                    context.beginPath();
-                    context.moveTo(eCX, eCY);
-                    context.arc(eCX, eCY, r - 1, -Math.PI / 2, -Math.PI / 2 + eProg * Math.PI * 2);
-                    context.closePath();
-                    context.fillStyle = 'rgba(12, 10, 16, 0.72)';
-                    context.fill();
-                }
-
-                // 5. Shield Icon vector graphics
-                context.save();
-                context.translate(eCX, eCY);
-                context.strokeStyle = eReady ? player.eColor : 'rgba(120, 120, 120, 0.45)';
-                context.lineWidth = 2.5; context.lineCap = 'round'; context.lineJoin = 'round';
-                context.shadowColor = eReady ? player.eColor : 'transparent';
-                context.shadowBlur = eReady ? 6 : 0;
-
-                if (player.characterType === 'jotem') {
-                    context.beginPath();
-                    context.moveTo(-8, -10); context.lineTo(8, -10);
-                    context.lineTo(8, 5); context.quadraticCurveTo(0, 11, -8, 5);
-                    context.closePath();
-                    context.stroke();
-                    context.beginPath();
-                    context.moveTo(-8, -2); context.lineTo(8, -2);
-                    context.stroke();
-                } else if (player.characterType === 'shaia') {
-                    context.beginPath();
-                    context.arc(0, 0, 9, 0, Math.PI * 2);
-                    context.stroke();
-                    context.beginPath();
-                    context.moveTo(-13, 0); context.lineTo(-9, 0);
-                    context.moveTo(13, 0); context.lineTo(9, 0);
-                    context.moveTo(0, -13); context.lineTo(0, -9);
-                    context.moveTo(0, 13); context.lineTo(0, 9);
-                    context.stroke();
-                } else if (player.characterType === 'archdemon') {
-                    context.beginPath();
-                    context.arc(0, 0, 10, 0, Math.PI * 1.35);
-                    context.stroke();
-                    context.beginPath();
-                    context.arc(0, 0, 6, Math.PI * 0.7, Math.PI * 2);
-                    context.stroke();
-                } else {
-                    context.beginPath();
-                    context.moveTo(-8, -10);
-                    context.lineTo(8, -10);
-                    context.lineTo(8, -2);
-                    context.quadraticCurveTo(8, 6, 0, 11);
-                    context.quadraticCurveTo(-8, 6, -8, -2);
-                    context.closePath();
-                    context.stroke();
-                    context.beginPath();
-                    context.moveTo(0, -6);
-                    context.lineTo(0, 5);
-                    context.moveTo(-4, -1);
-                    context.lineTo(4, -1);
-                    context.stroke();
-                }
-                context.restore();
-
-                // 6. Cooldown countdown text
-                if (!eReady) {
-                    const secLeft = Math.ceil(eCd / 1000);
-                    context.font = '700 13px "Poppins"';
-                    context.fillStyle = '#ffffff';
-                    context.textAlign = 'center';
-                    context.fillText(`${secLeft}s`, eCX, eCY + 5);
-                }
-
-                // 7. Premium Badge Overlay (matching controls style)
-                const eBadgeW = 16;
-                const eBadgeH = 13;
-                const eBadgeX = eCX + r * 0.45;
-                const eBadgeY = eCY - r * 1.05;
-                const eBadgeRadius = 3;
-
-                context.save();
-                context.shadowColor = 'rgba(0, 0, 0, 0.5)';
-                context.shadowBlur = 4;
-                context.shadowOffsetY = 1.5;
-
-                // Fill badge
-                context.fillStyle = eReady ? `rgba(${eRgb}, 0.22)` : 'rgba(20, 20, 20, 0.85)';
-                rr(context, eBadgeX, eBadgeY, eBadgeW, eBadgeH, eBadgeRadius);
-                context.fill();
-                context.shadowBlur = 0;
-                context.shadowOffsetY = 0;
-
-                // Stroke badge
-                context.strokeStyle = eReady ? player.eColor : 'rgba(120, 120, 120, 0.4)';
-                context.lineWidth = 1.2;
-                rr(context, eBadgeX, eBadgeY, eBadgeW, eBadgeH, eBadgeRadius);
-                context.stroke();
-
-                // Key label text
-                context.font = '900 8.5px "Orbitron"';
-                context.fillStyle = eReady ? player.eColor : 'rgba(120, 120, 120, 0.6)';
-                context.textAlign = 'center';
-                context.textBaseline = 'middle';
-                if (eReady) {
-                    context.shadowColor = player.eColor;
-                    context.shadowBlur = 3;
-                }
-                context.fillText('E', eBadgeX + eBadgeW / 2, eBadgeY + eBadgeH / 2 + 0.5);
-                context.restore();
-
-                // 8. Outer pulsating halo
-                if (eReady) {
-                    const pulse = 1.0 + 0.04 * Math.sin(Date.now() * 0.008);
-                    context.save();
-                    context.translate(eCX, eCY);
-                    context.scale(pulse, pulse);
-                    context.globalAlpha = 0.22;
-                    context.strokeStyle = player.eColor;
-                    context.lineWidth = 1.5;
-                    context.beginPath();
-                    context.arc(0, 0, r + 4, 0, Math.PI * 2);
-                    context.stroke();
-                    context.restore();
-                }
-                context.restore();
-
-                // ── R ability (Slash/Ultimate) ───────────────────────────────────
+                // R Ability (Slash/Ultimate - Warm Golden Amber)
                 const rX = W - iconSize - 24;
-                const rCd = player.slashCooldown;
-                const rMax = player.slashCooldownMax;
-                const rReady = rCd <= 0;
-                const rCX = rX + r;
-                const rCY = iconY + r;
-                const rRgb = hexToRgb(player.rColor);
-
-                context.save();
-                // 1. Radial/Linear premium backing gradient
-                context.shadowColor = rReady ? player.rColor : 'transparent';
-                context.shadowBlur = rReady ? 14 : 0;
-
-                const rBgGrad = context.createLinearGradient(rCX - r, rCY - r, rCX + r, rCY + r);
-                rBgGrad.addColorStop(0, `rgba(${rRgb}, 0.25)`);
-                rBgGrad.addColorStop(1, 'rgba(8, 6, 16, 0.95)');
-                context.fillStyle = rBgGrad;
-                context.beginPath();
-                context.arc(rCX, rCY, r, 0, Math.PI * 2);
-                context.fill();
-
-                // Highlight radial overlay
-                const rHighlight = context.createRadialGradient(rCX, rCY - r * 0.4, 0, rCX, rCY - r * 0.4, r);
-                rHighlight.addColorStop(0, `rgba(${rRgb}, 0.15)`);
-                rHighlight.addColorStop(1, 'rgba(0, 0, 0, 0)');
-                context.fillStyle = rHighlight;
-                context.beginPath();
-                context.arc(rCX, rCY, r, 0, Math.PI * 2);
-                context.fill();
-
-                // 2. Translucent border
-                context.shadowBlur = 0; // reset
-                context.strokeStyle = rReady ? player.rColor : 'rgba(255, 255, 255, 0.08)';
-                context.lineWidth = rReady ? 2.0 : 1.5;
-                context.beginPath();
-                context.arc(rCX, rCY, r, 0, Math.PI * 2);
-                context.stroke();
-
-                // 3. Inset highlight arc for glass look
-                context.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-                context.lineWidth = 1.0;
-                context.beginPath();
-                context.arc(rCX, rCY, r - 2, Math.PI * 1.1, Math.PI * 1.9);
-                context.stroke();
-
-                // 4. Cooldown Sector sweep dial
-                if (!rReady) {
-                    const rProg = rCd / rMax;
-                    context.beginPath();
-                    context.moveTo(rCX, rCY);
-                    context.arc(rCX, rCY, r - 1, -Math.PI / 2, -Math.PI / 2 + rProg * Math.PI * 2);
-                    context.closePath();
-                    context.fillStyle = 'rgba(12, 10, 16, 0.72)';
-                    context.fill();
-                }
-
-                // 5. Slash/Ultimate Icon vector graphics
-                context.save();
-                context.translate(rCX, rCY);
-                context.strokeStyle = rReady ? player.rColor : 'rgba(120, 120, 120, 0.45)';
-                context.lineWidth = 3; context.lineCap = 'round';
-                context.shadowColor = rReady ? player.rColor : 'transparent';
-                context.shadowBlur = rReady ? 6 : 0;
-
-                if (player.characterType === 'jotem') {
-                    context.beginPath();
-                    context.moveTo(-11, 8); context.lineTo(-6, -4); context.lineTo(-1, 8);
-                    context.lineTo(4, -9); context.lineTo(9, 8);
-                    context.stroke();
-                } else if (player.characterType === 'shaia') {
-                    context.beginPath();
-                    context.moveTo(5, -11);
-                    context.lineTo(-4, 0);
-                    context.lineTo(2, 0);
-                    context.lineTo(-5, 11);
-                    context.stroke();
-                } else if (player.characterType === 'archdemon') {
-                    context.beginPath();
-                    context.arc(-5, 0, 10, -Math.PI * 0.45, Math.PI * 0.45);
-                    context.stroke();
-                } else {
-                    context.beginPath();
-                    context.moveTo(-10, 10);
-                    context.quadraticCurveTo(0, -2, 10, -10);
-                    context.stroke();
-                }
-                context.restore();
-
-                // 6. Cooldown countdown text
-                if (!rReady) {
-                    const secLeft = Math.ceil(rCd / 1000);
-                    context.font = '700 13px "Poppins"';
-                    context.fillStyle = '#ffffff';
-                    context.textAlign = 'center';
-                    context.fillText(`${secLeft}s`, rCX, rCY + 5);
-                }
-
-                // 7. Premium Badge Overlay (matching controls style)
-                const rBadgeW = 16;
-                const rBadgeH = 13;
-                const rBadgeX = rCX + r * 0.45;
-                const rBadgeY = rCY - r * 1.05;
-                const rBadgeRadius = 3;
-
-                context.save();
-                context.shadowColor = 'rgba(0, 0, 0, 0.5)';
-                context.shadowBlur = 4;
-                context.shadowOffsetY = 1.5;
-
-                // Fill badge
-                context.fillStyle = rReady ? `rgba(${rRgb}, 0.22)` : 'rgba(20, 20, 20, 0.85)';
-                rr(context, rBadgeX, rBadgeY, rBadgeW, rBadgeH, rBadgeRadius);
-                context.fill();
-                context.shadowBlur = 0;
-                context.shadowOffsetY = 0;
-
-                // Stroke badge
-                context.strokeStyle = rReady ? player.rColor : 'rgba(120, 120, 120, 0.4)';
-                context.lineWidth = 1.2;
-                rr(context, rBadgeX, rBadgeY, rBadgeW, rBadgeH, rBadgeRadius);
-                context.stroke();
-
-                // Key label text
-                context.font = '900 8.5px "Orbitron"';
-                context.fillStyle = rReady ? player.rColor : 'rgba(120, 120, 120, 0.6)';
-                context.textAlign = 'center';
-                context.textBaseline = 'middle';
-                if (rReady) {
-                    context.shadowColor = player.rColor;
-                    context.shadowBlur = 3;
-                }
-                context.fillText('R', rBadgeX + rBadgeW / 2, rBadgeY + rBadgeH / 2 + 0.5);
-                context.restore();
-
-                // 8. Outer pulsating halo
-                if (rReady) {
-                    const pulse = 1.0 + 0.04 * Math.sin(Date.now() * 0.008);
-                    context.save();
-                    context.translate(rCX, rCY);
-                    context.scale(pulse, pulse);
-                    context.globalAlpha = 0.22;
-                    context.strokeStyle = player.rColor;
-                    context.lineWidth = 1.5;
-                    context.beginPath();
-                    context.arc(0, 0, r + 4, 0, Math.PI * 2);
-                    context.stroke();
-                    context.restore();
-                }
-                context.restore();
+                drawCasualAbilityBtn(rX + r, iconY + r, player.slashCooldown, player.slashCooldownMax, 'R', {
+                    top: '#fbbf24', mid: '#f59e0b', bot: '#d97706', shadow: '#92400e', glow: '#fbbf24'
+                }, (ctx) => {
+                    if (player.characterType === 'jotem') {
+                        ctx.beginPath(); ctx.moveTo(-11, 8); ctx.lineTo(-6, -4); ctx.lineTo(-1, 8);
+                        ctx.lineTo(4, -9); ctx.lineTo(9, 8); ctx.stroke();
+                    } else if (player.characterType === 'shaia') {
+                        ctx.beginPath(); ctx.moveTo(5, -11); ctx.lineTo(-4, 0); ctx.lineTo(2, 0); ctx.lineTo(-5, 11); ctx.stroke();
+                    } else if (player.characterType === 'archdemon') {
+                        ctx.beginPath(); ctx.arc(-5, 0, 10, -Math.PI * 0.45, Math.PI * 0.45); ctx.stroke();
+                    } else {
+                        // Crescent blade slash
+                        ctx.beginPath();
+                        ctx.moveTo(-10, 10);
+                        ctx.quadraticCurveTo(0, -2, 10, -10);
+                        ctx.stroke();
+                        ctx.beginPath();
+                        ctx.moveTo(-6, -3); ctx.lineTo(0, 3);
+                        ctx.stroke();
+                    }
+                });
             }
-            context.restore();
-            // ─────────────────────────────────────────────────────────────────
 
             context.restore();
         }
@@ -4019,8 +3807,12 @@ window.addEventListener('load', function () {
     })();
 
     function showToast(message, type = 'error', duration = 3500) {
-        const container = document.getElementById('toast-container');
-        if (!container) return;
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            document.body.appendChild(container);
+        }
 
         const icons = {
             error: '⛔',
@@ -4133,6 +3925,15 @@ window.addEventListener('load', function () {
             if (user) {
                 menuUserStatus.innerText = `LOGGED IN: ${user.username.toUpperCase()} (🪙 ${user.coins} COINS)`;
                 authActionBtn.innerText = 'LOG OUT';
+                game.coins = user.coins;
+                localStorage.setItem('gameCoins', game.coins.toString());
+
+                // Sync level progress from DB
+                const dbUnlockedLevel = (user.levelsCompleted ?? 0) + 1;
+                const localUnlockedLevel = parseInt(localStorage.getItem('maxUnlockedLevel') || '1');
+                const targetLevel = Math.max(dbUnlockedLevel, localUnlockedLevel);
+                saveGameProgress(targetLevel);
+                updateMultiplayerButtonVisibility();
             } else {
                 menuUserStatus.innerText = 'PLAYING AS GUEST';
                 authActionBtn.innerText = 'LOG IN';
@@ -4507,14 +4308,41 @@ window.addEventListener('load', function () {
 
     setupMultiplayerAndAuth(game);
 
+    function saveGameProgress(level) {
+        localStorage.setItem('maxUnlockedLevel', level.toString());
+        localStorage.setItem('highestUnlockedLevel', level.toString());
+        if (level >= 20) {
+            localStorage.setItem('storyCompleted', 'true');
+            localStorage.setItem('multiplayerUnlocked', 'true');
+        } else {
+            localStorage.setItem('storyCompleted', 'false');
+            localStorage.setItem('multiplayerUnlocked', 'false');
+        }
+    }
+
+    function clearGameProgress() {
+        localStorage.removeItem('maxUnlockedLevel');
+        localStorage.removeItem('highestUnlockedLevel');
+        localStorage.removeItem('storyCompleted');
+        localStorage.removeItem('multiplayerUnlocked');
+    }
+
     function updateMultiplayerButtonVisibility() {
         const btnMp = document.getElementById('btn-mp');
+        const maxUnlocked = parseInt(localStorage.getItem('maxUnlockedLevel') || '1');
         if (btnMp) {
-            const maxUnlocked = parseInt(localStorage.getItem('maxUnlockedLevel') || '1');
             if (maxUnlocked >= 20) {
                 btnMp.style.display = 'inline-block';
             } else {
                 btnMp.style.display = 'none';
+            }
+        }
+        const btnModeMp = document.getElementById('btn-mode-mp');
+        if (btnModeMp) {
+            if (maxUnlocked >= 20) {
+                btnModeMp.style.display = 'flex';
+            } else {
+                btnModeMp.style.display = 'none';
             }
         }
     }
@@ -4546,10 +4374,10 @@ window.addEventListener('load', function () {
     bgmVolTxt.innerText = `${savedBgmVol}%`;
     sfxVolTxt.innerText = `${savedSfxVol}%`;
 
-    // Dynamic slider track fill coloration
+    // Dynamic slider track fill coloration (Casual 3D Gold Gradient)
     function updateSliderBackground(slider) {
         const value = slider.value;
-        slider.style.background = `linear-gradient(to right, #00e5ff 0%, #00e5ff ${value}%, rgba(255, 255, 255, 0.09) ${value}%, rgba(255, 255, 255, 0.09) 100%)`;
+        slider.style.background = `linear-gradient(to right, #ffd000 0%, #ffa000 ${value}%, #d8c7ad ${value}%, #d8c7ad 100%)`;
     }
 
     updateSliderBackground(bgmVolumeSlider);
@@ -4607,6 +4435,35 @@ window.addEventListener('load', function () {
         }
     });
 
+    // ── Casual 3D Support Modal Handlers ──
+    const supportBtn = document.getElementById('support-btn');
+    const supportOverlay = document.getElementById('support-overlay');
+    const closeSupport = document.getElementById('close-support');
+    const supportOkBtn = document.getElementById('support-ok-btn');
+
+    if (supportBtn && supportOverlay) {
+        supportBtn.addEventListener('click', () => {
+            supportOverlay.classList.add('active');
+        });
+    }
+    if (closeSupport && supportOverlay) {
+        closeSupport.addEventListener('click', () => {
+            supportOverlay.classList.remove('active');
+        });
+    }
+    if (supportOkBtn && supportOverlay) {
+        supportOkBtn.addEventListener('click', () => {
+            supportOverlay.classList.remove('active');
+        });
+    }
+    if (supportOverlay) {
+        supportOverlay.addEventListener('click', (e) => {
+            if (e.target === supportOverlay) {
+                supportOverlay.classList.remove('active');
+            }
+        });
+    }
+
     // Reset Progress button — wipes maxUnlockedLevel and re-locks all levels beyond Level 1
     const resetProgressBtn = document.getElementById('reset-progress-btn');
     if (resetProgressBtn) {
@@ -4618,7 +4475,7 @@ window.addEventListener('load', function () {
             if (!ok) return;
 
             // Wipe the saved unlock state
-            localStorage.removeItem('maxUnlockedLevel');
+            clearGameProgress();
 
             // Reset selected level back to 1
             selectedLevel = 1;
@@ -4751,11 +4608,11 @@ window.addEventListener('load', function () {
     osControlsToggle.checked = showVirtualControls;
     if (showVirtualControls) {
         controlsToggleTxt.innerText = 'ON';
-        controlsToggleTxt.style.color = '#00e5ff';
-        controlsToggleTxt.style.textShadow = '0 0 10px rgba(0, 229, 255, 0.6)';
+        controlsToggleTxt.style.color = '#0c6136';
+        controlsToggleTxt.style.textShadow = '0 1px 0 rgba(255, 255, 255, 0.4)';
     } else {
         controlsToggleTxt.innerText = 'OFF';
-        controlsToggleTxt.style.color = 'rgba(255, 255, 255, 0.45)';
+        controlsToggleTxt.style.color = '#8c5c3e';
         controlsToggleTxt.style.textShadow = 'none';
     }
 
@@ -4765,11 +4622,11 @@ window.addEventListener('load', function () {
         osControlsEnabled = active;
         if (active) {
             controlsToggleTxt.innerText = 'ON';
-            controlsToggleTxt.style.color = '#00e5ff';
-            controlsToggleTxt.style.textShadow = '0 0 10px rgba(0, 229, 255, 0.6)';
+            controlsToggleTxt.style.color = '#0c6136';
+            controlsToggleTxt.style.textShadow = '0 1px 0 rgba(255, 255, 255, 0.4)';
         } else {
             controlsToggleTxt.innerText = 'OFF';
-            controlsToggleTxt.style.color = 'rgba(255, 255, 255, 0.45)';
+            controlsToggleTxt.style.color = '#8c5c3e';
             controlsToggleTxt.style.textShadow = 'none';
         }
     });
@@ -5505,20 +5362,20 @@ window.addEventListener('load', function () {
             if (!priceTag) {
                 priceTag = document.createElement('span');
                 priceTag.className = 'char-price-tag';
-                priceTag.style.cssText = "font-size: 11px; font-weight: 700; color: #ffd700; margin-top: 4px; display: block;";
+                priceTag.style.cssText = "font-family: 'Fredoka', sans-serif; font-size: 11px; font-weight: 700; margin-top: 4px; display: block;";
                 card.querySelector('.card-info').appendChild(priceTag);
             }
 
             if (isUnlocked) {
                 card.classList.remove('char-locked');
                 priceTag.innerText = "UNLOCKED";
-                priceTag.style.color = "#00ffd0";
+                priceTag.style.color = "#0b845d";
                 const arrow = card.querySelector('.card-arrow');
                 if (arrow) arrow.style.display = 'block';
             } else {
                 card.classList.add('char-locked');
                 priceTag.innerText = `🪙 ${price} COINS`;
-                priceTag.style.color = "#ffd700";
+                priceTag.style.color = "#b25e00";
                 const arrow = card.querySelector('.card-arrow');
                 if (arrow) arrow.style.display = 'none';
             }
@@ -5527,22 +5384,21 @@ window.addEventListener('load', function () {
         const isUnlocked = currentlySelected === 'shinobi' || localStorage.getItem('unlocked_char_' + currentlySelected) === 'true';
         const confirmBtn = document.getElementById('confirm-char-btn');
         if (confirmBtn) {
+            confirmBtn.style.background = "";
+            confirmBtn.style.borderColor = "";
+            confirmBtn.style.color = "";
+            confirmBtn.style.boxShadow = "";
+
             if (isUnlocked) {
                 confirmBtn.innerText = "CONFIRM CHAMPION";
-                confirmBtn.style.background = "";
-                confirmBtn.style.borderColor = "";
-                confirmBtn.style.color = "";
+                confirmBtn.className = "btn-3d btn-3d-green";
             } else {
                 const price = CHAR_PRICES[currentlySelected];
-                confirmBtn.innerText = `UNLOCK CHAMPION (🪙 ${price} Coins)`;
+                confirmBtn.innerText = `UNLOCK (🪙 ${price})`;
                 if (game.coins >= price) {
-                    confirmBtn.style.background = "linear-gradient(135deg, #ffd700, #ffaa00)";
-                    confirmBtn.style.borderColor = "#ffea00";
-                    confirmBtn.style.color = "#000000";
+                    confirmBtn.className = "btn-3d btn-3d-gold";
                 } else {
-                    confirmBtn.style.background = "linear-gradient(135deg, #444, #222)";
-                    confirmBtn.style.borderColor = "#555";
-                    confirmBtn.style.color = "rgba(255,255,255,0.4)";
+                    confirmBtn.className = "btn-3d btn-3d-red";
                 }
             }
         }
@@ -5670,10 +5526,9 @@ window.addEventListener('load', function () {
             else if (lvl.theme === 'neon-green') themeClass = 'text-neon-green';
 
             card.innerHTML = `
-                <div class="char-card-glow ${themeClass}"></div>
-                <h3 style="font-family: 'Orbitron', sans-serif; font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px;">LEVEL ${lvl.id}</h3>
-                <span class="${themeClass}" style="font-size: 11px; font-weight: 600; letter-spacing: 1px; margin-bottom: 8px; display: block;">${lvl.name}</span>
-                <p style="font-size: 11px; color: rgba(255,255,255,0.7); line-height: 1.4; margin-bottom: 0;">${lvl.desc}</p>
+                <h3 class="level-num-title">LEVEL ${lvl.id}</h3>
+                <span class="level-name-sub">${lvl.name}</span>
+                <p class="level-desc-txt">${lvl.desc}</p>
             `;
 
             if (isComingSoon) {
@@ -5746,7 +5601,7 @@ window.addEventListener('load', function () {
                 const price = CHAR_PRICES[currentlySelected];
                 if (game.coins >= price) {
                     game.coins -= price;
-                    localStorage.setItem('gameCoins', game.coins.toString());
+                    game.syncCoinsWithServer();
                     localStorage.setItem('unlocked_char_' + currentlySelected, 'true');
 
                     if (game.audio) {
@@ -5799,7 +5654,7 @@ window.addEventListener('load', function () {
             e.stopPropagation();
 
             if (selectedLevel === 20) {
-                alert("Level 20: Ultimate Showdown is extremely hard and is MULTIPLAYER ONLY! Please click the 'Multiplayer' button on the Main Menu to play it.");
+                showToast("Level 20: Ultimate Showdown is extremely hard and is MULTIPLAYER ONLY! Please click the 'Multiplayer' button on the Main Menu to play it.", "warning", 5000);
                 return;
             }
 

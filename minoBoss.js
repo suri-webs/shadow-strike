@@ -11,7 +11,7 @@ export class MinoBoss {
         this.width = 320;
         this.height = 320;
 
-        this.x = game.width + 200;
+        this.x = game.width - 10;
         this.hasEnteredScreen = this.game.isMultiplayer ? true : false;
         this.baseY = game.height - this.height - game.groundMargin + 37;
         this.y = this.baseY;
@@ -92,6 +92,16 @@ export class MinoBoss {
         // Unique ID assigned at spawn so guests can reference this enemy reliably
         this.id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
         this._guestHitTime = 0;
+
+        // Custom stats for Level 14 upgraded minotaur
+        if (this.game.level === 14) {
+            this.maxHP = 680;
+            this.currentHP = this.maxHP;
+            this.meleeDamage = 45;
+            this.meleeDamagePhase2 = 65;
+            this.projDamage = 28;
+            this.projDamagePhase2 = 45;
+        }
     }
 
     _loadFrames(prefix, count) {
@@ -351,14 +361,18 @@ export class MinoBoss {
             this.hasEnteredScreen = true;
         }
 
-        // ── Boss Intro Sequence: dheere aao, 4 sec ruko, roar karo, tab attack ──
+        // ── Boss Intro Sequence: tezi se aao, ruko, roar karo, tab attack ──
         if (this.introLocked) {
-            // Boss dheere dheere chale screen mein
-            if (this.x > this.game.width - this.width - 80) {
-                this.x -= 1.5 * (deltaTime / 16.6); // slow walk speed
+            // Mark as entered immediately so health bar and name appear
+            if (!this.hasEnteredScreen) this.hasEnteredScreen = true;
+
+            // Boss walks from right edge to center-right position
+            const introTarget = this.game.width * 0.58 - this.width / 2;
+            if (this.x > introTarget) {
+                this.x -= 3.5 * (deltaTime / 16.6); // walk in speed
                 this._setState('WALK');
                 // Jab tak boss walk kar raha hai, shake hoti rahe
-                this.game.shake = Math.max(this.game.shake, 18);
+                this.game.shake = Math.max(this.game.shake, 20);
             } else {
                 // Position par aa gaya, ab IDLE mein ruko
                 this._setState('IDLE');
@@ -770,9 +784,9 @@ export class MinoBoss {
         } else if (this.state === 'HURT') {
             context.drawImage(img, -this.width / 2, -this.height, this.width, this.height);
             window.drawTintedSprite(context, img, 0, 0, img.width, img.height, -this.width / 2, -this.height, this.width, this.height, 'rgba(255, 0, 0, 0.45)', 1.0);
-        } else if (this.game.level === 5) {
+        } else if (this.game.level === 14) {
             context.drawImage(img, -this.width / 2, -this.height, this.width, this.height);
-            window.drawTintedSprite(context, img, 0, 0, img.width, img.height, -this.width / 2, -this.height, this.width, this.height, 'rgba(0, 230, 100, 0.38)', 1.0);
+            window.drawTintedSprite(context, img, 0, 0, img.width, img.height, -this.width / 2, -this.height, this.width, this.height, 'rgba(255, 0, 30, 0.42)', 1.0);
         } else {
             context.drawImage(img, -this.width / 2, -this.height, this.width, this.height);
         }
@@ -804,7 +818,10 @@ export class MinoBoss {
         context.font = '700 9px "Courier New"';
         context.fillStyle = 'rgba(255,255,255,0.32)';
         context.textAlign = 'left';
-        context.fillText(this.game.level === 5 ? 'VENOM MINOTAUR' : 'MINO BOSS', barX - 4, barY - 12);
+        let minoName = 'MINOTAUR';
+        if (this.game.level === 4) minoName = 'MINOTAUR WARLORD';
+        else if (this.game.level === 14) minoName = 'ELDER HELL MINOTAUR';
+        context.fillText(minoName, barX - 4, barY - 12);
 
         context.font = '700 9px "Courier New"';
         context.fillStyle = this.phase === 2 ? '#ff5500' : '#666666';

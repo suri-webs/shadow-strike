@@ -676,7 +676,7 @@ export class HellfireProjectile {
         this.width = 45;
         this.height = 45;
         this.speed = facingLeft ? -22 : 22;
-        this.damage = 16;
+        this.damage = 32;  // Was 16 — doubled for Duskborne
         this.markedForDeletion = false;
         this.particles = [];
     }
@@ -827,7 +827,7 @@ export class ChaosCataclysmProjectile {
         this.y = y - this.height / 2; // Center the projectile at spawn point
         this.facingLeft = facingLeft;
         this.speed = facingLeft ? -23 : 23;
-        this.damage = 55;
+        this.damage = 100;  // Was 55 — increased for Duskborne R ultimate
         this.markedForDeletion = false;
         this.particles = [];
         this.sparkTimer = 0;
@@ -1111,7 +1111,7 @@ export class DragonShadowProjectile {
         this.y = y - this.height / 2;
         this.facingLeft = facingLeft;
         this.speed = facingLeft ? -14 : 14;
-        this.damage = 45;
+        this.damage = 70;  // Was 45 — increased for Duskborne E skill
         this.markedForDeletion = false;
         this.particles = [];
         this.age = 0;
@@ -1252,7 +1252,7 @@ export class DarkBallProjectile {
         this.width = 45;
         this.height = 45;
         this.speed = facingLeft ? -12 : 12;
-        this.damage = 15;
+        this.damage = 28;  // Was 15 — increased for Duskborne basic attack
         this.markedForDeletion = false;
         this.particles = [];
         this.age = 0;

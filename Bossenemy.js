@@ -117,7 +117,8 @@ export class BossEnemy {
         this.width = 320;
         this.height = 320;
 
-        this.x = game.width + 200;
+        // Spawn just inside the right edge so the walk-in is immediately visible
+        this.x = game.width - 10;
         this.hasEnteredScreen = this.game.isMultiplayer ? true : false;
 
         this.baseY =
@@ -227,6 +228,9 @@ export class BossEnemy {
             this.meleeThreshold = 400;
             this.baseY = this.game.height - this.height - 95 + 30;
             this.y = this.baseY;
+            // Impaler: smoother animation
+            this.fps = 18;
+            this.frameInterval = 1000 / this.fps;
         } else if (this.bossType === 'crystal_titan') {
             this.frameCounts = { IDLE: 4, WALK: 8, ATTACK: 9, HURT: 7, DEATH: 8 };
             this.frameSizes = { IDLE: { w: 100, h: 100 }, WALK: { w: 100, h: 100 }, ATTACK: { w: 100, h: 100 }, HURT: { w: 100, h: 100 }, DEATH: { w: 100, h: 100 } };
@@ -336,6 +340,11 @@ export class BossEnemy {
             this.PROJECTILE_FRAME = 12;
             this.baseY = game.height - this.height - game.groundMargin + 10;
             this.y = this.baseY;
+            // Impaler: slow & deliberate attack rhythm; teleport is a special move with a long cooldown
+            this.attackCooldown = 2800;           // 2.8s between attacks
+            this.attackCooldownPhase2 = 1800;     // 1.8s in phase 2
+            this.teleportCooldown = 0;            // timer counts up
+            this.teleportCooldownMax = 8000;      // 8s minimum between teleports
         }
 
         // Override baseY and y for level 1 boss and frost wyrm to fix floating margin issue
@@ -353,6 +362,67 @@ export class BossEnemy {
         // Unique ID assigned at spawn so guests can reference this enemy reliably
         this.id = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
         this._guestHitTime = 0;
+
+        // Custom name and color tint per level to ensure every level has a unique boss
+        this.bossName = 'BOSS';
+        this.bossColorTint = null;
+        const level = this.game.level || 1;
+        if (level === 1) {
+            this.bossName = 'SKELETON EMPEROR';
+        } else if (level === 2) {
+            this.bossName = 'MECHA STONE';
+        } else if (level === 3) {
+            this.bossName = 'DEMON LORD';
+        } else if (level === 5) {
+            this.bossName = 'THE IMPALER';
+        } else if (level === 6) {
+            this.bossName = 'CRYSTAL TITAN';
+        } else if (level === 7) {
+            this.bossName = 'STORM SERAPH';
+        } else if (level === 8) {
+            this.bossName = 'FROST WYRM';
+        } else if (level === 9) {
+            this.bossName = 'ABYSS KNIGHT';
+        } else if (level === 10) {
+            this.bossName = 'ABYSS GUARDIAN';     // level 10: upgraded Abyss Knight mid-story climax
+        } else if (level === 11) {
+            this.bossName = 'TOXIC SKELETON LICH';
+            this.bossColorTint = 'rgba(0, 255, 100, 0.4)';
+        } else if (level === 12) {
+            this.bossName = 'MAGMA COLLOSSUS';
+            this.bossColorTint = 'rgba(255, 60, 0, 0.45)';
+        } else if (level === 13) {
+            this.bossName = 'HELLFIRE ARCH-DEMON';
+            this.bossColorTint = 'rgba(150, 0, 255, 0.45)';
+        } else if (level === 15) {
+            this.bossName = 'ABYSSAL IMPALER';
+            this.bossColorTint = 'rgba(255, 0, 50, 0.45)';
+        } else if (level === 16) {
+            this.bossName = 'VOID TITAN';
+            this.bossColorTint = 'rgba(180, 0, 255, 0.45)';
+        } else if (level === 17) {
+            this.bossName = 'SKY RULER SERAPH';
+            this.bossColorTint = 'rgba(255, 230, 0, 0.45)';
+        } else if (level === 18) {
+            this.bossName = 'GLACIAL WYRM';
+            this.bossColorTint = 'rgba(0, 180, 255, 0.45)';
+        } else if (level === 19) {
+            this.bossName = 'VOID ABYSS KNIGHT';
+            this.bossColorTint = 'rgba(60, 20, 120, 0.5)';
+        } else if (level === 20) {
+            this.bossName = 'AMARJEET (FINAL SHOWDOWN)';
+            this.bossColorTint = 'rgba(200, 0, 255, 0.5)';
+        }
+
+        // Boost HP and damage for upgraded level 11-20 boss variants to feel like a new challenge
+        if (level > 10) {
+            this.maxHP = Math.floor(this.maxHP * 1.55);
+            this.currentHP = this.maxHP;
+            this.meleeDamage = Math.floor(this.meleeDamage * 1.35);
+            this.meleeDamagePhase2 = Math.floor(this.meleeDamagePhase2 * 1.35);
+            this.projDamage = Math.floor(this.projDamage * 1.35);
+            this.projDamagePhase2 = Math.floor(this.projDamagePhase2 * 1.35);
+        }
     }
 
     _rr(ctx, x, y, w, h, r) {
@@ -827,20 +897,33 @@ export class BossEnemy {
             }
         }
 
+        // Impaler: tick the teleport cooldown so it doesn't spam-teleport
+        if (this.bossType === 'impaler' && this.hasEnteredScreen && this.state !== 'TELEPORT') {
+            this.teleportCooldown = Math.min(
+                (this.teleportCooldown || 0) + deltaTime,
+                this.teleportCooldownMax || 8000
+            );
+        }
+
         // Impaler (level 5) uses no canvas projectiles — only melee
         if (this.bossType !== 'impaler') {
             this.projectiles.forEach(p => p.update(deltaTime));
             this.projectiles = this.projectiles.filter(p => !p.markedForDeletion);
         }
 
-        // ── Boss Intro Sequence: dheere aao, 4 sec ruko, roar karo, tab attack ──
+        // ── Boss Intro Sequence: tezi se aao, ruko, roar karo, tab attack ──
         if (this.introLocked) {
-            // Boss dheere dheere chale screen mein (slow walk)
-            if (this.x > this.game.width - this.width - 80) {
-                this.x -= 1.5 * (deltaTime / 16.6);
+            // Mark as entered immediately so health bar and name appear
+            if (!this.hasEnteredScreen) this.hasEnteredScreen = true;
+
+            // Boss walks from right edge to center-right position
+            const introTarget = this.game.width * 0.58 - this.width / 2;
+            const introSpeed = this.bossType === 'impaler' ? 5.5 : 1.5;
+            if (this.x > introTarget) {
+                this.x -= introSpeed * (deltaTime / 16.6);
                 this._setState('WALK');
                 // Jab tak boss walk kar raha hai, shake hoti rahe
-                this.game.shake = Math.max(this.game.shake, 18);
+                this.game.shake = Math.max(this.game.shake, this.bossType === 'impaler' ? 25 : 18);
             } else {
                 // Position par aa gaya, ab IDLE mein ruko
                 this._setState('IDLE');
@@ -1180,13 +1263,25 @@ export class BossEnemy {
         const gap = targetX - this.x;
         const dir = gap > 0 ? 1 : -1;
 
-        if (Math.abs(gap) > 25) {
-            this.velocityX += dir * 0.12;
+        // Impaler: slower, more deliberate chase; others: original smooth drift
+        if (this.bossType === 'impaler') {
+            if (Math.abs(gap) > 25) {
+                this.velocityX += dir * 0.18;          // moderate acceleration
+                this.velocityX = Math.sign(this.velocityX) * Math.min(Math.abs(this.velocityX), 3); // cap at 3
+            } else {
+                this.velocityX *= 0.70;               // smooth stop
+            }
+            this.velocityX *= 0.86;
+            this.x += this.velocityX * deltaTime * 0.06;
         } else {
-            this.velocityX *= 0.75;
+            if (Math.abs(gap) > 25) {
+                this.velocityX += dir * 0.12;
+            } else {
+                this.velocityX *= 0.75;
+            }
+            this.velocityX *= 0.88;
+            this.x += this.velocityX * deltaTime * 0.06;
         }
-        this.velocityX *= 0.88;
-        this.x += this.velocityX * deltaTime * 0.06;
 
         // ── Boundary clamp: boss screen se bahar nahi jayega (right edge only, left edge allows offscreen) ──
         const minX = -this.width - 50;                 // allow fully offscreen left
@@ -1218,15 +1313,19 @@ export class BossEnemy {
                     this.pendingAttackType = 'giant_fireball';
                     this._setState('ATTACK');
                 } else if (this.bossType === 'impaler') {
-                    // Impaler: only attack when close. If far → teleport first, then attack.
+                    // Impaler: only attack when close. If far AND teleport cooldown ready → teleport, else walk closer.
                     if (currentDist <= this.meleeThreshold) {
                         this._prepareImpalerAttack(currentDist);
                         this._setState('ATTACK');
-                    } else {
-                        // Teleport next to player, attack will fire after reappearing
+                    } else if ((this.teleportCooldown || 0) >= (this.teleportCooldownMax || 8000)) {
+                        // Teleport cooldown ready — teleport next to player, attack will fire after reappearing
+                        this.teleportCooldown = 0;
                         this.teleportPhase = 0;
                         this.teleportAlpha = 1;
                         this._setState('TELEPORT');
+                    } else {
+                        // Cooldown not ready — just reset attackTimer so boss keeps chasing
+                        this.attackTimer = this.attackCooldown * 0.6;
                     }
                 } else if (currentDist <= this.meleeThreshold) {
                     this.pendingAttackType = 'melee';
@@ -1329,7 +1428,7 @@ export class BossEnemy {
                     const shadowImg = arr[Math.min(s.frameX, arr.length - 1)];
                     if (shadowImg && shadowImg.complete && shadowImg.naturalWidth > 0) {
                         context.translate(s.x + this.width / 2, s.y + this.height);
-                        const flip = (this.bossType === 'impaler') ? s.facingLeft : !s.facingLeft;
+                        const flip = (this.bossType === 'impaler' || this.bossType === 'abyss_knight') ? s.facingLeft : !s.facingLeft;
                         context.scale(flip ? -1 : 1, 1);
 
                         let drawW = this.width;
@@ -1408,10 +1507,13 @@ export class BossEnemy {
                 window.drawTintedSprite(context, img, srcX, srcY, srcW, srcH, -drawW / 2, -drawH, drawW, drawH, `rgba(180, 60, 255, ${tintStrength})`, 1.0);
             } else {
                 context.drawImage(img, srcX, srcY, srcW, srcH, -drawW / 2, -drawH, drawW, drawH);
+                if (this.bossColorTint) {
+                    window.drawTintedSprite(context, img, srcX, srcY, srcW, srcH, -drawW / 2, -drawH, drawW, drawH, this.bossColorTint, 0.42);
+                }
             }
         } else {
             context.translate(this.x + this.width / 2, this.y + this.height);
-            const flip = (this.bossType === 'impaler') ? this.facingLeft : !this.facingLeft;
+            const flip = (this.bossType === 'impaler' || this.bossType === 'abyss_knight') ? this.facingLeft : !this.facingLeft;
             context.scale(flip ? -this.scaleX : this.scaleX, this.scaleY);
 
             let drawW = this.width;
@@ -1434,6 +1536,9 @@ export class BossEnemy {
                 window.drawTintedSprite(context, img, 0, 0, img.width, img.height, -drawW / 2, -drawH, drawW, drawH, `rgba(180, 60, 255, ${tintStrength})`, 1.0);
             } else {
                 context.drawImage(img, -drawW / 2, -drawH, drawW, drawH);
+                if (this.bossColorTint) {
+                    window.drawTintedSprite(context, img, 0, 0, img.width, img.height, -drawW / 2, -drawH, drawW, drawH, this.bossColorTint, 0.42);
+                }
             }
         }
         context.restore();
@@ -1464,12 +1569,7 @@ export class BossEnemy {
         context.font = '700 9px "Courier New"';
         context.fillStyle = 'rgba(255,255,255,0.32)';
         context.textAlign = 'left';
-        let bossName = 'BOSS';
-        if (this.bossType === 'demon_lord') bossName = 'DEMON LORD';
-        else if (this.bossType === 'mecha_stone') bossName = 'MECHA STONE';
-        else if (this.bossType === 'impaler') bossName = 'IMPALER';
-        else if (this.bossType === 'boss_level_1') bossName = 'SHADOW BOSS';
-        context.fillText(bossName, barX - 4, barY - 12);
+        context.fillText(this.bossName || 'BOSS', barX - 4, barY - 12);
 
         context.font = '700 9px "Courier New"';
         context.fillStyle = this.phase === 2 ? '#ff5500' : '#666666';
